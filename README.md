@@ -10,6 +10,7 @@ to make an authenticated call to the server to fetch just the required amount of
 - PHP 5.4 or above
 
 Usage Example:
+
     1. Create an application for the site you want to pull data from using the Wordpress Public REST API
         https://developer.wordpress.com/apps/
         This would give you client_id, client_secret and redirect_uri.
