@@ -1,0 +1,68 @@
+.loader {
+    background: url('../images/ajax-loader-bar.gif') no-repeat;
+    width: 115px;
+    height: 15px;
+    border: 1px solid #000000;
+    margin: 30px;
+}
+
+.spin-loader {
+    background: url('../images/ajax-loader.gif') no-repeat;
+    width: 17px;
+    height: 17px;
+    display: none;
+}
+
+.wrap {
+    margin: 15px;
+}
+
+
+.domain-select {
+    margin: 15px;
+}
+
+.domain-code {
+    margin: 15px;
+    display: none;
+}
+#authorize-text {
+    margin:0 0 15px 0;
+}
+
+#authorize-text a{
+    text-decoration: none;
+}
+.domain-code p strong {
+    font-style: italic;
+    font-weight: bold;
+}
+
+#sync-from-prod {
+    margin: 15px;
+}
+.sync-button {
+    display: none;
+}
+.route-label{
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: bold;
+}
+.label-red {
+    color:red;
+}
+
+.label-green {
+    color:green;
+}
+
+.label-blue {
+    color:blue;
+}
+.log-output{
+    margin: 15px;
+}
+
+
+

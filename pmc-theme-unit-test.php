@@ -1,0 +1,29 @@
+<?php
+/*
+ Plugin Name: PMC Theme Unit Test
+ Description: A plugin that uses VIP Wordpress REST API and XMLRPC to get json data backup from VIP live site to dump on QA for performing Unit Test on a Theme
+ Version: 1.0
+ Author: PMC, Archana Mandhare
+ License: PMC proprietary.  All rights reserved.
+*/
+
+/* Local plugin meta data constants */
+define ( 'PMC_THEME_UNIT_TEST_ROOT', __DIR__ );
+define ( 'PMC_THEME_UNIT_TEST_VERSION', '1.0' );
+define ( 'PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/import.log' );
+define ( 'PMC_THEME_UNIT_TEST_ERROR_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/error.log' );
+
+wpcom_vip_load_plugin( 'pmc-http-ixr-client', 'pmc-dev-plugins' );
+wpcom_vip_load_plugin( 'pmc-xmlrpc-server', 'pmc-plugins' );
+
+
+function pmc_theme_unit_test_loader() {
+
+	require_once PMC_THEME_UNIT_TEST_ROOT. '/config.php';
+
+	PMC\Theme_Unit_Test\Admin::get_instance();
+	PMC\Theme_Unit_Test\Config_Helper::get_instance();
+
+}
+
+pmc_theme_unit_test_loader();
