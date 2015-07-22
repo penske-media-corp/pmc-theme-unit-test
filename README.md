@@ -14,12 +14,18 @@ Usage Example:
         https://developer.wordpress.com/apps/
         This would give you client_id, client_secret and redirect_uri.
         All these would be required for oAuth2 Authentication.
+        
     2. Please modify the Config class file - $rest_api_auth and $xmlrpc_auth and enter the values
-        You can have all the sites credentials saved as key-value pair and then choose the domain that you want to import data from the admin.
+        You can have all the sites credentials saved as key-value pair and then choose the domain that you want to           import data from the admin.
+        
     3. In wp-admin look for Management Menu Option :  Tools => Sync from Production 
                 OR 
         Navigate to http://YOURSITEDOMAIN/wp-admin/tools.php?page=data-import 
+        
     4. Select the domain you wish to import data from.
+    
     5. Please Authorize yourself by clicking on the Authorize URL. You will be redirected to redirect_uri of the site. Get the "code" query parameter and enter in the textbox provided.
+    
     6. Hit Import Data from Production and wait patiently as the data gets imported in the background.
+    
     7. Voila! Your theme is setup and you can start to unit test you theme.
