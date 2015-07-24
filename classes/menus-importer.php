@@ -11,13 +11,25 @@ class Menus_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
 
 	}
 
+	/**
+	 * Get the URL of the current item by replacing the imported URL with the current domain
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
+	 *
+	 * @param @type string The original live URL
+	 *
+	 * @return string The local URL
+	 *
+	 */
 	private function _get_menu_url( $live_url ) {
 
 		$url_host     = parse_url( $live_url, PHP_URL_HOST );
@@ -28,6 +40,21 @@ class Menus_Importer extends PMC_Singleton {
 
 	}
 
+	/**
+	 * Get the ID of the type of object the menu is associated with
+	 * e.g Taxonomy Term ID or Page ID or Post ID etc
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
+	 *
+	 * @param @type int the type object ID,
+	 *        @type string the type_family such as Taxonomy, Page or Post
+	 *        @type the type value as string such as Awards, Page title etc
+	 *
+	 * @return int|WP_Error The menu item object id on success. The value 0 or WP_Error on failure.
+	 *
+	 */
 	private function _get_type_object_id( $content_id, $type_family, $type ) {
 
 		$menu_item_object_id = 0;
@@ -49,6 +76,18 @@ class Menus_Importer extends PMC_Singleton {
 
 	}
 
+	/**
+	 * Insert a new Menu and new Menu Item to the DB.
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
+	 *
+	 * @param array containing Menu meta data
+	 *
+	 * @return int|WP_Error The Menu Id on success. The value 0 or WP_Error on failure.
+	 *
+	 */
 	private function _save_menu( $menu_json ) {
 
 		$menu_name = $menu_json["name"];
@@ -106,7 +145,7 @@ class Menus_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-20, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of Nav Menu object
 	 *
@@ -137,13 +176,12 @@ class Menus_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-16, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
 	public function call_import_route( $api_data ) {
-		return $api_data;
 
 		return $this->instant_menus_import( $api_data );
 
@@ -157,7 +195,7 @@ class Menus_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function call_post_json_api_route( $type, $post_id ) {
