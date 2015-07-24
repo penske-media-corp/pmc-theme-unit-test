@@ -34,13 +34,13 @@ window.PMC_Theme_Unit_Test = {
 
             if (self.routes.all_routes !== 'undefined') {
                 jQuery.each(self.routes.all_routes, function (i, end_routes) {
-                    self.callRestEndpoints(end_routes);
+                    self.callRestEndpoints(end_routes, false);
                 });
             }
 
             if (self.routes.post_routes !== 'undefined') {
                 jQuery.each(self.routes.post_routes, function (i, end_routes) {
-                    self.callRestEndpoints(end_routes);
+                    self.callRestEndpoints(end_routes, true);
                 });
             }
 
@@ -134,7 +134,7 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
-    callRestEndpoints: function (end_route) {
+    callRestEndpoints: function (end_route, is_post) {
 
         var self = this;
 
@@ -147,6 +147,10 @@ window.PMC_Theme_Unit_Test = {
         };
 
         var route_name = Object.keys(end_route);
+        if( is_post ){
+            route_params = end_route[route_name];
+            route_name = route_params["query_params"]["type"];
+        }
 
         self.makeAjaxRequest(ajax_data, route_name);
 
@@ -177,8 +181,6 @@ window.PMC_Theme_Unit_Test = {
 
         try {
 
-            var route_name = route_name;
-
             var routes_span = jQuery('<span />').attr('id', route_name).addClass('label-blue').addClass("route-label");
             routes_span.append(route_name + ' Import Started : <div class="loader"></div>');
 
@@ -187,7 +189,7 @@ window.PMC_Theme_Unit_Test = {
 
             jQuery.ajax({
 
-                timeout: 500000, /* 500 secs timeout */
+                timeout: 5000000, /* 5000 secs timeout */
                 type: "post",
                 url: self.options.admin_url,
                 data: ajax_data,
