@@ -11,7 +11,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-17, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-17 Archana Mandhare - PPT-5077
 	 *
 	 */
 	private $_domains;
@@ -21,7 +21,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	protected function _init() {
@@ -35,7 +35,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	protected function _setup_hooks() {
@@ -60,7 +60,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 * @param string $hook that helps determine which admin page it is
 	 *
@@ -96,7 +96,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	function add_admin_menu() {
@@ -113,7 +113,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	function data_import_options() {
@@ -135,7 +135,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function import_data_from_production() {
@@ -176,7 +176,7 @@ class Admin extends PMC_Singleton {
 				'route'  => $route,
 			);
 
-			$return_info = REST_API_Router::get_instance()->call_json_api_route( $params );
+			$return_info = REST_API_Router::get_instance()->call_rest_api_route( $params );
 
 		}
 
@@ -193,7 +193,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function import_xmlrpc_data_from_production() {
@@ -228,7 +228,7 @@ class Admin extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function get_client_configuration_details() {
