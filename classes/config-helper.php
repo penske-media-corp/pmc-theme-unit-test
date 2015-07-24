@@ -11,20 +11,28 @@ class Config_Helper extends \PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
-	 * @todo - Add functions and params that are required at _init
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 *
 	 */
 	public function _init() {
 
 		$this->_setup_hooks();
 	}
 
+	/**
+	 * Setup Hooks required to create Config Helper class
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 *
+	 */
 	protected function _setup_hooks() {
 
 		add_filter( 'pmc_theme_ut_xmlrpc_client_auth', array(
 			$this,
 			'filter_pmc_theme_ut_xmlrpc_client_auth'
-		), 10, 1 );
+		), 10, 2 );
 
 		add_filter( 'pmc_theme_ut_domains', array( $this, 'filter_pmc_theme_ut_domains' ) );
 
@@ -43,7 +51,7 @@ class Config_Helper extends \PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-22, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
 	 *
 	 * @param array $domain The server to pull data from
 	 *
@@ -56,7 +64,7 @@ class Config_Helper extends \PMC_Singleton {
 		if ( ! empty( $domain ) ) {
 
 			$xmlrpc_args = array(
-				'server' => "http://{ $domain }/xmlrpc.php",
+				'server' => "http://{$domain}/xmlrpc.php",
 				'username' => Config::$xmlrpc_auth[ $domain ]["username"],
 				'password' => Config::$xmlrpc_auth[ $domain ]["password"],
 			);
@@ -71,7 +79,7 @@ class Config_Helper extends \PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-22, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
 	 *
 	 * @param array $domain_list The array containing the domain details
 	 *
@@ -95,7 +103,7 @@ class Config_Helper extends \PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-22, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
 	 *
 	 * @param array $client_configuration The array containing the client details
 	 *        array $args contains the Domain that is required to indentify the client and get its details
@@ -112,14 +120,23 @@ class Config_Helper extends \PMC_Singleton {
 
 			$client_auth = Config::$rest_api_auth;
 
-			$client_configuration['client_id'] = $client_auth[ $domain ]['client_id'];
-			$client_configuration['redirect_uri'] = $client_auth[ $domain ]['redirect_uri'];
-
+			$client_configuration= $client_auth[ $domain ];
 		}
 
 		return $client_configuration;
 	}
 
+	/**
+	 * Return the endpoint routes that need to be accessed
+	 * from the REST API using the Config::$all_routes array
+	 *
+	 * We can modify the Config::$all_routes array to fetch just the required data.
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
+	 *
+	 */
 	public function filter_pmc_theme_ut_domain_routes( $domain_routes ) {
 
 		if ( ! empty( Config::$all_routes ) ) {
@@ -130,6 +147,14 @@ class Config_Helper extends \PMC_Singleton {
 
 	}
 
+	/**
+	 * Return the endpoint routes for xmlrpc that need to be accessed with this API
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 *
+	 */
 	public function filter_pmc_theme_ut_xmlrpc_routes( $xmlrpc_routes ) {
 
 		if ( ! empty( Config::$xmlrpc_routes ) ) {
@@ -140,7 +165,17 @@ class Config_Helper extends \PMC_Singleton {
 
 	}
 
-
+	/**
+	 * Return the endpoint routes for Post and allowed Custom Post types
+	 * that are required to make a call to the REST API
+	 * Use 'rest_api_allowed_post_types' filter to allow CPT support
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
+	 *
+	 *
+	 */
 	public function filter_pmc_theme_ut_posts_routes( $posts_routes = array() ) {
 
 		// Fetch the posts and the custom post types.
@@ -167,101 +202,4 @@ class Config_Helper extends \PMC_Singleton {
 
 	}
 
-	public static function get_domains() {
-
-		$domain_config = Config::$rest_api_auth;
-
-		foreach ( $domain_config as $key => $value ) {
-			$domain_list[] = $key;
-		}
-
-		return $domain_list;
-	}
-
-	/**
-	 * Return the oAuth client details for the domain that is being passed.
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
-	 *
-	 * @param array $args contains the Domain that is required to indentify the client and get its details
-	 *
-	 * @return array The array containing the client details
-	 *
-	 *
-	 */
-	public static function get_client_config_details( $args ) {
-
-		$domain = $args['domain'];
-
-		$client_auth = Config::$rest_api_auth;
-
-		$client_configuration["config_oauth"] = $client_auth[ $domain ];
-
-		return $client_configuration;
-
-	}
-
-	/**
-	 * Return the endpoint routes that need to be accessed with this API
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
-	 *
-	 */
-	public static function get_client_all_routes() {
-
-		return Config::$all_routes;
-
-	}
-
-	/**
-	 * Return the endpoint routes for xmlrpc that need to be accessed with this API
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
-	 *
-	 */
-	public static function get_xmlrpc_routes() {
-
-		return Config::$xmlrpc_routes;
-
-	}
-
-	/**
-	 * Return the username for xmlrpc credentials
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
-	 *
-	 */
-	public static function get_xmlrpc_username( $domain ) {
-
-		$username_auth = Config::$xmlrpc_auth;
-		$username      = $username_auth[ $domain ]["username"];
-
-		return $username;
-
-	}
-
-	/**
-	 * Return the password for xmlrpc credentials
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
-	 *
-	 */
-	public static function get_xmlrpc_password( $domain ) {
-
-		$password_auth = Config::$xmlrpc_auth;
-		$password      = $password_auth[ $domain ]["password"];
-
-		return $password;
-
-	}
 }
