@@ -11,23 +11,47 @@ class Options_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-22, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
 		$this->_setup_hooks();
 	}
 
+	/**
+	 * Setup Hooks required to create options importer
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
 	protected function _setup_hooks() {
 
 		add_filter( 'options_import_blacklist', array( $this, 'filter_pmc_theme_ut_blacklisted_options' ) );
 		add_filter( 'options_import_whitelist', array( $this, 'filter_pmc_theme_ut_whitelisted_options' ) );
 	}
 
+	/**
+	 * Filter to blacklist the options that should not be imported
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
 	public function filter_pmc_theme_ut_blacklisted_options( $blacklisted = array() ) {
 		return $blacklisted;
 	}
 
+	/**
+	 * Filter to whitelist the options that should be imported
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
 	public function filter_pmc_theme_ut_whitelisted_options( $whitelisted = array() ) {
 		return $whitelisted;
 	}
@@ -37,7 +61,7 @@ class Options_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-15, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
@@ -56,7 +80,13 @@ class Options_Importer extends PMC_Singleton {
 	/**
 	 * The main controller for the actual import stage.
 	 *
-	 * @return void
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
+	 *
+	 * @param array json_decode() array of Options object
+	 *
+	 * @return array of Options on success.
 	 */
 	public function instant_options_import( $options_json ) {
 
@@ -77,7 +107,7 @@ class Options_Importer extends PMC_Singleton {
 			$hash = '048f8580e913efe41ca7d402cc51e848';
 
 			// Allow others to prevent their options from importing
-			$blacklist = apply_filter( 'options_import_blacklist', array() );
+			$blacklist = apply_filters( 'options_import_blacklist', array() );
 
 			foreach ( $options_data["options"] as $option_name => $option_value ) {
 
