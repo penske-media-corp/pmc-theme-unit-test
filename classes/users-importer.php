@@ -11,7 +11,7 @@ class Users_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -22,7 +22,7 @@ class Users_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array containing user data
 	 *
@@ -86,7 +86,7 @@ class Users_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of user object
 	 *
@@ -110,7 +110,7 @@ class Users_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-15, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
