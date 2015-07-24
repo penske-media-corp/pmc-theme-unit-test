@@ -1,4 +1,4 @@
-## PMC Theme Unit Test v1.0 RC1
+## PMC Theme Unit Test v1.0 Alpha
 ---------------------------------
 
 WordPress plugin that provides a Theme Menu Option to Unit Test data by importing just enough data from production server and creating a local or test environment.
