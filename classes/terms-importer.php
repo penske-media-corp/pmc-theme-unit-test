@@ -11,7 +11,7 @@ class Terms_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -19,15 +19,15 @@ class Terms_Importer extends PMC_Singleton {
 
 
 	/**
-	 * Insert a new Taxonomy to the DB.
+	 * Insert a new Taxonomy Term to the DB.
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
 	 *
-	 * @param array containing Taxonomy data
+	 * @param array containing Taxonomy Term data
 	 *
-	 * @return int|WP_Error The taxonomy Id on success. The value 0 or WP_Error on failure.
+	 * @return int|WP_Error The taxonomy Term Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
 	public function save_taxonomy_terms( $term_json ) {
@@ -76,15 +76,15 @@ class Terms_Importer extends PMC_Singleton {
 
 
 	/**
-	 * Assemble Taxonomies data from XMLRPC and inserts new Taxonomy.
+	 * Assemble Taxonomies Term data from XMLRPC and inserts new Taxonomy.
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
-	 * @param array json_decode() array of Taxonomy object
+	 * @param array json_decode() array of Taxonomy Term object
 	 *
-	 * @return array of Taxonomies ids on success.
+	 * @return array of Taxonomy Term ids on success.
 	 *
 	 */
 	public function instant_terms_import( $terms_json ) {
@@ -105,7 +105,7 @@ class Terms_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-15, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
 	 *
