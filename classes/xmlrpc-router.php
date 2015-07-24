@@ -14,7 +14,7 @@ class XMLRPC_Router extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-21, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -22,18 +22,59 @@ class XMLRPC_Router extends PMC_Singleton {
 		$this->_setup_hooks();
 	}
 
-
+	/**
+	 * Setup Hooks and filters required for xmlrpc
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
 	protected function _setup_hooks() {
 
 		add_filter( 'pmc_xmlrpc_client_credentials', array( $this, 'filter_pmc_xmlrpc_client_credentials' ) );
 	}
 
+	/**
+	 * Instantiate the PMC_HTTP_IXR_Client class and return the object
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 * @return object PMC_HTTP_IXR_Client
+	 *
+	 */
+	private function _get_xmlrpc_client() {
+
+		$this->xmlrpc_client = new \PMC_HTTP_IXR_Client();
+
+		return $this->xmlrpc_client;
+	}
+
+
+	/**
+	 * Filter that returns the credentials for xmlrpc client call
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 * @return array containing the credentials
+	 *
+	 */
 	public function filter_pmc_xmlrpc_client_credentials( $xmlrpc_args ) {
 
 		return apply_filters( 'pmc_theme_ut_xmlrpc_client_auth', $xmlrpc_args, $this->_domain );
 
 	}
 
+	/**
+	 * Depending on the Domain initialize the xmlrpc client and call the required routes
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
 	public function call_xmlrpc_api_route( $params ) {
 
 		if ( empty( $params['domain'] ) ) {
@@ -50,10 +91,10 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		switch ( $route ) {
 			case 'taxonomies' :
-				$xmlrpc_data[] = $this->_call_taxonomies_xmlrpc_route();
+				$xmlrpc_data[] = $this->_call_taxonomies_route();
 				break;
 			case 'options' :
-				$xmlrpc_data[] = $this->_call_options_xmlrpc_route();
+				$xmlrpc_data[] = $this->_call_options_route();
 				break;
 			default:
 				break;
@@ -62,26 +103,31 @@ class XMLRPC_Router extends PMC_Singleton {
 		return $xmlrpc_data;
 	}
 
-	private function _get_xmlrpc_client() {
 
-		$this->xmlrpc_client = new \PMC_HTTP_IXR_Client();
-
-		return $this->xmlrpc_client;
-	}
-
-	private function _call_taxonomies_xmlrpc_route() {
+	/**
+	 * Call the taxonomies route for getting taxonomies and terms via xmlrpc client
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
+	private function _call_taxonomies_route() {
 
 		$terms_ids = array();
 
-		$result = $this->xmlrpc_client->get_taxonomies();;
+		$result = $this->xmlrpc_client->get_taxonomies();
 
 		if ( ! $result ) {
 
 			$error = $this->xmlrpc_client->error->message;
 
-			return new \WP_Error( 'unauthorized_access', $error . " Failed with Exception - " );
+			return new \WP_Error( "unknown_error", " - Taxonomy import failed with Exception " . $error );
 
 		} else {
+
+			// Save all the taxonomies.
+			$taxonomies_id[] = Taxonomies_Importer::get_instance()->call_import_route( $result );
 
 			foreach ( $result as $tax ) {
 
@@ -90,10 +136,11 @@ class XMLRPC_Router extends PMC_Singleton {
 					continue;
 				}
 
-				$terms = $this->xmlrpc_client->get_terms( $tax['name'] );
-
-				$taxonomies_id[] = Taxonomies_Importer::get_instance()->save_taxonomy( $tax );
-				$terms_ids[]     = Terms_Importer::get_instance()->call_import_route( $terms );
+				// pass the filter that you want to apply to the returned results
+				$filter = array( 'number' => 100 );
+				// Get Terms for the current taxonomy
+				$terms       = $this->xmlrpc_client->get_terms( $tax['name'], $filter );
+				$terms_ids[] = Terms_Importer::get_instance()->call_import_route( $terms );
 
 			}
 		}
@@ -101,11 +148,25 @@ class XMLRPC_Router extends PMC_Singleton {
 		return $terms_ids;
 	}
 
-	private function _call_options_xmlrpc_route() {
+
+	/**
+	 * Call the options route for getting whitelisted options via xmlrpc client.
+	 * To whitelist use 'options_import_whitelist' filter so that those can be exported.
+	 * To blacklist use 'options_export_blacklist' filter so that those will not be exported.
+	 * Allow an installation to define a regular expression export blacklist for security purposes. It's entirely possible
+	 * For instance, if you run a multsite installation, you could add in an mu-plugin:
+	 *          define( 'WP_OPTION_EXPORT_BLACKLIST_REGEX', '/^(mailserver_(login|pass|port|url))$/' );
+	 * to ensure that none of your sites could export your mailserver settings.
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
+	 *
+	 */
+	private function _call_options_route() {
 
 		$options_id = array();
 
-		$result = $this->xmlrpc_client->get_wp_options();;
+		$result = $this->xmlrpc_client->get_all_options();
 
 		if ( ! $result ) {
 
@@ -122,26 +183,41 @@ class XMLRPC_Router extends PMC_Singleton {
 		return $options_id;
 	}
 
-	public function get_taxonomy_term_by_id(  $taxonomy, $taxonomy_term_id ) {
+	/**
+	 * This is used in Menu Importer since we do not pull all the terms for each Taxonomy
+	 * We make a call to xmlrpc and pull the term if it is required for Menu.
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-24 Archana Mandhare - PPT-5077
+	 *
+	 */
+	public function get_taxonomy_term_by_id( $taxonomy, $term_id ) {
 
 		// Get the XMLRPC client object
 		if ( empty( $this->xmlrpc_client ) ) {
 			$this->xmlrpc_client = $this->_get_xmlrpc_client();
 		}
 
-		// Fetch data
-		$tax    = $this->xmlrpc_client->get_taxonomy( $taxonomy );
-		$result = $this->xmlrpc_client->get_taxonomy_term( $taxonomy, $taxonomy_term_id );
+		// Fetch taxonomy
+		$tax = $this->xmlrpc_client->get_taxonomy( $taxonomy );
 
-		if ( empty( $tax ) || empty( $result ) ) {
-
+		if ( empty( $tax ) ) {
 			$error = $this->xmlrpc_client->error->message;
-
-			return new \WP_Error( 'unauthorized_access', $error . " Failed with Exception - " );
-
+			return new \WP_Error( "unknown_error", "Taxonomy Term Failed with Exception - " . $error );
 		} else {
 			// Save Taxonomy if not exists in the current site.
 			Taxonomies_Importer::get_instance()->save_taxonomy( $tax );
+		}
+
+		//Fetch Term
+		$result = $this->xmlrpc_client->get_term( $term_id, $taxonomy );
+
+		if ( empty( $result ) ) {
+			$error = $this->xmlrpc_client->error->message;
+			return new \WP_Error( "unknown_error", "Taxonomy Term Failed with Exception - " . $error );
+
+		} else {
 			// Save Taxonomy Term if not exists in the current site.
 			return Terms_Importer::get_instance()->save_taxonomy_terms( $result );
 		}
