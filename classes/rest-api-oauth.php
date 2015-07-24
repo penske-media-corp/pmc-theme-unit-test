@@ -23,21 +23,29 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	protected function _init() {
-		add_action( 'pmc_theme_ut_rest_api_init', array( $this, 'filter_pmc_theme_ut_rest_api_init' ), 10, 1 );
 	}
 
 
-	public function filter_pmc_theme_ut_rest_api_init( $args ) {
+	/**
+	 * Initialize all the class variables and get the access token
+	 * required for oAuth Authenticated REST API calls
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 *
+	 */
+	public function initialize_params( $args ) {
 
 		$this->_domain = $args['domain'];
 
 		$this->_code = $args['code'];
 
-		$client_details = apply_filter( 'pmc_theme_ut_rest_api_init', array(), $args['domain'] );
+		$client_details = apply_filters( 'pmc_theme_ut_endpoints_config', array(), $args );
 
 		if ( ! empty( $client_details ) ) {
 
@@ -54,7 +62,6 @@ class REST_API_oAuth extends PMC_Singleton {
 			}
 		}
 
-
 	}
 
 	/**
@@ -62,7 +69,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	private function _get_authorization_code() {
@@ -113,11 +120,11 @@ class REST_API_oAuth extends PMC_Singleton {
 	}
 
 	/**
-	 * Authorise the request using the secret key access token
+	 * Authorise the request using the secret key and save the access token
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	private function _fetch_access_token() {
@@ -171,7 +178,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function is_token_valid() {
@@ -226,7 +233,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 * @param string $route - the endpoint name that needs to be called
 	 * array $query_params array of query arguments that needs to be passed
@@ -287,7 +294,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 * @return array The header data that needs to be passed to the API
 	 *
@@ -336,7 +343,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 * @param array $params array of query arguments that needs to be passed
 	 *
@@ -358,7 +365,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function authenticate_me() {
