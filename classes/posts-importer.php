@@ -11,7 +11,7 @@ class Posts_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -23,7 +23,7 @@ class Posts_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array containing Post Meta data
 	 *
@@ -52,7 +52,7 @@ class Posts_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $post_json   containing Post data
 	 * @type int $author_id Author Id
@@ -135,7 +135,7 @@ class Posts_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of post object
 	 *
@@ -246,7 +246,7 @@ class Posts_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-15, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
@@ -268,6 +268,16 @@ class Posts_Importer extends PMC_Singleton {
 
 	}
 
+	/**
+	 * If the post type does not exists register the new Custom Post Type
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 *
+	 * @params string $post_type post type name to register
+	 *
+	 */
 	public function save_post_type( $post_type ) {
 
 		if ( ! post_type_exists( $post_type ) ) {
@@ -281,47 +291,5 @@ class Posts_Importer extends PMC_Singleton {
 		}
 
 	}
-
-
-	/**
-	 * Return the endpoint configuration values for Post and all the allowed Custom Post types
-	 * that are required to make a call to the API
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-14, for PPT-5077, Archana Mandhare
-	 *
-	 * @param array $args contains the Domain that is required to indentify the client and get its details
-	 *
-	 * @return array The array containing the client configuration details
-	 *
-	 *
-	 */
-	public function get_post_routes() {
-
-		// Fetch the posts and the custom post types.
-		$allowed_types = array( 'page', 'post' );
-
-		$allowed_post_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-
-		$route_post_types = array_unique( $allowed_post_types );
-
-		foreach ( $route_post_types as $route_post_type ) {
-			$post_type = array(
-				'post' => array(
-					"access_token" => false,
-					"query_params" => array(
-						"type" => $route_post_type,
-					)
-				)
-			);
-
-			$post_routes[] = $post_type;
-		}
-
-		return $post_routes;
-
-	}
-
 
 }
