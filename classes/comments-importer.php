@@ -11,7 +11,7 @@ class Comments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-16, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -23,7 +23,7 @@ class Comments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $comment_json   containing Comment data
      *          @type int $post_ID Post Id this comment is associated with
@@ -80,7 +80,7 @@ class Comments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of comments object
 	 *
@@ -106,7 +106,7 @@ class Comments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-15, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
@@ -125,7 +125,7 @@ class Comments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function call_json_api_route( $old_post_id, $new_post_ID ) {
