@@ -11,7 +11,7 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -24,7 +24,7 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-16, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 */
 	private function _call_import_route( $api_data ) {
 
@@ -41,7 +41,7 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 * @params string $route - the name of the endpoint route that needs to be appended to the API URL
 	 * array $query_params the query params that need to be passed to the API
@@ -104,10 +104,10 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function call_json_api_route( $params ) {
+	public function call_rest_api_route( $params ) {
 
 		$route        = strtolower( $params['route']['name'] );
 
