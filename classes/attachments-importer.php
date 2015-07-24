@@ -11,7 +11,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-06, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -22,10 +22,10 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $attachment_json   containing attachment data
-	 * @type int $post_id Post Id this attachment is associated with
+	 *          @type int $post_id Post Id this attachment is associated with
 	 *
 	 *
 	 * @return int|WP_Error The attachment Id on success. The value 0 or WP_Error on failure.
@@ -105,12 +105,10 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
-	 * @params
-	 *
-	 * @type int $author_id Author Id
-	 * @type string $image_url URL of the image
+	 * @params @type int $author_id Author Id
+	 *         @type string $image_url URL of the image
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -143,7 +141,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-13, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of Attachment object
 	 *
@@ -173,7 +171,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @since 1.0
 	 *
-	 * @version 1.0, 2015-07-16, for PPT-5077, Archana Mandhare
+	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
