@@ -32,7 +32,7 @@ class XMLRPC_Router extends PMC_Singleton {
 	 */
 	protected function _setup_hooks() {
 
-		add_filter( 'pmc_xmlrpc_client_credentials', array( $this, 'filter_pmc_xmlrpc_client_credentials' ) );
+		add_filter( 'pmc_tut_xmlrpc_client_credentials', array( $this, 'filter_pmc_tut_xmlrpc_client_credentials' ) );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class XMLRPC_Router extends PMC_Singleton {
 	 */
 	private function _get_xmlrpc_client() {
 
-		$this->xmlrpc_client = new \PMC_HTTP_IXR_Client();
+		$this->xmlrpc_client = new XMLRPC_Client();
 
 		return $this->xmlrpc_client;
 	}
@@ -61,7 +61,7 @@ class XMLRPC_Router extends PMC_Singleton {
 	 * @return array containing the credentials
 	 *
 	 */
-	public function filter_pmc_xmlrpc_client_credentials( $xmlrpc_args ) {
+	public function filter_pmc_tut_xmlrpc_client_credentials( $xmlrpc_args ) {
 
 		return apply_filters( 'pmc_theme_ut_xmlrpc_client_auth', $xmlrpc_args, $this->_domain );
 
@@ -86,18 +86,25 @@ class XMLRPC_Router extends PMC_Singleton {
 		$route         = $params['route'];
 
 		if ( empty( $this->xmlrpc_client ) ) {
-			$this->xmlrpc_client = $this->_get_xmlrpc_client( $this->_domain );
+
+			$this->_domain = $params['domain'];
+			$this->xmlrpc_client = $this->_get_xmlrpc_client();
+
 		}
 
 		switch ( $route ) {
+
 			case 'taxonomies' :
 				$xmlrpc_data[] = $this->_call_taxonomies_route();
 				break;
+
 			case 'options' :
 				$xmlrpc_data[] = $this->_call_options_route();
 				break;
+
 			default:
 				break;
+
 		}
 
 		return $xmlrpc_data;
@@ -225,4 +232,3 @@ class XMLRPC_Router extends PMC_Singleton {
 
 	}
 }
-
