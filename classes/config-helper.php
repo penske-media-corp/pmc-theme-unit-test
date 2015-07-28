@@ -201,5 +201,32 @@ class Config_Helper extends \PMC_Singleton {
 		return $posts_routes;
 
 	}
+	
+	/**
+	 * A template function so that we don't have to put inline HTML.
+	 * This will parse a template and add data to it using its variables.
+	 *
+	 * @param string $path template path for include
+	 * @param array $variables Array containing variables and data for template
+	 * @return string
+	 * @throws Exception
+	 *
+	 * @since 2013-01-24 mjohnson
+	 */
+	public static function render_template( $path, array $variables = array() ) {
+		if ( ! file_exists( $path ) ) {
+			throw new Exception( sprintf( 'Template %s doesn\'t exist', basename($path) ) );
+		}
+
+		if ( ! empty( $variables ) ) {
+			extract( $variables, EXTR_SKIP );
+		}
+
+		ob_start();
+
+		require $path;	//better to fail with an error than to continue with incorrect/wierd data
+
+		return ob_get_clean();
+	}
 
 }
