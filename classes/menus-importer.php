@@ -49,8 +49,9 @@ class Menus_Importer extends PMC_Singleton {
 	 * @version 1.0, 2015-07-20 Archana Mandhare - PPT-5077
 	 *
 	 * @param @type int the type object ID,
-	 *        @type string the type_family such as Taxonomy, Page or Post
-	 *        @type the type value as string such as Awards, Page title etc
+	 *
+	 * @type string the type_family such as Taxonomy, Page or Post
+	 * @type the type value as string such as Awards, Page title etc
 	 *
 	 * @return int|WP_Error The menu item object id on success. The value 0 or WP_Error on failure.
 	 *
@@ -67,13 +68,45 @@ class Menus_Importer extends PMC_Singleton {
 
 		} else if ( 'post_type' === $type_family ) {
 
-			$page_ids            = $this->call_post_json_api_route( $type , $content_id);
+			$page_ids            = $this->call_post_json_api_route( $type, $content_id );
 			$menu_item_object_id = $page_ids[0];
 
 		}
 
 		return $menu_item_object_id;
 
+	}
+
+	/**
+	 * Insert a new Menu Item to the DB.
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-28 Archana Mandhare - PPT-5077
+	 *
+	 * @param array containing Menu Item meta data
+	 *
+	 * @return int|WP_Error The Menu Item Id on success. The value 0 or WP_Error on failure.
+	 *
+	 */
+	private function _save_menu_item( $menu_id, $menu_item, $menu_item_id = 0 ) {
+
+		$menu_item_db_id = wp_update_nav_menu_item( $menu_id, $menu_item_id, array(
+			'menu-item-object-id'   => $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] ),
+			'menu-item-object'      => $menu_item['type'],
+			'menu-item-type'        => $menu_item['type_family'],
+			'menu-item-title'       => $menu_item['name'],
+			'menu-item-url'         => $this->_get_menu_url( $menu_item['url'] ),
+			'menu-item-description' => $menu_item['description'],
+			'menu-item-attr-title'  => $menu_item['link_title'],
+			'menu-item-target'      => $menu_item['link_target'],
+			'menu-item-classes'     => $menu_item['classes'],
+			'menu-item-xfn'         => $menu_item['xfn'],
+		) );
+
+		wp_set_object_terms( $menu_item_db_id, $menu_id, 'nav_menu' );
+
+		return $menu_item_db_id;
 	}
 
 	/**
@@ -91,53 +124,51 @@ class Menus_Importer extends PMC_Singleton {
 	private function _save_menu( $menu_json ) {
 
 		$menu_name = $menu_json["name"];
+		$items     = array();
 		// Does the menu exist already?
 		$menu_exists = wp_get_nav_menu_object( $menu_name );
 
+
 		// If it doesn't exist, let's create it.
 		if ( ! $menu_exists ) {
-
 			$menu_id = wp_create_nav_menu( $menu_name );
+		} else {
+			$menu_id = $menu_exists->term_id;
+			$items   = wp_get_nav_menu_items( $menu_id );
+		}
 
-			if ( ! empty( $menu_json["items"] ) ) {
+		if ( ! empty( $menu_json["items"] ) ) {
 
-				foreach ( $menu_json["items"] as $menu_item ) {
-					// Set up default BuddyPress links and add them to the menu.
-					$menu_item_db_id = wp_update_nav_menu_item( $menu_id, 0, array(
-						'menu-item-object-id'   => $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] ),
-						'menu-item-object'      => $menu_item['type'],
-						'menu-item-type'        => $menu_item['type_family'],
-						'menu-item-title'       => $menu_item['name'],
-						'menu-item-url'         => $this->_get_menu_url( $menu_item['url'] ),
-						'menu-item-description' => $menu_item['description'],
-						'menu-item-attr-title'  => $menu_item['link_title'],
-						'menu-item-target'      => $menu_item['link_target'],
-						'menu-item-classes'     => $menu_item['classes'],
-						'menu-item-xfn'         => $menu_item['xfn'],
-					) );
-				}
-			}
-
-			wp_set_object_terms( $menu_item_db_id, $menu_id, 'nav_menu' );
-			// Grab the theme locations and assign our newly-created menu
-			if ( ! empty( $menu_json["locations"] ) ) {
-
-				$menu_locations[] = $menu_json["locations"];
-
-				foreach ( $menu_locations as $menu_location ) {
-
-					if ( ! has_nav_menu( $menu_location ) ) {
-
-						$locations                   = get_theme_mod( 'nav_menu_locations' );
-						$locations[ $menu_location ] = $menu_id;
-						set_theme_mod( 'nav_menu_locations', $locations );
-
+			foreach ( $menu_json["items"] as $menu_item ) {
+				$menu_item_id = 0;
+				if ( ! empty( $items ) ) {
+					foreach ( $items as $item ) {
+						if ( $item['post_title'] === $menu_item['name'] ) {
+							$menu_item_id = $item->ID;
+						}
 					}
 				}
+
+				$this->_save_menu_item( $menu_id, $menu_item, $menu_item_id );
 			}
-
-
 		}
+
+		// Grab the theme locations and assign our newly-created menu
+		if ( ! empty( $menu_json["locations"] ) ) {
+
+			$menu_locations[] = $menu_json["locations"];
+
+			foreach ( $menu_locations as $menu_location ) {
+
+				if ( ! has_nav_menu( $menu_location ) ) {
+					$locations                   = get_theme_mod( 'nav_menu_locations' );
+					$locations[ $menu_location ] = $menu_id;
+					set_theme_mod( 'nav_menu_locations', $locations );
+
+				}
+			}
+		}
+
 	}
 
 	/**
