@@ -7,7 +7,7 @@
  */
 
 
-namespace PMC\Theme_Unit_Tests;
+namespace PMC\Theme_Unit_Test;
 
 
 class Autoloader {
