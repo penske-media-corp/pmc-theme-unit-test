@@ -126,7 +126,7 @@ class Admin extends PMC_Singleton {
 
 		$this->_domains = apply_filters( 'pmc_theme_ut_domains', array() );
 
-		echo PMC::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/admin-ui.php', array( "domains" => $this->_domains ) );
+		echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/admin-ui.php', array( "domains" => $this->_domains ) );
 
 	}
 
