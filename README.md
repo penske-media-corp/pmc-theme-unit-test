@@ -67,7 +67,7 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 
 3. Add a filter `options_import_whitelist` to whitelist the wp_options that you would like to be imported to another site.
 
-4. Add filter `pmc_xmlrpc_client_credentials` to fetch the credentials for XMLRPC calls
+4. Add filter `pmc_tut_xmlrpc_client_credentials` to fetch the credentials for XMLRPC calls
 
 
 
