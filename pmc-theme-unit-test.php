@@ -16,6 +16,7 @@ define ( 'PMC_THEME_UNIT_TEST_ERROR_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/erro
 
 function pmc_theme_unit_test_loader() {
 
+	require_once PMC_THEME_UNIT_TEST_ROOT. '/classes/autoloader.php';
 	require_once PMC_THEME_UNIT_TEST_ROOT. '/config.php';
 
 	PMC\Theme_Unit_Test\Admin::get_instance();
