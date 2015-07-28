@@ -13,9 +13,6 @@ define ( 'PMC_THEME_UNIT_TEST_VERSION', '1.0' );
 define ( 'PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/import.log' );
 define ( 'PMC_THEME_UNIT_TEST_ERROR_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/error.log' );
 
-wpcom_vip_load_plugin( 'pmc-http-ixr-client', 'pmc-dev-plugins' );
-wpcom_vip_load_plugin( 'pmc-xmlrpc-server', 'pmc-plugins' );
-
 
 function pmc_theme_unit_test_loader() {
 
