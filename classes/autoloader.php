@@ -13,7 +13,7 @@ namespace PMC\Theme_Unit_Test;
 class Autoloader {
 
 	public static function load_resource( $resource = '' ) {
-		$namespace_root = 'PMC\\';
+		$namespace_root = 'PMC\\Theme_Unit_Test\\';
 
 		$resource = trim( $resource, '\\' );
 
@@ -43,7 +43,7 @@ class Autoloader {
 							)
 						);
 
-		$resource_path = sprintf( '%s/%s/classes/%s.php', untrailingslashit( dirname( PMC_GLOBAL_FUNCTIONS_PATH ) ), $plugin_name, $class_path );
+		$resource_path = sprintf( '%s/%s/classes/%s.php', untrailingslashit( dirname( PMC_THEME_UNIT_TEST_ROOT ) ), $plugin_name, $class_path );
 
 		if ( file_exists( $resource_path ) ) {
 			require_once $resource_path;
