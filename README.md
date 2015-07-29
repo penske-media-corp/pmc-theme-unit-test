@@ -13,10 +13,13 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 ## Instructions
 
 1. Create an application for the site you want to pull data from using the [WordPress Public REST API](https://developer.wordpress.com/apps/)
-	This would give you client_id, client_secret and redirect_uri.
-	All these would be required for oAuth2 Authentication.
-2. Please modify the Config class file - $rest_api_auth and $xmlrpc_auth and enter the values
-	You can have all the sites credentials saved as key-value pair and then choose the domain that you want to import data from the admin.
+  * *The `Redirect URL` you use needs an actual domain.* `.local` or `.dev` domains won't work with OAuth2. When you get redirected back to this domain, you'll need to copy the `code` querystring parameter value.
+  * `Type` should be `Native`.
+  * This would give you `client_id`, `client_secret` and `redirect_uri`. Add these to `$rest_api_auth` in `config.php`
+  * All these would be required for OAuth2 authentication.
+2. Create an [application-specific password for your WordPress.com account](https://en.support.wordpress.com/security/two-step-authentication/#application-specific-passwords) (because you're using Two-Step Authentication).
+  * Add these to `$xmlrpc_auth` in `config.php`
+  * You can have all the sites credentials saved as key-value pair and then choose the domain that you want to import data from the admin.
 3. In wp-admin look for Management Menu Option :  Tools => Sync from Production
 			OR
 	Navigate to http://YOURSITEDOMAIN/wp-admin/tools.php?page=data-import
