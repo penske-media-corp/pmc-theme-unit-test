@@ -87,7 +87,7 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		if ( empty( $this->xmlrpc_client ) ) {
 
-			$this->_domain = $params['domain'];
+			$this->_domain       = $params['domain'];
 			$this->xmlrpc_client = $this->_get_xmlrpc_client();
 
 		}
@@ -199,25 +199,34 @@ class XMLRPC_Router extends PMC_Singleton {
 	 * @version 1.0, 2015-07-24 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function get_taxonomy_term_by_id( $taxonomy, $term_id ) {
+	public function get_taxonomy_term_by_id( $taxonomy, $term_id, $domain ) {
+
+		$this->_domain = $domain;
 
 		// Get the XMLRPC client object
+		$this->xmlrpc_client = $this->_get_xmlrpc_client();
+
 		if ( empty( $this->xmlrpc_client ) ) {
-			$this->xmlrpc_client = $this->_get_xmlrpc_client();
+
+			error_log( "NO XMLRPC Client - " . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			return new \WP_Error( "unknown_error", "NO XMLRPC Client - " . $taxonomy );
+
 		}
 
 		// Fetch taxonomy
 		$taxonomy_id = taxonomy_exists( $taxonomy );
 
 		if ( false === $taxonomy_id ) {
-			return new \WP_Error( "unknown_error", "Taxonomy Term Failed because taxonomy does not exists.  - " . $taxonomy );
+			//return new \WP_Error( "unknown_error", "Taxonomy Term Failed because taxonomy does not exists.  - " . $taxonomy );
 		}
 
 		//Fetch Term
 		$result = $this->xmlrpc_client->get_term( $term_id, $taxonomy );
 
 		if ( empty( $result ) ) {
+
 			$error = $this->xmlrpc_client->error->message;
+
 			return new \WP_Error( "unknown_error", "Taxonomy Term Failed with Exception - " . $error );
 
 		} else {
