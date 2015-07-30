@@ -1,0 +1,60 @@
+# Travis CI (MIT License) configuration file for the Underscores WordPress theme
+# @link https://travis-ci.org/
+
+# Declare project language.
+# @link http://about.travis-ci.org/docs/user/languages/php/
+language: php
+
+# Declare versions of PHP to use. Use one decimal max.
+php:
+    - "5.3"
+    - "5.4"
+    - "5.5"
+    - "5.6"
+
+# Declare which versions of WordPress to test against.
+# Also declare whether or not to test in Multisite.
+env:
+    - WP_VERSION=master WP_MULTISITE=1
+
+# Specify when travis should build.
+# Mainly, we don't want to build on feature branches, just on master and
+# during pull requests.
+branches:
+  only:
+    - master
+
+
+# Use this to prepare the system to install prerequisites or dependencies.
+# e.g. sudo apt-get update.
+# Failures in this section will result in build status 'errored'.
+# before_install:
+
+# Use this to prepare your build for testing.
+# e.g. copy database configurations, environment variables, etc.
+# Failures in this section will result in build status 'errored'.
+before_script:
+    - ./ci/setup_codesniffer.sh
+
+
+# Run test script commands.
+# Default is specific to project language.
+# All commands must exit with code 0 on success. Anything else is considered failure.
+script:
+    # Search for PHP syntax errors once per PHP version
+    - find . -type "f" -iname "*.php" | xargs -L "1" php -l
+    # Check against WordPress Coding Standards once per PHP version
+    # @link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards
+    # @link http://pear.php.net/package/PHP_CodeSniffer/
+    # -p flag: Show progress of the run.
+    # -s flag: Show sniff codes in all reports.
+    # -v flag: Print verbose output.
+    # -n flag: Do not print warnings (shortcut for --warning-severity=0)
+    # --standard: Use WordPress as the standard.
+    # --extensions: Only sniff PHP files.
+    - /tmp/wordpress/php-codesniffer/scripts/phpcs -p -s -v -n . --standard=./codesniffer.ruleset.xml --extensions=php
+
+# Receive notifications for build results.
+# @link http://docs.travis-ci.com/user/notifications/#Email-notifications
+notifications:
+    email: false
