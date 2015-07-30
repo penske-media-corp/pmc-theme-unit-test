@@ -66,7 +66,7 @@ class Options_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = ''  ) {
 
 
 		$saved_options = $this->instant_options_import( $api_data );
