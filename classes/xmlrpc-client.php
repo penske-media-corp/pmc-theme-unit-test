@@ -31,8 +31,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 			$time = date( '[d/M/Y:H:i:s]' );
 			error_log( $time . " -- " . get_called_class() . ': Missing credentials.' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-			return new \WP_Error('unknown_exception', get_called_class() . ': Missing credentials.');
-			}
+			return new \WP_Error( 'unknown_exception', get_called_class() . ': Missing credentials.' );
+		}
 
 		$this->username = $xmlrpc_args['username'];
 		$this->password = $xmlrpc_args['password'];
@@ -127,9 +127,9 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	 */
 	public function get_taxonomy( $taxonomy ) {
 
-		$args       = array( $taxonomy );
-		$cache_key  = md5( $this->cache_key . serialize( $args ) );
-		$taxonomy = get_transient( $cache_key );
+		$args      = array( $taxonomy );
+		$cache_key = md5( $this->cache_key . serialize( $args ) );
+		$taxonomy  = get_transient( $cache_key );
 		if ( empty( $taxonomy ) ) {
 			$taxonomy = $this->send_request( 'wp.getTaxonomy', $args );
 			if ( empty( $this->error ) ) {
@@ -186,7 +186,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		);
 
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
-		$term     = get_transient( $cache_key );
+		$term      = get_transient( $cache_key );
 		if ( empty( $term ) ) {
 			$term = $this->send_request( 'wp.getTerm', $args );
 			if ( empty( $this->error ) ) {
@@ -237,15 +237,23 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
 		$options   = get_transient( $cache_key );
 		if ( empty( $options ) ) {
+
 			$options = $this->send_request( 'pmc.getOptions', $args );
+
 			if ( empty( $this->error ) ) {
 
 				// If nothing set then return the default value
 				if ( empty( $options ) ) {
-					$options = $default;
-				} else {
+
+					$options = $this->send_request( 'wp.getOptions', $args );
+
+				}
+
+				if ( ! empty( $options ) ) {
 					// not using cache
 					set_transient( $cache_key, $options, 300 );
+				} else {
+					$options = $default;
 				}
 			}
 		} else {

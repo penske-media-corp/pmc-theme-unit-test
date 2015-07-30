@@ -70,4 +70,40 @@ class Config {
 
 	public static $xmlrpc_routes = array( "taxonomies", "options" );
 
+	public static $custom_posttypes = array( 'post', 'page' );
+
+	public static $custom_taxonomies = array(
+		0 => array(
+			'name'              => 'NAMETAXONOMY', // Name of the taxonomy
+			'object_type'       => 'post', // Object type of the taxonomy . e.g post, page etc
+			'label'             => 'NAMETAXONOMY',
+			'labels'            => 'NAMETAXONOMY',
+			'public'            => true,
+			'hierarchical'      => true,
+			'show_ui'           => true,
+			'show_in_menu'      => true,
+			'show_in_nav_menus' => true,
+			'capabilities'      => array(),
+			'query_var'         => true,
+			'sort'              => true,
+			'args'              => array( 'orderby' => 'term_order' ),
+			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' )
+		),
+		1 => array(
+			'name'              => 'NAMETAXONOMY', // Name of the taxonomy
+			'object_type'       => 'post', // Object type of the taxonomy . e.g post, page etc
+			'label'             => 'NAMETAXONOMY',
+			'labels'            => 'NAMETAXONOMY',
+			'public'            => true,
+			'hierarchical'      => true,
+			'show_ui'           => true,
+			'show_in_menu'      => true,
+			'show_in_nav_menus' => true,
+			'capabilities'      => array(),
+			'query_var'         => true,
+			'sort'              => true,
+			'args'              => array( 'orderby' => 'term_order' ),
+			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' )
+		),
+	);
 }

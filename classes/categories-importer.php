@@ -63,7 +63,7 @@ class Categories_Importer extends PMC_Singleton {
 				}
 			} else {
 
-				error_log( "{$time} -- Exists Category **-- {$category_json['name']} --** with ID = {$category_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists Category **-- {$category_json['name']} --** with ID = {$category_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
 
@@ -114,7 +114,7 @@ class Categories_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain ='' ) {
 
 		return $this->instant_categories_import( $api_data );
 

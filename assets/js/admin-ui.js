@@ -111,23 +111,27 @@ window.PMC_Theme_Unit_Test = {
         }
         if (data.config_oauth.redirect_uri !== 'undefined' && data.config_oauth.client_id !== 'undefined') {
 
-            var redirect_uri = encodeURI(data.config_oauth.redirect_uri);
-            var query_params = {
-                client_id: data.config_oauth.client_id,
-                redirect_uri: redirect_uri,
-                response_type: 'code',
-                scope: 'global'
-            };
+            if( false === data.config_oauth.has_access_token ) {
 
-            var params = jQuery.param(query_params);
-            var authorize_url = self.options.API + '?' + params;
-            var authorize_href = jQuery('<a />');
-            authorize_href.attr('href', authorize_url);
-            authorize_href.attr('target', '_blank');
-            authorize_href.text('Authorize URL');
+                var redirect_uri = encodeURI(data.config_oauth.redirect_uri);
+                var query_params = {
+                    client_id: data.config_oauth.client_id,
+                    redirect_uri: redirect_uri,
+                    response_type: 'code',
+                    scope: 'global'
+                };
 
-            jQuery('#authorize-text').append(authorize_href);
-            jQuery('.domain-code').show();
+                var params = jQuery.param(query_params);
+                var authorize_url = self.options.API + '?' + params;
+                var authorize_href = jQuery('<a />');
+                authorize_href.attr('href', authorize_url);
+                authorize_href.attr('target', '_blank');
+                authorize_href.text('Authorize URL');
+
+                jQuery('#authorize-text').append(authorize_href);
+                jQuery('.domain-code').show();
+            }
+
         }
 
         jQuery('.sync-button').show();

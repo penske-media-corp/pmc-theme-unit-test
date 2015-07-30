@@ -38,6 +38,8 @@ class Users_Importer extends PMC_Singleton {
 
 			$user_ID = username_exists( $user_info['login'] );
 
+			error_log( $time . " -- User ID =" . $user_ID . " logging" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
 			if ( empty( $user_ID ) ) {
 
 				$user_data = array(
@@ -49,7 +51,17 @@ class Users_Importer extends PMC_Singleton {
 				);
 
 				if ( ! empty( $user_info['roles'] ) ) {
-					$user_data['role'] = $user_info['roles'];
+
+					$role = $user_info['roles'][0];
+
+					$role_obj = get_role( $role );
+
+					if ( empty( $role_obj ) ) {
+						$role = 'editor';
+					}
+
+					$user_data['role'] = $role;
+
 				}
 
 				$user_ID = wp_insert_user( $user_data );
@@ -66,7 +78,7 @@ class Users_Importer extends PMC_Singleton {
 
 			} else {
 
-				error_log( "{$time} -- Exists User **-- {$user_info['name']} --** with ID = {$user_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists User **-- {$user_info['name']} --** with ID = {$user_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
 
@@ -115,7 +127,7 @@ class Users_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = ''  ) {
 
 		return $this->instant_users_import( $api_data );
 

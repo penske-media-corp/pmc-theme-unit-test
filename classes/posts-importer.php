@@ -6,6 +6,8 @@ use \PMC_Singleton;
 
 class Posts_Importer extends PMC_Singleton {
 
+	private $_domain;
+
 	/**
 	 * Hook in the methods during initialization.
 	 *
@@ -15,7 +17,7 @@ class Posts_Importer extends PMC_Singleton {
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
-		
+
 	}
 
 	/**
@@ -79,7 +81,7 @@ class Posts_Importer extends PMC_Singleton {
 
 				$post_ID = $wpdb->get_var( $query );
 
-				error_log( "{$time} -- Exists {$post_json['type']} **-- {$post_json['title']} --** with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists {$post_json['type']} **-- {$post_json['title']} --** with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			} else {
 
@@ -149,14 +151,6 @@ class Posts_Importer extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-
-		if ( ! empty( $posts_json ) ) {
-
-			$post_json = $posts_json[0];
-
-			$this->save_post_type( $post_json['type'] );
-		}
-
 		foreach ( $posts_json as $post_json ) {
 
 			try {
@@ -221,7 +215,7 @@ class Posts_Importer extends PMC_Singleton {
 
 					if ( ! empty( $post_json['comment_count'] ) ) {
 
-						$comments_ids[] = Comments_Importer::get_instance()->call_json_api_route( $post_json['ID'], $post_ID );
+						$comments_ids[] = Comments_Importer::get_instance()->call_rest_api_route( $post_json['ID'], $post_ID );
 
 					}
 
@@ -251,7 +245,9 @@ class Posts_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = '' ) {
+
+		$this->_domain = $domain;
 
 		wp_defer_term_counting( true );
 
@@ -291,5 +287,6 @@ class Posts_Importer extends PMC_Singleton {
 		}
 
 	}
+
 
 }

@@ -16,7 +16,9 @@ class REST_API_oAuth extends PMC_Singleton {
 
 	protected $_code;
 
-	protected $_domain;
+	protected $_access_token_key;
+
+	public $domain;
 
 	/**
 	 * Setup Hooks.
@@ -29,6 +31,9 @@ class REST_API_oAuth extends PMC_Singleton {
 	protected function _init() {
 	}
 
+	public function set_domain( $domain ) {
+		$this->domain = $domain;
+	}
 
 	/**
 	 * Initialize all the class variables and get the access token
@@ -41,7 +46,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 */
 	public function initialize_params( $args ) {
 
-		$this->_domain = $args['domain'];
+		$this->set_domain( $args['domain'] );
 
 		$this->_code = $args['code'];
 
@@ -57,7 +62,15 @@ class REST_API_oAuth extends PMC_Singleton {
 
 			if ( $args['route']['access_token'] === 'true' && empty( $this->_access_token ) ) {
 
-				$this->_fetch_access_token();
+				$this->_access_token_key = $this->_client_id . "_" . $args['domain'];
+
+				$this->_access_token = $this->_get_saved_token();
+
+				if ( empty( $this->_access_token ) ) {
+
+					$this->_fetch_access_token();
+
+				}
 
 			}
 		}
@@ -119,6 +132,12 @@ class REST_API_oAuth extends PMC_Singleton {
 
 	}
 
+	private function _get_saved_token() {
+
+		return get_option( $this->_access_token_key );
+
+	}
+
 	/**
 	 * Authorise the request using the secret key and save the access token
 	 *
@@ -129,13 +148,16 @@ class REST_API_oAuth extends PMC_Singleton {
 	 */
 	private function _fetch_access_token() {
 
-		if ( ! empty ( $this->_access_token ) && $this->is_token_valid() ) {
+
+		$time = date( '[d/M/Y:H:i:s]' );
+
+		if ( ! empty ( $this->_access_token ) ) {
+
+			error_log( $time . "##### valid token ###### " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			return;
 
 		}
-
-		$time = date( '[d/M/Y:H:i:s]' );
 
 		try {
 
@@ -157,14 +179,26 @@ class REST_API_oAuth extends PMC_Singleton {
 			$response = wp_remote_post( Config::REQUEST_TOKEN_URL, $args );
 
 			if ( is_wp_error( $response ) ) {
-				return;
+
+				error_log( $time . " fetch_access_token() Failed -- " . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return $response;
 			}
 
 			$response_body = wp_remote_retrieve_body( $response );
 
 			$auth = json_decode( $response_body );
 
+			if ( empty( $auth->access_token ) ) {
+
+				error_log( $time . " fetch_access_token() Failed -- " . $response_body . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return new \WP_Error('unauthorized_access'," fetch_access_token() Failed -- " . $response_body);
+			}
+
 			$this->_access_token = $auth->access_token;
+
+			update_option( $this->_access_token_key, $this->_access_token );
 
 		} catch ( \Exception $ex ) {
 
@@ -183,10 +217,13 @@ class REST_API_oAuth extends PMC_Singleton {
 	 */
 	public function is_token_valid() {
 
+
+		if ( empty ( $this->_access_token ) ) {
+			$this->_access_token = get_option( $this->_access_token_key );
+		}
+
 		if ( empty( $this->_access_token ) || empty( $this->_client_id ) ) {
-
 			return false;
-
 		}
 
 		$time = date( '[d/M/Y:H:i:s]' );
@@ -208,7 +245,11 @@ class REST_API_oAuth extends PMC_Singleton {
 			$valid_token = wp_remote_post( Config::VALIDATE_URL, $args );
 
 			if ( is_wp_error( $valid_token ) ) {
-				return false;
+
+				error_log( $time . " is_token_valid() Failed -- " . $valid_token->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return $valid_token;
+
 			} else {
 
 				$response_body = wp_remote_retrieve_body( $valid_token );
@@ -241,51 +282,75 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @return array The json data returned from the API end point
 	 *
 	 */
-	public function access_endpoint( $route, $query_params = array(), $route_name = '', $token_required = false ) {
+	public function access_endpoint( $domain, $route, $query_params = array(), $route_name = '', $token_required = false ) {
+
+
+		$time = date( '[d/M/Y:H:i:s]' );
 
 		if ( empty( $route_name ) ) {
 
 			$route_name = $route;
 
 		}
-		$time = date( '[d/M/Y:H:i:s]' );
+
+		if ( empty( $domain ) && empty( $this->domain ) ) {
+
+			error_log( $time . " $$$$  No Domain set for route . -- " . $route_name . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return new \WP_Error( 'unauthorized_access', "  No Domain Set. Please set a domain. " );
+
+		} else if ( empty( $domain ) && ! empty( $this->domain ) ) {
+
+			$domain = $this->domain;
+
+		}
+
 
 		try {
 
-			$options = $this->_get_required_header( $token_required );
+			if ( ! empty( $domain ) ) {
 
-			$query_params = $this->_get_query_params( $query_params );
+				$options = $this->_get_required_header( $token_required );
 
-			$api_url = trim( Config::REST_BASE_URL, '/' ) . '/' . $this->_domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
+				$query_params = $this->_get_query_params( $query_params );
 
-			$context = stream_context_create( $options );
+				$api_url = trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
 
-			$response = file_get_contents(
-				esc_url_raw( $api_url ),
-				false,
-				$context
-			);
+				$context = stream_context_create( $options );
 
-			if ( false === $response ) {
+				$response = file_get_contents(
+					esc_url_raw( $api_url ),
+					false,
+					$context
+				);
 
-				throw new \Exception( "No data returned for " . $api_url );
+				if ( empty( $response ) ) {
 
+					error_log( $time . $api_url . " $$$$  No Data returned. Please Try again. -- " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+					return new \WP_Error( 'unauthorized_access', $api_url . "  No Data returned. Please Try again. " );
+
+				}
+
+				$data = json_decode( $response, true );
+
+				if ( $data['code'] != 200 ) {
+
+					return new \WP_Error( 'unauthorized_access', $route_name . " Failed with Exception - " . $data['body']['message'] );
+				}
+
+				error_log( $time . $api_url . " $$$$ Data fetched -- " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
+				return $data['body'][ $route_name ];
 			}
-
-			$data = json_decode( $response, true );
-
-			if ( $data['code'] != 200 ) {
-
-				return new \WP_Error( 'unauthorized_access', $route_name . " Failed with Exception - " . $data['body']['message'] );
-			}
-
-			return $data['body'][ $route_name ];
 
 		} catch ( \Exception $ex ) {
 
 			error_log( $time . $api_url . " Failed -- " . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		}
+
+		return false;
 
 	}
 
@@ -303,7 +368,8 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		if ( $token_required ) {
 
-			if ( empty( $this->_access_token ) || ! $this->is_token_valid() ) {
+			if ( empty( $this->_access_token ) ) {
+
 				//@todo : fetching access token requires code param that I cannot get from server side and need to find ways to get it
 				$options = array(
 					'http' =>
@@ -311,18 +377,20 @@ class REST_API_oAuth extends PMC_Singleton {
 							'ignore_errors' => true,
 						),
 				);
-			}
 
-			$options = array(
-				'http' =>
-					array(
-						'ignore_errors' => true,
-						'header'        =>
-							array(
-								0 => 'authorization: Bearer ' . $this->_access_token,
-							),
-					),
-			);
+			} else {
+
+				$options = array(
+					'http' =>
+						array(
+							'ignore_errors' => true,
+							'header'        =>
+								array(
+									0 => 'authorization: Bearer ' . $this->_access_token,
+								),
+						),
+				);
+			}
 
 		} else {
 

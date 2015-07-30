@@ -44,6 +44,42 @@ class Config_Helper extends \PMC_Singleton {
 
 		add_filter( 'pmc_theme_ut_posts_routes', array( $this, 'filter_pmc_theme_ut_posts_routes' ) );
 
+		add_filter( 'pmc_theme_ut_custom_post_types_to_import', array(
+			$this,
+			'filter_pmc_theme_ut_custom_post_types_to_import'
+		) );
+
+		add_filter( 'pmc_theme_ut_custom_taxonomies_to_import', array(
+			$this,
+			'filter_pmc_theme_ut_custom_taxonomies_to_import'
+		) );
+
+	}
+
+	public function filter_pmc_theme_ut_custom_post_types_to_import( $post_types ) {
+
+		$custom_posttypes = Config::$custom_posttypes;
+		if ( ! empty( $custom_posttypes ) ) {
+			foreach ( $custom_posttypes as $post_type ) {
+				$post_types[] = $post_type;
+			}
+		}
+
+
+		return $post_types;
+	}
+
+
+	public function filter_pmc_theme_ut_custom_taxonomies_to_import( $taxonomies ) {
+
+		$custom_taxonomies = Config::$custom_taxonomies;
+		if ( ! empty( $custom_taxonomies ) ) {
+			foreach ( $custom_taxonomies as $taxonomy ) {
+				$taxonomies[] = $taxonomy;
+			}
+		}
+
+		return $taxonomies;
 	}
 
 	/**
@@ -64,7 +100,7 @@ class Config_Helper extends \PMC_Singleton {
 		if ( ! empty( $domain ) ) {
 
 			$xmlrpc_args = array(
-				'server' => "http://{$domain}/xmlrpc.php",
+				'server'   => "http://{$domain}/xmlrpc.php",
 				'username' => Config::$xmlrpc_auth[ $domain ]["username"],
 				'password' => Config::$xmlrpc_auth[ $domain ]["password"],
 			);
@@ -120,7 +156,17 @@ class Config_Helper extends \PMC_Singleton {
 
 			$client_auth = Config::$rest_api_auth;
 
-			$client_configuration= $client_auth[ $domain ];
+			$client_configuration = $client_auth[ $domain ];
+
+			$client_configuration['has_access_token'] = true;
+
+			$client_id          = $client_configuration['client_id'];
+
+			$saved_access_token = get_option( $client_id . "_" . $args['domain'] );
+
+			$client_configuration['has_access_token'] = empty( $saved_access_token ) ? false : true;
+
+
 		}
 
 		return $client_configuration;
@@ -179,7 +225,8 @@ class Config_Helper extends \PMC_Singleton {
 	public function filter_pmc_theme_ut_posts_routes( $posts_routes = array() ) {
 
 		// Fetch the posts and the custom post types.
-		$allowed_types = array( 'page', 'post' );
+
+		$allowed_types = apply_filters( 'pmc_theme_ut_custom_post_types_to_import', array() );
 
 		$allowed_custom_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
 
@@ -201,13 +248,14 @@ class Config_Helper extends \PMC_Singleton {
 		return $posts_routes;
 
 	}
-	
+
 	/**
 	 * A template function so that we don't have to put inline HTML.
 	 * This will parse a template and add data to it using its variables.
 	 *
 	 * @param string $path template path for include
 	 * @param array $variables Array containing variables and data for template
+	 *
 	 * @return string
 	 * @throws Exception
 	 *
@@ -215,7 +263,7 @@ class Config_Helper extends \PMC_Singleton {
 	 */
 	public static function render_template( $path, array $variables = array() ) {
 		if ( ! file_exists( $path ) ) {
-			throw new Exception( sprintf( 'Template %s doesn\'t exist', basename($path) ) );
+			throw new Exception( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
 		}
 
 		if ( ! empty( $variables ) ) {
@@ -224,7 +272,7 @@ class Config_Helper extends \PMC_Singleton {
 
 		ob_start();
 
-		require $path;	//better to fail with an error than to continue with incorrect/wierd data
+		require $path;    //better to fail with an error than to continue with incorrect/wierd data
 
 		return ob_get_clean();
 	}

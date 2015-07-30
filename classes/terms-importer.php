@@ -36,32 +36,43 @@ class Terms_Importer extends PMC_Singleton {
 
 		try {
 
-			$term_id = term_exists( $term_json['name'], $term_json['taxonomy'] );
+			$taxonomy_id = taxonomy_exists( $term_json['taxonomy'] );
 
-			if ( ! $term_id ) {
+			if ( false === $taxonomy_id ) {
+
+				error_log( $time . "Taxonomy -- " . $term_json['taxonomy'] ." --  does not exists". PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				return false;
+			}
+
+			$term_id     = term_exists( $term_json['name'], $term_json['taxonomy'] );
+
+			if ( empty( $term_id ) && false !== $taxonomy_id ) {
+
+				error_log( "{$time} -- Term **-- {$term_json['name']} --** WILL BE ADDED." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 				$term_id = wp_insert_term(
 					$term_json['name'],
 					$term_json['taxonomy'],
 					array(
-						'description'   => $term_json['description'],
-						'slug'          => $term_json['slug'],
+						'description' => $term_json['description'],
+						'slug'        => $term_json['slug'],
 					)
 				);
-
 
 				if ( is_a( $term_id, "WP_Error" ) ) {
 
 					error_log( $time . " -- " . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
 					return $term_id;
 
 				} else {
 
 					error_log( "{$time} -- Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **-- added with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
+
 			} else {
 
-				error_log( "{$time} -- Exists Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **--  with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **--  with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
 
@@ -110,7 +121,7 @@ class Terms_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = '' ) {
 
 		return $this->instant_terms_import( $api_data );
 

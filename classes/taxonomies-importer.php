@@ -32,39 +32,54 @@ class Taxonomies_Importer extends PMC_Singleton {
 	 */
 	public function save_taxonomy( $taxonomy_json ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
-
+		$time               = date( '[d/M/Y:H:i:s]' );
+		$built_in_posttypes = array( 'post', 'page', 'attachment', 'revision', 'nav_menu_item' );
 		try {
 
 			$taxonomy_id = taxonomy_exists( $taxonomy_json['name'] );
 
-			if ( ! $taxonomy_id ) {
+			if ( false === $taxonomy_id ) {
 
-				register_taxonomy(  $taxonomy_json['name'] ,
-					$taxonomy_json['object_type'] ,
-					array(
-						'label'        => $taxonomy_json['label'] ,
-						'labels'       => $taxonomy_json['labels'],
-						'show_ui'      => $taxonomy_json['show_ui'],
-						'hierarchical' => $taxonomy_json['hierarchical'],
-						'capabilities' => $taxonomy_json['cap'] ,
-					)
-				);
+				if ( in_array( $taxonomy_json['object_type'], $built_in_posttypes ) ) {
 
+					$args = array(
+						'label'             => ( ! empty( $taxonomy_json['label'] ) ) ? $taxonomy_json['label'] : $taxonomy_json['name'],
+						'labels'            => ( ! empty( $taxonomy_json['labels'] ) ) ? $taxonomy_json['labels'] : $taxonomy_json['name'],
+						'show_ui'           => ( ! empty( $taxonomy_json['show_ui'] ) ) ? $taxonomy_json['show_ui'] : null,
+						'public'            => ( ! empty( $taxonomy_json['public'] ) ) ? $taxonomy_json['public'] : true,
+						'hierarchical'      => ( ! empty( $taxonomy_json['hierarchical'] ) ) ? $taxonomy_json['hierarchical'] : false,
+						'show_in_menu'      => ( ! empty( $taxonomy_json['show_in_menu'] ) ) ? $taxonomy_json['show_in_menu'] : null,
+						'show_in_nav_menus' => ( ! empty( $taxonomy_json['show_in_nav_menus'] ) ) ? $taxonomy_json['show_in_nav_menus'] : null,
+						'capabilities'      => ( ! empty( $taxonomy_json['capabilities'] ) ) ? $taxonomy_json['capabilities'] : array(),
+						'query_var'         => ( ! empty( $taxonomy_json['query_var'] ) ) ? $taxonomy_json['query_var'] : true,
+						'sort'              => ( ! empty( $taxonomy_json['sort'] ) ) ? $taxonomy_json['sort'] : true,
+						'args'              => ( ! empty( $taxonomy_json['args'] ) ) ? $taxonomy_json['args'] : array(),
+						'rewrite'           => ( ! empty( $taxonomy_json['rewrite'] ) ) ? $taxonomy_json['rewrite'] : array(),
+					);
 
-				if ( is_a( $taxonomy_id, "WP_Error" ) ) {
-
-					error_log( $time . " -- " . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					register_taxonomy( $taxonomy_json['name'], $taxonomy_json['object_type'], $args );
 
 				} else {
 
-					$taxonomy_id = true;
+					register_taxonomy_for_object_type( $taxonomy_json['name'],
+						$taxonomy_json['object_type'] );
+
+				}
+
+				$taxonomy_id = taxonomy_exists( $taxonomy_json['name'] );
+
+				if ( is_wp_error( $taxonomy_id ) ) {
+
+					error_log( $time . " -- " . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				} else if( false !== $taxonomy_id ) {
+
 					error_log( "{$time} -- Taxonomy **-- {$taxonomy_json['name']} --** added." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 				}
 			} else {
 
-				error_log( "{$time} -- Exists Taxonomy **-- {$taxonomy_json['name']} --**" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists Taxonomy **-- {$taxonomy_json['name']} --**" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
 
@@ -97,7 +112,7 @@ class Taxonomies_Importer extends PMC_Singleton {
 		foreach ( $taxonomies_json as $taxonomy_json ) {
 
 			// Don't save taxonomy category or post_tag since its built-in.
-			if( 'category' === $taxonomy_json['name'] || 'post_tag' === $taxonomy_json['name'] ) {
+			if ( 'category' === $taxonomy_json['name'] || 'post_tag' === $taxonomy_json['name'] ) {
 				continue;
 			}
 			$taxonomies_info[] = $this->save_taxonomy( $taxonomy_json );
@@ -119,7 +134,7 @@ class Taxonomies_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = '' ) {
 
 		return $this->instant_taxonomies_import( $api_data );
 

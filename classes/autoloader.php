@@ -27,15 +27,6 @@ class Autoloader {
 					str_replace( '_', '-', $resource )
 				);
 
-		$plugin_name = untrailingslashit(
-							strtolower(
-									implode(
-											'-',
-											array_slice( $path, 0, 2 )
-									)
-							)
-						);
-
 		$class_path = strtolower(
 							implode(
 									'/',
@@ -43,7 +34,7 @@ class Autoloader {
 							)
 						);
 
-		$resource_path = sprintf( '%s/%s/classes/%s.php', untrailingslashit( dirname( PMC_THEME_UNIT_TEST_ROOT ) ), $plugin_name, $class_path );
+		$resource_path = sprintf( '%s/classes/%s.php', untrailingslashit( PMC_THEME_UNIT_TEST_ROOT ), $class_path );
 
 		if ( file_exists( $resource_path ) ) {
 			require_once $resource_path;
@@ -56,7 +47,7 @@ class Autoloader {
 /**
  * Register autoloader
  */
-spl_autoload_register( __NAMESPACE__ . '\Autoloader::load_resource' );
+spl_autoload_register( array( __NAMESPACE__ . '\Autoloader', 'load_resource' ) );
 
 
 //EOF
