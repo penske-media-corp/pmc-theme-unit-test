@@ -95,7 +95,7 @@ class XMLRPC_Router extends PMC_Singleton {
 		switch ( $route ) {
 
 			case 'taxonomies' :
-				//$xmlrpc_data[] = $this->_call_taxonomies_route();
+				$xmlrpc_data[] = $this->_call_taxonomies_route();
 				break;
 
 			case 'options' :
