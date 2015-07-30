@@ -62,7 +62,7 @@ class Tags_Importer extends PMC_Singleton {
 
 			} else {
 
-				error_log( "{$time} -- Exists Tag **-- {$tag_json['name']} --** with ID = {$term_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				error_log( "{$time} -- Exists Tag **-- {$tag_json['name']} --** with ID = {$term_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
 
@@ -112,7 +112,7 @@ class Tags_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = ''  ) {
 
 		if ( $api_data ) {
 
