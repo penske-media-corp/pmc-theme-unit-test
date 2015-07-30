@@ -51,7 +51,17 @@ class Users_Importer extends PMC_Singleton {
 				);
 
 				if ( ! empty( $user_info['roles'] ) ) {
-					$user_data['role'] = $user_info['roles'];
+
+					$role = $user_info['roles'][0];
+
+					$role_obj = get_role( $role );
+
+					if ( empty( $role_obj ) ) {
+						$role = 'editor';
+					}
+
+					$user_data['role'] = $role;
+
 				}
 
 				$user_ID = wp_insert_user( $user_data );
