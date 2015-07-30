@@ -16,7 +16,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 	protected $_code;
 
-	protected $_domain;
+	public $domain;
 
 	/**
 	 * Setup Hooks.
@@ -29,6 +29,9 @@ class REST_API_oAuth extends PMC_Singleton {
 	protected function _init() {
 	}
 
+	public function set_domain( $domain ) {
+		$this->domain = $domain;
+	}
 
 	/**
 	 * Initialize all the class variables and get the access token
@@ -41,7 +44,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 */
 	public function initialize_params( $args ) {
 
-		$this->_domain = $args['domain'];
+		$this->set_domain( $args['domain'] );
 
 		$this->_code = $args['code'];
 
@@ -241,51 +244,70 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @return array The json data returned from the API end point
 	 *
 	 */
-	public function access_endpoint( $route, $query_params = array(), $route_name = '', $token_required = false ) {
+	public function access_endpoint( $domain, $route, $query_params = array(), $route_name = '', $token_required = false ) {
+
+
+		$time = date( '[d/M/Y:H:i:s]' );
 
 		if ( empty( $route_name ) ) {
 
 			$route_name = $route;
 
 		}
-		$time = date( '[d/M/Y:H:i:s]' );
+
+		if ( empty( $domain ) && empty( $this->domain ) ) {
+
+			throw new \Exception( " No Domain Set. Please set a domain. " );
+
+		} else if ( empty( $domain ) && ! empty( $this->domain ) ) {
+
+			$domain = $this->domain;
+
+		}
+
 
 		try {
 
-			$options = $this->_get_required_header( $token_required );
+			if ( ! empty( $domain ) ) {
 
-			$query_params = $this->_get_query_params( $query_params );
 
-			$api_url = trim( Config::REST_BASE_URL, '/' ) . '/' . $this->_domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
+				$options = $this->_get_required_header( $token_required );
 
-			$context = stream_context_create( $options );
+				$query_params = $this->_get_query_params( $query_params );
 
-			$response = file_get_contents(
-				esc_url_raw( $api_url ),
-				false,
-				$context
-			);
+				$api_url = trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
 
-			if ( false === $response ) {
+				$context = stream_context_create( $options );
 
-				throw new \Exception( "No data returned for " . $api_url );
+				$response = file_get_contents(
+					esc_url_raw( $api_url ),
+					false,
+					$context
+				);
 
+				if ( false === $response ) {
+
+					throw new \Exception( "No data returned for " . $api_url );
+
+				}
+
+				$data = json_decode( $response, true );
+
+				if ( $data['code'] != 200 ) {
+
+					return new \WP_Error( 'unauthorized_access', $route_name . " Failed with Exception - " . $data['body']['message'] );
+				}
+
+				return $data['body'][ $route_name ];
 			}
-
-			$data = json_decode( $response, true );
-
-			if ( $data['code'] != 200 ) {
-
-				return new \WP_Error( 'unauthorized_access', $route_name . " Failed with Exception - " . $data['body']['message'] );
-			}
-
-			return $data['body'][ $route_name ];
 
 		} catch ( \Exception $ex ) {
 
 			error_log( $time . $api_url . " Failed -- " . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		}
+
+		return false;
 
 	}
 
@@ -304,6 +326,7 @@ class REST_API_oAuth extends PMC_Singleton {
 		if ( $token_required ) {
 
 			if ( empty( $this->_access_token ) || ! $this->is_token_valid() ) {
+
 				//@todo : fetching access token requires code param that I cannot get from server side and need to find ways to get it
 				$options = array(
 					'http' =>
@@ -311,18 +334,20 @@ class REST_API_oAuth extends PMC_Singleton {
 							'ignore_errors' => true,
 						),
 				);
-			}
 
-			$options = array(
-				'http' =>
-					array(
-						'ignore_errors' => true,
-						'header'        =>
-							array(
-								0 => 'authorization: Bearer ' . $this->_access_token,
-							),
-					),
-			);
+			} else {
+
+				$options = array(
+					'http' =>
+						array(
+							'ignore_errors' => true,
+							'header'        =>
+								array(
+									0 => 'authorization: Bearer ' . $this->_access_token,
+								),
+						),
+				);
+			}
 
 		} else {
 
