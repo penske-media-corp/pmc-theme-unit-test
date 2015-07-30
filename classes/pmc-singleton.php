@@ -36,54 +36,58 @@
  *
  */
 
-abstract class PMC_Singleton {
-	protected static $_instance = array();
+if ( ! class_exists( 'PMC_Singleton' ) ) {
 
-	/**
-	 * Prevent direct object creation
-	 */
-	protected function  __construct() { }
+	abstract class PMC_Singleton {
+		protected static $_instance = array();
 
-	/**
-	 * Prevent object cloning
-	 */
-	final private function  __clone() { }
-
-	/**
-	 * Returns new or existing Singleton instance
-	 * @return obj self::$_instance[$class] Instance of PMC_Singleton
-	 */
-	final public static function get_instance() {
-		/*
-		 * If you extend this class, self::$_instance will be part of the base
-		 * class.
-		 * In the sinlgeton pattern, if you have multiple classes extending this
-		 * class, self::$_instance will be overwritten with the most recent
-		 * class instance that was instantiated. Thanks to late static binding
-		 * we use get_called_class() to grab the caller's class name, and store
-		 * a key=>value pair for each classname=>instance in self::$_instance
-		 * for each subclass.
+		/**
+		 * Prevent direct object creation
 		 */
-		$class = get_called_class();
-		if( !isset( static::$_instance[$class] ) ){
-			self::$_instance[$class] = new $class();
+		protected function  __construct() { }
 
-			// Run's the class's _init() method, where the class can hook into actions and filters, and do any other initialization it needs
-			self::$_instance[$class]->_init();
+		/**
+		 * Prevent object cloning
+		 */
+		final private function  __clone() { }
 
-			// Dependent items can use the `pmc_singleton_init_{$called_class}` hook to execute code immediately after _init() is called.
-			do_action( "pmc_singleton_init_$class" );
+		/**
+		 * Returns new or existing Singleton instance
+		 * @return obj self::$_instance[$class] Instance of PMC_Singleton
+		 */
+		final public static function get_instance() {
+			/*
+			 * If you extend this class, self::$_instance will be part of the base
+			 * class.
+			 * In the sinlgeton pattern, if you have multiple classes extending this
+			 * class, self::$_instance will be overwritten with the most recent
+			 * class instance that was instantiated. Thanks to late static binding
+			 * we use get_called_class() to grab the caller's class name, and store
+			 * a key=>value pair for each classname=>instance in self::$_instance
+			 * for each subclass.
+			 */
+			$class = get_called_class();
+			if( !isset( static::$_instance[$class] ) ){
+				self::$_instance[$class] = new $class();
+
+				// Run's the class's _init() method, where the class can hook into actions and filters, and do any other initialization it needs
+				self::$_instance[$class]->_init();
+
+				// Dependent items can use the `pmc_singleton_init_{$called_class}` hook to execute code immediately after _init() is called.
+				do_action( "pmc_singleton_init_$class" );
+			}
+			return self::$_instance[$class];
 		}
-		return self::$_instance[$class];
-	}
 
-	/**
-	 * Initialization function called when object is instantiated. Does nothing
-	 * by default. This class should be overriden in the child class.
-	 * Stuff that you only want to do once, such as hooking into actions and
-	 * filters, goes here.
-	 */
-	protected function _init() { }
+		/**
+		 * Initialization function called when object is instantiated. Does nothing
+		 * by default. This class should be overriden in the child class.
+		 * Stuff that you only want to do once, such as hooking into actions and
+		 * filters, goes here.
+		 */
+		protected function _init() { }
+
+	}	//end class
 
 }
 
