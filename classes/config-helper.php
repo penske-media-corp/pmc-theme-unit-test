@@ -100,7 +100,7 @@ class Config_Helper extends \PMC_Singleton {
 		if ( ! empty( $domain ) ) {
 
 			$xmlrpc_args = array(
-				'server' => "http://{$domain}/xmlrpc.php",
+				'server'   => "http://{$domain}/xmlrpc.php",
 				'username' => Config::$xmlrpc_auth[ $domain ]["username"],
 				'password' => Config::$xmlrpc_auth[ $domain ]["password"],
 			);
@@ -157,6 +157,16 @@ class Config_Helper extends \PMC_Singleton {
 			$client_auth = Config::$rest_api_auth;
 
 			$client_configuration = $client_auth[ $domain ];
+
+			$client_configuration['has_access_token'] = true;
+
+			$client_id          = $client_configuration['client_id'];
+
+			$saved_access_token = get_option( $client_id . "_" . $args['domain'] );
+
+			$client_configuration['has_access_token'] = empty( $saved_access_token ) ? false : true;
+
+
 		}
 
 		return $client_configuration;
