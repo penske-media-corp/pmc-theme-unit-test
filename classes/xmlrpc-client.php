@@ -238,23 +238,19 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		$options   = get_transient( $cache_key );
 		if ( empty( $options ) ) {
 
-			$options = $this->send_request( 'pmc.getOptions', $args );
+			$options = $this->send_request( 'wp.getOptions', $args );
 
 			if ( empty( $this->error ) ) {
 
 				// If nothing set then return the default value
 				if ( empty( $options ) ) {
 
-					$options = $this->send_request( 'wp.getOptions', $args );
+					$options = $default;
 
-				}
-
-				if ( ! empty( $options ) ) {
+				}else {
 					// not using cache
 					set_transient( $cache_key, $options, 300 );
-				} else {
-					$options = $default;
-				}
+				} 
 			}
 		} else {
 			// using cache
