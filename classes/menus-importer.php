@@ -38,7 +38,7 @@ class Menus_Importer extends PMC_Singleton {
 		$current_host = parse_url( get_home_url(), PHP_URL_HOST );
 		$current_url  = str_replace( $url_host, $current_host, $live_url );
 
-		return $current_url;
+		return ( ! empty( $current_url ) ) ? $current_url : get_home_url();
 
 	}
 
@@ -60,16 +60,26 @@ class Menus_Importer extends PMC_Singleton {
 	 */
 	private function _get_type_object_id( $content_id, $type_family, $type ) {
 
+		$time = date( '[d/M/Y:H:i:s]' );
+
 		$menu_item_object_id = 0;
 
 		if ( 'taxonomy' === $type_family ) {
 
-			$menu_item_object_id = XMLRPC_Importer::get_instance()->get_taxonomy_term_by_id( $type, $content_id );
+			$menu_item_object_id = XMLRPC_Router::get_instance()->get_taxonomy_term_by_id( $type, $content_id, $this->_domain );
+
 
 		} else if ( 'post_type' === $type_family ) {
 
 			$menu_item_object_id = $this->call_post_rest_api_route( $type, $content_id );
 
+		}
+
+		if ( is_wp_error( $menu_item_object_id ) ) {
+
+			error_log( $time . " -- " . $menu_item_object_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return 0;
 		}
 
 		return $menu_item_object_id;
@@ -95,12 +105,28 @@ class Menus_Importer extends PMC_Singleton {
 
 		try {
 
+			$type_id = $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] );
+			$url     = $this->_get_menu_url( $menu_item['url'] );
+
+			error_log( $time . " Menu ITEM  -- " . json_encode( array(
+					'menu-item-object-id'   => $type_id,
+					'menu-item-object'      => $menu_item['type'],
+					'menu-item-type'        => $menu_item['type_family'],
+					'menu-item-title'       => $menu_item['name'],
+					'menu-item-url'         => $url,
+					'menu-item-description' => $menu_item['description'],
+					'menu-item-attr-title'  => $menu_item['link_title'],
+					'menu-item-target'      => $menu_item['link_target'],
+					'menu-item-classes'     => $menu_item['classes'],
+					'menu-item-xfn'         => $menu_item['xfn'],
+				) ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
 			$menu_item_db_id = wp_update_nav_menu_item( $menu_id, $menu_item_id, array(
-				'menu-item-object-id'   => $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] ),
+				'menu-item-object-id'   => $type_id,
 				'menu-item-object'      => $menu_item['type'],
 				'menu-item-type'        => $menu_item['type_family'],
 				'menu-item-title'       => $menu_item['name'],
-				'menu-item-url'         => $this->_get_menu_url( $menu_item['url'] ),
+				'menu-item-url'         => $url,
 				'menu-item-description' => $menu_item['description'],
 				'menu-item-attr-title'  => $menu_item['link_title'],
 				'menu-item-target'      => $menu_item['link_target'],
@@ -142,19 +168,30 @@ class Menus_Importer extends PMC_Singleton {
 	 */
 	private function _save_menu( $menu_json ) {
 
+
 		$menu_name = $menu_json["name"];
 		$items     = array();
 		$time      = date( '[d/M/Y:H:i:s]' );
+
+		error_log( "{$time} -- Menu **-- {$menu_name} --** started " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		try {
 			// Does the menu exist already?
 			$menu_exists = wp_get_nav_menu_object( $menu_name );
 
+			error_log( "{$time} -- Menu **-- {$menu_name} --** " . json_encode( $menu_exists ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			// If it doesn't exist, let's create it.
-			if ( ! $menu_exists ) {
+			if ( false === $menu_exists ) {
+
 				$menu_id = wp_create_nav_menu( $menu_name );
+
+				if ( is_wp_error( $menu_id ) ) {
+					error_log( "{$time} -- Menu Failed **--** with message  = " . $menu_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				}
+
 			} else {
+
 				$menu_id = $menu_exists->term_id;
 
 				error_log( "{$time} -- Exists Menu **-- {$menu_name} --** with ID = {$menu_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
