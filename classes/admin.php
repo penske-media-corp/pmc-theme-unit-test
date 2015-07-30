@@ -4,7 +4,7 @@ namespace PMC\Theme_Unit_Test;
 use \PMC;
 use \PMC_Singleton;
 
-class Admin extends PMC_Singleton {
+class Admin extends \PMC_Singleton {
 
 	/**
 	 * Add domains for which you want to pull data from
@@ -40,6 +40,10 @@ class Admin extends PMC_Singleton {
 	 */
 	protected function _setup_hooks() {
 
+		add_action( 'init',  array( $this, 'register_post_types_for_import' ) );
+
+		add_action( 'init',  array( $this, 'register_taxonomies_for_import' ) );
+
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_assets' ) );
@@ -52,6 +56,68 @@ class Admin extends PMC_Singleton {
 		) );
 
 		add_action( "wp_ajax_get_client_configuration_details", array( $this, "get_client_configuration_details" ) );
+
+
+	}
+
+	/**
+	 * Register custom post tyes on init hook as per wordpress codex documentation
+	 * @see https://codex.wordpress.org/Function_Reference/register_post_type
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-30 Archana Mandhare PPT-5077
+	 *
+	 */
+	public function register_post_types_for_import() {
+
+		if ( ! current_user_can( 'manage_options' ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+			return;
+		}
+		$custom_post_types = apply_filters( 'pmc_theme_ut_custom_post_types_to_import', array() );
+
+		$custom_post_types = apply_filters( 'rest_api_allowed_post_types', $custom_post_types );
+
+		$custom_post_types = array_unique( $custom_post_types );
+
+		if ( ! empty( $custom_post_types ) ) {
+
+			foreach ( $custom_post_types as $post_type ) {
+
+				Posts_Importer::get_instance()->save_post_type( $post_type );
+
+			}
+		}
+
+
+	}
+
+	/**
+	 * Register taxonomies on init hook as per wordpress codex documentation
+	 * @see https://codex.wordpress.org/Function_Reference/register_taxonomy
+	 *
+	 * @since 1.0
+	 *
+	 * @version 1.0, 2015-07-30 Archana Mandhare PPT-5077
+	 *
+	 */
+	public function register_taxonomies_for_import() {
+
+		if ( ! current_user_can( 'manage_options' ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+			return;
+		}
+
+		$custom_taxonomies = apply_filters( 'pmc_theme_ut_custom_taxonomies_to_import', array() );
+
+		if ( ! empty( $custom_taxonomies ) ) {
+
+			foreach ( $custom_taxonomies as $key => $taxonomy ) {
+
+				Taxonomies_Importer::get_instance()->save_taxonomy( $taxonomy );
+
+			}
+
+		}
 
 	}
 
@@ -205,7 +271,6 @@ class Admin extends PMC_Singleton {
 			return;
 
 		}
-
 
 		$params = array(
 			'domain' => sanitize_text_field( $_POST["domain"] ),
