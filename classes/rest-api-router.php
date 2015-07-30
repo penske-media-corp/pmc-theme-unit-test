@@ -26,7 +26,7 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 */
-	private function _call_import_route( $api_data ) {
+	private function _call_import_route( $api_data, $domain='' ) {
 
 		return $api_data;
 
@@ -49,9 +49,9 @@ class REST_API_Router extends PMC_Singleton {
 	 * bool $access_token true if oAuth access token is required to fetch data. Default is false.
 	 *
 	 */
-	private function _access_endpoint( $route, $query_params = array(), $route_index, $access_token ) {
+	private function _access_endpoint( $domain, $route, $query_params = array(), $route_index, $access_token ) {
 
-		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $route, $query_params, $route_index, $access_token );
+		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $domain, $route, $query_params, $route_index, $access_token );
 
 		if ( is_wp_error( $api_data ) ) {
 
@@ -81,16 +81,12 @@ class REST_API_Router extends PMC_Singleton {
 					$route_class = Posts_Importer::get_instance();
 					break;
 
-				case 'comments':
-					$route_class = Comments_Importer::get_instance();
-					break;
-
 				default:
 					$route_class = $this;
 					break;
 			}
 
-			return $route_class->call_import_route( $api_data );
+			return $route_class->call_import_route( $api_data, $domain );
 
 		}
 
@@ -109,7 +105,13 @@ class REST_API_Router extends PMC_Singleton {
 	 */
 	public function call_rest_api_route( $params ) {
 
-		$route        = strtolower( $params['route']['name'] );
+		if ( ! empty( $params['domain'] ) ) {
+			$domain = $params['domain'];
+		} else {
+			$domain = '';
+		}
+
+		$route = strtolower( $params['route']['name'] );
 
 		$access_token = ( $params['route']['access_token'] === "true" );
 
@@ -121,10 +123,19 @@ class REST_API_Router extends PMC_Singleton {
 
 		}
 
-		// Initialize the oAuth params and set access token to be used by the routes
-		REST_API_oAuth::get_instance()->initialize_params( $params );
+		if ( ! empty( $params['route']['route_index'] ) ) {
+			$route_index = $params['route']['route_index'];
+		} else {
+			$route_index = $route;
+		}
 
-		$data_ids[] = $this->_access_endpoint( $route, $query_params, $route, $access_token );
+		if ( $access_token ) {
+			// Initialize the oAuth params and set access token to be used by the routes
+			REST_API_oAuth::get_instance()->initialize_params( $params );
+
+		}
+
+		$data_ids[] = $this->_access_endpoint( $domain, $route, $query_params, $route_index, $access_token );
 
 		return $data_ids;
 	}
