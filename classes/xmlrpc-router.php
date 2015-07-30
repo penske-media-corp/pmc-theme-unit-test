@@ -95,7 +95,7 @@ class XMLRPC_Router extends PMC_Singleton {
 		switch ( $route ) {
 
 			case 'taxonomies' :
-				$xmlrpc_data[] = $this->_call_taxonomies_route();
+				//$xmlrpc_data[] = $this->_call_taxonomies_route();
 				break;
 
 			case 'options' :
@@ -133,8 +133,8 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		} else {
 
-			// Save all the taxonomies.
-			$taxonomies_id[] = Taxonomies_Importer::get_instance()->call_import_route( $result );
+			// Dont save the taxonomies since they should be registered on init hook from the admin.
+			//$taxonomies_id[] = Taxonomies_Importer::get_instance()->call_import_route( $result );
 
 			foreach ( $result as $tax ) {
 
@@ -207,14 +207,10 @@ class XMLRPC_Router extends PMC_Singleton {
 		}
 
 		// Fetch taxonomy
-		$tax = $this->xmlrpc_client->get_taxonomy( $taxonomy );
+		$taxonomy_id = taxonomy_exists( $taxonomy );
 
-		if ( empty( $tax ) ) {
-			$error = $this->xmlrpc_client->error->message;
-			return new \WP_Error( "unknown_error", "Taxonomy Term Failed with Exception - " . $error );
-		} else {
-			// Save Taxonomy if not exists in the current site.
-			Taxonomies_Importer::get_instance()->save_taxonomy( $tax );
+		if ( false === $taxonomy_id ) {
+			return new \WP_Error( "unknown_error", "Taxonomy Term Failed because taxonomy does not exists.  - " . $taxonomy );
 		}
 
 		//Fetch Term
