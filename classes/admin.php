@@ -4,7 +4,7 @@ namespace PMC\Theme_Unit_Test;
 use \PMC;
 use \PMC_Singleton;
 
-class Admin extends \PMC_Singleton {
+class Admin extends PMC_Singleton {
 
 	/**
 	 * Add domains for which you want to pull data from
@@ -36,13 +36,12 @@ class Admin extends \PMC_Singleton {
 	 * @since 1.0
 	 *
 	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-30 Amit Gupta - consolidated multiple 'init' listeners into one
 	 *
 	 */
 	protected function _setup_hooks() {
 
-		add_action( 'init',  array( $this, 'register_post_types_for_import' ) );
-
-		add_action( 'init',  array( $this, 'register_taxonomies_for_import' ) );
+		add_action( 'init',  array( $this, 'on_wp_init' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
@@ -57,7 +56,18 @@ class Admin extends \PMC_Singleton {
 
 		add_action( "wp_ajax_get_client_configuration_details", array( $this, "get_client_configuration_details" ) );
 
+	}
 
+	/**
+	 * This function is called on 'init' and does the initialization stuff
+	 *
+	 * @since 2015-07-30 Amit Gupta
+	 *
+	 * @return void
+	 */
+	public function on_wp_init() {
+		$this->register_post_types_for_import();
+		$this->register_taxonomies_for_import();
 	}
 
 	/**
@@ -327,4 +337,6 @@ class Admin extends \PMC_Singleton {
 
 	}
 
-}
+}	//end class
+
+//EOF
