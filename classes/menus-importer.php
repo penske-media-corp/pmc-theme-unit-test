@@ -6,6 +6,8 @@ use \PMC_Singleton;
 
 class Menus_Importer extends PMC_Singleton {
 
+	private $_domain;
+
 	/**
 	 * Hook in the methods during initialization.
 	 *
@@ -64,12 +66,9 @@ class Menus_Importer extends PMC_Singleton {
 
 			$menu_item_object_id = XMLRPC_Importer::get_instance()->get_taxonomy_term_by_id( $type, $content_id );
 
-			return $menu_item_object_id;
-
 		} else if ( 'post_type' === $type_family ) {
 
-			$page_ids            = $this->call_post_json_api_route( $type, $content_id );
-			$menu_item_object_id = $page_ids[0];
+			$menu_item_object_id = $this->call_post_rest_api_route( $type, $content_id );
 
 		}
 
@@ -91,20 +90,40 @@ class Menus_Importer extends PMC_Singleton {
 	 */
 	private function _save_menu_item( $menu_id, $menu_item, $menu_item_id = 0 ) {
 
-		$menu_item_db_id = wp_update_nav_menu_item( $menu_id, $menu_item_id, array(
-			'menu-item-object-id'   => $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] ),
-			'menu-item-object'      => $menu_item['type'],
-			'menu-item-type'        => $menu_item['type_family'],
-			'menu-item-title'       => $menu_item['name'],
-			'menu-item-url'         => $this->_get_menu_url( $menu_item['url'] ),
-			'menu-item-description' => $menu_item['description'],
-			'menu-item-attr-title'  => $menu_item['link_title'],
-			'menu-item-target'      => $menu_item['link_target'],
-			'menu-item-classes'     => $menu_item['classes'],
-			'menu-item-xfn'         => $menu_item['xfn'],
-		) );
+		$menu_item_db_id = 0;
+		$time            = date( '[d/M/Y:H:i:s]' );
 
-		wp_set_object_terms( $menu_item_db_id, $menu_id, 'nav_menu' );
+		try {
+
+			$menu_item_db_id = wp_update_nav_menu_item( $menu_id, $menu_item_id, array(
+				'menu-item-object-id'   => $this->_get_type_object_id( $menu_item['content_id'], $menu_item['type_family'], $menu_item['type'] ),
+				'menu-item-object'      => $menu_item['type'],
+				'menu-item-type'        => $menu_item['type_family'],
+				'menu-item-title'       => $menu_item['name'],
+				'menu-item-url'         => $this->_get_menu_url( $menu_item['url'] ),
+				'menu-item-description' => $menu_item['description'],
+				'menu-item-attr-title'  => $menu_item['link_title'],
+				'menu-item-target'      => $menu_item['link_target'],
+				'menu-item-classes'     => $menu_item['classes'],
+				'menu-item-xfn'         => $menu_item['xfn'],
+			) );
+
+			if ( is_wp_error( $menu_item_db_id ) ) {
+
+				error_log( $time . " WP_Error -- " . $menu_item_db_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			} else {
+
+				wp_set_object_terms( $menu_item_db_id, $menu_id, 'nav_menu' );
+				error_log( "{$time} -- Menu Item Added **-- {$menu_item['name']} --** with ID = {$menu_item_db_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
+			}
+
+		} catch ( \Exception $e ) {
+
+			error_log( $time . " -- " . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+		}
 
 		return $menu_item_db_id;
 	}
@@ -125,48 +144,58 @@ class Menus_Importer extends PMC_Singleton {
 
 		$menu_name = $menu_json["name"];
 		$items     = array();
-		// Does the menu exist already?
-		$menu_exists = wp_get_nav_menu_object( $menu_name );
+		$time      = date( '[d/M/Y:H:i:s]' );
+
+		try {
+			// Does the menu exist already?
+			$menu_exists = wp_get_nav_menu_object( $menu_name );
 
 
-		// If it doesn't exist, let's create it.
-		if ( ! $menu_exists ) {
-			$menu_id = wp_create_nav_menu( $menu_name );
-		} else {
-			$menu_id = $menu_exists->term_id;
-			$items   = wp_get_nav_menu_items( $menu_id );
-		}
+			// If it doesn't exist, let's create it.
+			if ( ! $menu_exists ) {
+				$menu_id = wp_create_nav_menu( $menu_name );
+			} else {
+				$menu_id = $menu_exists->term_id;
 
-		if ( ! empty( $menu_json["items"] ) ) {
+				error_log( "{$time} -- Exists Menu **-- {$menu_name} --** with ID = {$menu_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
-			foreach ( $menu_json["items"] as $menu_item ) {
-				$menu_item_id = 0;
-				if ( ! empty( $items ) ) {
-					foreach ( $items as $item ) {
-						if ( $item['post_title'] === $menu_item['name'] ) {
-							$menu_item_id = $item->ID;
+				$items = wp_get_nav_menu_items( $menu_id );
+			}
+
+			if ( ! empty( $menu_json["items"] ) ) {
+
+				foreach ( $menu_json["items"] as $menu_item ) {
+					$menu_item_id = 0;
+					if ( ! empty( $items ) ) {
+						foreach ( $items as $item ) {
+							if ( $item['post_title'] === $menu_item['name'] ) {
+								$menu_item_id = $item->ID;
+							}
 						}
 					}
-				}
 
-				$this->_save_menu_item( $menu_id, $menu_item, $menu_item_id );
-			}
-		}
-
-		// Grab the theme locations and assign our newly-created menu
-		if ( ! empty( $menu_json["locations"] ) ) {
-
-			$menu_locations[] = $menu_json["locations"];
-
-			foreach ( $menu_locations as $menu_location ) {
-
-				if ( ! has_nav_menu( $menu_location ) ) {
-					$locations                   = get_theme_mod( 'nav_menu_locations' );
-					$locations[ $menu_location ] = $menu_id;
-					set_theme_mod( 'nav_menu_locations', $locations );
-
+					$this->_save_menu_item( $menu_id, $menu_item, $menu_item_id );
 				}
 			}
+
+			// Grab the theme locations and assign our newly-created menu
+			if ( ! empty( $menu_json["locations"] ) ) {
+
+				$menu_locations[] = $menu_json["locations"];
+
+				foreach ( $menu_locations as $menu_location ) {
+
+					if ( ! has_nav_menu( $menu_location ) ) {
+						$locations                   = get_theme_mod( 'nav_menu_locations' );
+						$locations[ $menu_location ] = $menu_id;
+						set_theme_mod( 'nav_menu_locations', $locations );
+
+					}
+				}
+			}
+		} catch ( \Exception $e ) {
+
+			error_log( $time . " -- " . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 		}
 
 	}
@@ -212,7 +241,9 @@ class Menus_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data ) {
+	public function call_import_route( $api_data, $domain = '' ) {
+
+		$this->_domain = $domain;
 
 		return $this->instant_menus_import( $api_data );
 
@@ -229,26 +260,41 @@ class Menus_Importer extends PMC_Singleton {
 	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function call_post_json_api_route( $type, $post_id ) {
+	public function call_post_rest_api_route( $type, $post_id ) {
 
-		$query_params = array( 'type' => $type );
-		$route        = "posts/" . $post_id;
-		$pages        = REST_API_oAuth::get_instance()->access_endpoint( $route, $query_params, 'posts', false );
+		$time = date( '[d/M/Y:H:i:s]' );
 
-		if ( is_wp_error( $pages ) ) {
+		try {
 
-			return $pages;
+			$params['route']  = array(
+				"name"         => "posts/" . $post_id,
+				"access_token" => false,
+				"query_params" => array(
+					"type" => $type,
+				),
+				"route_index"  => 'posts'
+			);
+			$params['domain'] = $this->_domain;
 
-		} elseif ( ! empty( $pages ) ) {
+			$pages = REST_API_Router::get_instance()->call_rest_api_route( $params );
 
-			return Posts_Importer::get_instance()->call_import_route( $pages );
+			if ( is_wp_error( $pages ) ) {
 
-		} else {
+				error_log( $time . " -- " . $pages->get_error_messages() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-			return new \WP_Error( 'unauthorized_access', " Failed to attach menu to page object with id - " . $post_id );
+				return $pages;
 
+			} else if ( empty( $pages ) ) {
+
+				return new \WP_Error( 'unauthorized_access', " Failed to attach menu to " . $type . " object with id - " . $post_id );
+
+			}
+
+		} catch ( \Exception $e ) {
+			error_log( $time . " -- " . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 		}
 
+		return $pages[ $post_id ];
 	}
 
 
