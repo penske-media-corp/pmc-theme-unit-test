@@ -176,7 +176,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID ) {
+	public function call_import_route( $api_data, $post_ID, $domain=''  ) {
 
 		return $this->instant_attachments_import( $api_data, $post_ID );
 
