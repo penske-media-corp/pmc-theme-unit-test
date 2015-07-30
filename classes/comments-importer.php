@@ -26,7 +26,7 @@ class Comments_Importer extends PMC_Singleton {
 	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $comment_json   containing Comment data
-     *          @type int $post_ID Post Id this comment is associated with
+	 * @type int $post_ID Post Id this comment is associated with
 	 *
 	 *
 	 * @return int|WP_Error The Comment Id on success. The value 0 or WP_Error on failure.
@@ -34,7 +34,7 @@ class Comments_Importer extends PMC_Singleton {
 	 */
 	public function save_comment( $comment_json, $post_ID ) {
 
-		$time       = date( '[d/M/Y:H:i:s]' );
+		$time = date( '[d/M/Y:H:i:s]' );
 
 		$comment_id = 0;
 
@@ -47,7 +47,7 @@ class Comments_Importer extends PMC_Singleton {
 				'comment_author_url'   => $comment_json['author']['URL'],
 				'comment_content'      => $comment_json['content'],
 				'comment_type'         => $comment_json['type'],
-				'comment_parent'       => (false === $comment_json['parent'] ) ? 0 : $comment_json['parent'],
+				'comment_parent'       => ( false === $comment_json['parent'] ) ? 0 : $comment_json['parent'],
 				'comment_status'       => $comment_json['status'],
 				'comment_date'         => $comment_json['date'],
 				'user_id'              => get_current_user_id(),
@@ -111,7 +111,7 @@ class Comments_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID ) {
+	public function call_import_route( $api_data, $post_ID, $domain = '' ) {
 
 		return $this->instant_comments_import( $api_data, $post_ID );
 
@@ -128,7 +128,7 @@ class Comments_Importer extends PMC_Singleton {
 	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function call_json_api_route( $old_post_id, $new_post_ID ) {
+	public function call_rest_api_route( $old_post_id, $new_post_ID ) {
 
 		//Fetch comment for each post and save to the DB
 		$route = "posts/{$old_post_id}/replies";
