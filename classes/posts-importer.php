@@ -111,17 +111,15 @@ class Posts_Importer extends PMC_Singleton {
 
 				}
 
-				if ( is_a( $post_ID, "WP_Error" ) ) {
+				if ( is_a( $post_ID, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $post_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $post_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				} else {
 
 					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
-
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -179,29 +177,27 @@ class Posts_Importer extends PMC_Singleton {
 					$post_ids[ $post_json['ID'] ] = $post_ID;
 
 					// save tags associated with the post.
-					if ( ! empty ( $post_json['tags'] ) ) {
+					if ( ! empty( $post_json['tags'] ) ) {
 
 						foreach ( $post_json['tags'] as $key => $terms ) {
 
 							wp_set_post_terms( $post_ID, $terms['name'], 'post_tag' );
 
 						}
-
 					}
 
 					// save Post Meta associated with the post.
-					if ( ! empty ( $post_json['metadata'] ) ) {
+					if ( ! empty( $post_json['metadata'] ) ) {
 
 						foreach ( $post_json['metadata'] as $post_metadata ) {
 
 							$meta_ids[] = $this->_save_post_meta( $post_ID, $post_metadata );
 
 						}
-
 					}
 
 					// Save the featured image of the post
-					if ( ! empty ( $post_json['featured_image'] ) ) {
+					if ( ! empty( $post_json['featured_image'] ) ) {
 
 						Attachments_Importer::get_instance()->save_featured_image( $post_json['featured_image'], $post_ID );
 
@@ -218,12 +214,10 @@ class Posts_Importer extends PMC_Singleton {
 						$comments_ids[] = Comments_Importer::get_instance()->call_rest_api_route( $post_json['ID'], $post_ID );
 
 					}
-
 				}
-
 			} catch ( \Exception $ex ) {
 
-				error_log( $time . " -- " . esc_html( $ex->get_error_message() ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . ' -- ' . esc_html( $ex->get_error_message() ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				continue;
 
@@ -261,7 +255,6 @@ class Posts_Importer extends PMC_Singleton {
 
 		return $inserted_posts;
 
-
 	}
 
 	/**
@@ -280,7 +273,7 @@ class Posts_Importer extends PMC_Singleton {
 
 			$args = array(
 				'public' => true,
-				'label'  => $post_type
+				'label'  => $post_type,
 			);
 
 			register_post_type( $post_type, $args );

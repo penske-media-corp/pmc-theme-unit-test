@@ -40,7 +40,7 @@ class Terms_Importer extends PMC_Singleton {
 
 			if ( false === $taxonomy_id ) {
 
-				error_log( $time . "Taxonomy -- " . $term_json['taxonomy'] ." --  does not exists". PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . 'Taxonomy -- ' . $term_json['taxonomy'] .' --  does not exists'. PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 				return false;
 			}
 
@@ -59,9 +59,9 @@ class Terms_Importer extends PMC_Singleton {
 					)
 				);
 
-				if ( is_a( $term_id, "WP_Error" ) ) {
+				if ( is_a( $term_id, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 					return $term_id;
 
@@ -69,20 +69,18 @@ class Terms_Importer extends PMC_Singleton {
 
 					error_log( "{$time} -- Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **-- added with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
-
 			} else {
 
 				error_log( "{$time} -- Exists Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **--  with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		}
 
-		return $term_id["term_id"];
+		return $term_id['term_id'];
 	}
 
 

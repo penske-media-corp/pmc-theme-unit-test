@@ -15,60 +15,60 @@ class Config {
 	const VALIDATE_URL = 'https://public-api.wordpress.com/oauth2/token-info';
 
 	public static $rest_api_auth = array(
-		"YOURDOMAIN_1.com" => array(
-			"client_id"     => "",
-			"client_secret" => "",
-			"redirect_uri"  => ""
+		'YOURDOMAIN_1.com' => array(
+			'client_id'     => '',
+			'client_secret' => '',
+			'redirect_uri'  => '',
 		),
-		"YOURDOMAIN_2.com" => array(
-			"client_id"     => "",
-			"client_secret" => "",
-			"redirect_uri"  => ''
+		'YOURDOMAIN_2.com' => array(
+			'client_id'     => '',
+			'client_secret' => '',
+			'redirect_uri'  => '',
 		),
 
 	);
 
 	public static $xmlrpc_auth = array(
-		"YOURDOMAIN_1.com" => array(
-			"username" => "",
-			"password" => "",
+		'YOURDOMAIN_1.com' => array(
+			'username' => '',
+			'password' => '',
 		),
-		"YOURDOMAIN_2.com" => array(
-			"username" => "",
-			"password" => "",
+		'YOURDOMAIN_2.com' => array(
+			'username' => '',
+			'password' => '',
 		),
 	);
 
 	public static $all_routes = array(
 		0 => array(
-			"users" => array(
-				"access_token" => true,
-				"query_params" => array(
-					"authors_only" => false,
-				)
-			)
+			'users' => array(
+				'access_token' => true,
+				'query_params' => array(
+					'authors_only' => false,
+				),
+			),
 		),
 		1 => array(
-			"menus" => array(
-				"access_token" => true,
-				"query_params" => array()
-			)
+			'menus' => array(
+				'access_token' => true,
+				'query_params' => array(),
+			),
 		),
 		2 => array(
-			"tags" => array(
-				"access_token" => false,
-				"query_params" => array()
-			)
+			'tags' => array(
+				'access_token' => false,
+				'query_params' => array(),
+			),
 		),
 		3 => array(
-			"categories" => array(
-				"access_token" => false,
-				"query_params" => array()
-			)
+			'categories' => array(
+				'access_token' => false,
+				'query_params' => array(),
+			),
 		),
 	);
 
-	public static $xmlrpc_routes = array( "taxonomies", "options" );
+	public static $xmlrpc_routes = array( 'taxonomies', 'options' );
 
 	public static $custom_posttypes = array( 'post', 'page' );
 
@@ -87,7 +87,7 @@ class Config {
 			'query_var'         => true,
 			'sort'              => true,
 			'args'              => array( 'orderby' => 'term_order' ),
-			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' )
+			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' ),
 		),
 		1 => array(
 			'name'              => 'NAMETAXONOMY', // Name of the taxonomy
@@ -103,7 +103,7 @@ class Config {
 			'query_var'         => true,
 			'sort'              => true,
 			'args'              => array( 'orderby' => 'term_order' ),
-			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' )
+			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' ),
 		),
 	);
 }

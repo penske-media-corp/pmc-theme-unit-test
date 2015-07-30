@@ -62,7 +62,7 @@ class Taxonomies_Importer extends PMC_Singleton {
 				} else {
 
 					register_taxonomy_for_object_type( $taxonomy_json['name'],
-						$taxonomy_json['object_type'] );
+					$taxonomy_json['object_type'] );
 
 				}
 
@@ -70,9 +70,9 @@ class Taxonomies_Importer extends PMC_Singleton {
 
 				if ( is_wp_error( $taxonomy_id ) ) {
 
-					error_log( $time . " -- " . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-				} else if( false !== $taxonomy_id ) {
+				} else if ( false !== $taxonomy_id ) {
 
 					error_log( "{$time} -- Taxonomy **-- {$taxonomy_json['name']} --** added." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
@@ -82,7 +82,6 @@ class Taxonomies_Importer extends PMC_Singleton {
 				error_log( "{$time} -- Exists Taxonomy **-- {$taxonomy_json['name']} --**" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );

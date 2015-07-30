@@ -50,9 +50,9 @@ class Categories_Importer extends PMC_Singleton {
 
 				$category_id = wp_insert_category( $category_array );
 
-				if ( is_a( $category_id, "WP_Error" ) ) {
+				if ( is_a( $category_id, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $category_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $category_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				} else {
 
@@ -66,7 +66,6 @@ class Categories_Importer extends PMC_Singleton {
 				error_log( "{$time} -- Exists Category **-- {$category_json['name']} --** with ID = {$category_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );

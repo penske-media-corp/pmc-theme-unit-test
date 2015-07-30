@@ -55,16 +55,15 @@ class Comments_Importer extends PMC_Singleton {
 
 			$comment_id = wp_insert_comment( $comment_data );
 
-			if ( is_a( $comment_id, "WP_Error" ) ) {
+			if ( is_a( $comment_id, 'WP_Error' ) ) {
 
-				error_log( $time . " -- " . $comment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . ' -- ' . $comment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			} else {
 
 				error_log( "{$time} -- Comment from author **-- {$comment_json['author']['name'] } --** added with ID = {$comment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -133,7 +132,7 @@ class Comments_Importer extends PMC_Singleton {
 		//Fetch comment for each post and save to the DB
 		$route = "posts/{$old_post_id}/replies";
 
-		$comments = REST_API_oAuth::get_instance()->access_endpoint( $route, array(), "comments", false );
+		$comments = REST_API_oAuth::get_instance()->access_endpoint( $route, array(), 'comments', false );
 
 		if ( ! empty( $comments ) ) {
 

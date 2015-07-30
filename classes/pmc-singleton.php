@@ -67,16 +67,16 @@ if ( ! class_exists( 'PMC_Singleton' ) ) {
 			 * for each subclass.
 			 */
 			$class = get_called_class();
-			if( !isset( static::$_instance[$class] ) ){
-				self::$_instance[$class] = new $class();
+			if ( ! isset( static::$_instance[ $class ] ) ) {
+				self::$_instance[ $class ] = new $class();
 
 				// Run's the class's _init() method, where the class can hook into actions and filters, and do any other initialization it needs
-				self::$_instance[$class]->_init();
+				self::$_instance[ $class ]->_init();
 
 				// Dependent items can use the `pmc_singleton_init_{$called_class}` hook to execute code immediately after _init() is called.
 				do_action( "pmc_singleton_init_$class" );
 			}
-			return self::$_instance[$class];
+			return self::$_instance[ $class ];
 		}
 
 		/**

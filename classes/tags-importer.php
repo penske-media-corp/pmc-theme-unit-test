@@ -49,9 +49,9 @@ class Tags_Importer extends PMC_Singleton {
 
 				$term_id = $tag_info['term_id'];
 
-				if ( is_a( $tag_info, "WP_Error" ) ) {
+				if ( is_a( $tag_info, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $tag_info->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $tag_info->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 					return $tag_info;
 				} else {
 
@@ -59,14 +59,11 @@ class Tags_Importer extends PMC_Singleton {
 
 					error_log( "{$time} -- Tag **-- {$tag_json['name']} --** added with ID = {$term_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
-
 			} else {
 
 				error_log( "{$time} -- Exists Tag **-- {$tag_json['name']} --** with ID = {$term_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
-
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );

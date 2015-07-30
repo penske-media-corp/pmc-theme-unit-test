@@ -56,7 +56,7 @@ class Attachments_Importer extends PMC_Singleton {
 				$image_data = file_get_contents( $image_url );
 
 				if ( false === $image_data ) {
-					throw new \Exception( $time . " No Image data returned for image URL " . $image_url );
+					throw new \Exception( $time . ' No Image data returned for image URL ' . $image_url );
 				}
 
 				file_put_contents( $file, $image_data );
@@ -67,7 +67,7 @@ class Attachments_Importer extends PMC_Singleton {
 					'post_mime_type' => $wp_filetype['type'],
 					'post_title'     => sanitize_file_name( $filename ),
 					'post_content'   => '',
-					'post_status'    => 'inherit'
+					'post_status'    => 'inherit',
 				);
 
 				$attachment_id = wp_insert_attachment( $attachment, $file, $post_ID );
@@ -78,18 +78,16 @@ class Attachments_Importer extends PMC_Singleton {
 
 				wp_update_attachment_metadata( $attachment_id, $attach_data );
 
-				if ( is_a( $attachment_id, "WP_Error" ) ) {
+				if ( is_a( $attachment_id, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $attachment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $attachment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				} else {
 
 					error_log( "{$time} -- Attachment URL **-- { $image_url } --** added with ID = {$attachment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 				}
-
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -125,7 +123,6 @@ class Attachments_Importer extends PMC_Singleton {
 				$post_meta_id = set_post_thumbnail( $post_ID, $attach_id );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( 'Save Featured Image Failed with Error ---- ' . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -160,7 +157,6 @@ class Attachments_Importer extends PMC_Singleton {
 				$attachments_info[] = $attachments_id;
 
 			}
-
 		}
 
 		return $attachments_info;

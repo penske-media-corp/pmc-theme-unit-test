@@ -113,7 +113,7 @@ class REST_API_Router extends PMC_Singleton {
 
 		$route = strtolower( $params['route']['name'] );
 
-		$access_token = ( $params['route']['access_token'] === "true" );
+		$access_token = ( $params['route']['access_token'] === 'true' );
 
 		$query_params = array();
 

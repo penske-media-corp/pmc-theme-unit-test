@@ -68,12 +68,9 @@ class Options_Importer extends PMC_Singleton {
 	 */
 	public function call_import_route( $api_data, $domain = ''  ) {
 
-
 		$saved_options = $this->instant_options_import( $api_data );
 
-
 		return $saved_options;
-
 
 	}
 
@@ -96,7 +93,7 @@ class Options_Importer extends PMC_Singleton {
 
 			$options_data = json_decode( $options_json, true );
 
-			$options_to_import = array_keys( $options_data["options"] );
+			$options_to_import = array_keys( $options_data['options'] );
 
 			$whitelist_options_to_import = apply_filters( 'options_import_whitelist', array() );
 
@@ -109,7 +106,7 @@ class Options_Importer extends PMC_Singleton {
 			// Allow others to prevent their options from importing
 			$blacklist = apply_filters( 'options_import_blacklist', array() );
 
-			foreach ( $options_data["options"] as $option_name => $option_value ) {
+			foreach ( $options_data['options'] as $option_name => $option_value ) {
 
 				if ( isset( $option_value ) ) {
 
@@ -117,7 +114,7 @@ class Options_Importer extends PMC_Singleton {
 					if ( in_array( $option_name, $blacklist ) || ! in_array( $option_name, $options_to_import ) ) {
 
 						$error = "\n<p>" . sprintf( __( 'Skipped option `%s` because a plugin or theme does not allow it to be imported.' ), esc_html( $option_name ) ) . '</p>';
-						error_log( $time . " -- " . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+						error_log( $time . ' -- ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 						continue;
 
 					}
@@ -129,7 +126,7 @@ class Options_Importer extends PMC_Singleton {
 					if ( defined( 'WP_OPTION_IMPORT_BLACKLIST_REGEX' ) && preg_match( WP_OPTION_IMPORT_BLACKLIST_REGEX, $option_name ) ) {
 
 						$error = "\n<p>" . sprintf( __( 'Skipped option `%s` because this WordPress installation does not allow it.' ), esc_html( $option_name ) ) . '</p>';
-						error_log( $time . " -- " . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+						error_log( $time . ' -- ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 						continue;
 					}
 
@@ -141,7 +138,7 @@ class Options_Importer extends PMC_Singleton {
 						if ( $old_value !== $hash ) {
 
 							$error = "\n<p>" . sprintf( __( 'Skipped option `%s` because it currently exists.' ), esc_html( $option_name ) ) . '</p>';
-							error_log( $time . " -- " . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+							error_log( $time . ' -- ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 							continue;
 						}
 					}
@@ -154,12 +151,10 @@ class Options_Importer extends PMC_Singleton {
 						update_option( $option_name, $option_value );
 					}
 				}
-
 			}
-
 		} catch ( \Exception $ex ) {
 
-			error_log( $time . " -- " . $ex->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			error_log( $time . ' -- ' . $ex->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		}
 	}

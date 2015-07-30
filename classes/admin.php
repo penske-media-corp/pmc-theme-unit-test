@@ -47,14 +47,14 @@ class Admin extends PMC_Singleton {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_assets' ) );
 
-		add_action( "wp_ajax_import_data_from_production", array( $this, "import_data_from_production" ) );
+		add_action( 'wp_ajax_import_data_from_production', array( $this, 'import_data_from_production' ) );
 
-		add_action( "wp_ajax_import_xmlrpc_data_from_production", array(
+		add_action( 'wp_ajax_import_xmlrpc_data_from_production', array(
 			$this,
-			"import_xmlrpc_data_from_production"
+			'import_xmlrpc_data_from_production',
 		) );
 
-		add_action( "wp_ajax_get_client_configuration_details", array( $this, "get_client_configuration_details" ) );
+		add_action( 'wp_ajax_get_client_configuration_details', array( $this, 'get_client_configuration_details' ) );
 
 	}
 
@@ -99,7 +99,6 @@ class Admin extends PMC_Singleton {
 			}
 		}
 
-
 	}
 
 	/**
@@ -126,7 +125,6 @@ class Admin extends PMC_Singleton {
 				Taxonomies_Importer::get_instance()->save_taxonomy( $taxonomy );
 
 			}
-
 		}
 
 	}
@@ -179,7 +177,7 @@ class Admin extends PMC_Singleton {
 
 		add_management_page( 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array(
 			$this,
-			'data_import_options'
+			'data_import_options',
 		) );
 
 	}
@@ -202,7 +200,7 @@ class Admin extends PMC_Singleton {
 
 		$this->_domains = apply_filters( 'pmc_theme_ut_domains', array() );
 
-		echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/admin-ui.php', array( "domains" => $this->_domains ) );
+		echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/admin-ui.php', array( 'domains' => $this->_domains ) );
 
 	}
 
@@ -218,7 +216,7 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST["import_nOnce"] ) || ! wp_verify_nonce( $_POST["import_nOnce"], 'import-from-production' ) || empty( $_POST["domain"] ) ) {
+		if ( empty( $_POST['import_nOnce'] ) || ! wp_verify_nonce( $_POST['import_nOnce'], 'import-from-production' ) || empty( $_POST['domain'] ) ) {
 
 			return;
 
@@ -226,9 +224,9 @@ class Admin extends PMC_Singleton {
 
 		$return_info = '';
 
-		if ( ! empty( $_POST["route"] ) ) {
+		if ( ! empty( $_POST['route'] ) ) {
 
-			foreach ( $_POST["route"] as $key => $value ) {
+			foreach ( $_POST['route'] as $key => $value ) {
 
 				$route['name'] = sanitize_text_field( $key );
 
@@ -241,13 +239,11 @@ class Admin extends PMC_Singleton {
 						$route['query_params'][ $query_key ] = sanitize_text_field( $query_value );
 
 					}
-
 				}
-
 			}
 
 			$params = array(
-				'domain' => sanitize_text_field( $_POST["domain"] ),
+				'domain' => sanitize_text_field( $_POST['domain'] ),
 				'code'   => sanitize_text_field( $_POST['code'] ),
 				'route'  => $route,
 			);
@@ -276,19 +272,18 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST["import_xmlrpc_nOnce"] ) || ! wp_verify_nonce( $_POST["import_xmlrpc_nOnce"], 'import-xmlrpc-from-production' ) || empty( $_POST["domain"] ) ) {
+		if ( empty( $_POST['import_xmlrpc_nOnce'] ) || ! wp_verify_nonce( $_POST['import_xmlrpc_nOnce'], 'import-xmlrpc-from-production' ) || empty( $_POST['domain'] ) ) {
 
 			return;
 
 		}
 
 		$params = array(
-			'domain' => sanitize_text_field( $_POST["domain"] ),
-			'route'  => sanitize_text_field( $_POST["route"] ),
+			'domain' => sanitize_text_field( $_POST['domain'] ),
+			'route'  => sanitize_text_field( $_POST['route'] ),
 		);
 
 		$return_info = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $params );
-
 
 		ob_clean();
 		header( 'Content-Type: application/json' );
@@ -310,25 +305,24 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST["client_nOnce"] ) || ! wp_verify_nonce( $_POST["client_nOnce"], 'get-client-config-details' ) ) {
+		if ( empty( $_POST['client_nOnce'] ) || ! wp_verify_nonce( $_POST['client_nOnce'], 'get-client-config-details' ) ) {
 
 			return;
 
 		}
-		$domain = sanitize_text_field( $_POST["domain"] );
+		$domain = sanitize_text_field( $_POST['domain'] );
 
 		$params = array(
 			'domain' => $domain,
 		);
 
-		$client_details["config_oauth"] = apply_filters( 'pmc_theme_ut_endpoints_config', array(), $params );
+		$client_details['config_oauth'] = apply_filters( 'pmc_theme_ut_endpoints_config', array(), $params );
 
-		$client_details["xmlrpc_routes"] = apply_filters( 'pmc_theme_ut_xmlrpc_routes', array() );
+		$client_details['xmlrpc_routes'] = apply_filters( 'pmc_theme_ut_xmlrpc_routes', array() );
 
-		$client_details["all_routes"] = apply_filters( 'pmc_theme_ut_domain_routes', array() );
+		$client_details['all_routes'] = apply_filters( 'pmc_theme_ut_domain_routes', array() );
 
-		$client_details["post_routes"] = apply_filters( 'pmc_theme_ut_posts_routes', array() );
-
+		$client_details['post_routes'] = apply_filters( 'pmc_theme_ut_posts_routes', array() );
 
 		ob_clean();
 		header( 'Content-Type: application/json' );

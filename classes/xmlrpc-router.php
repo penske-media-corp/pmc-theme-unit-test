@@ -129,7 +129,7 @@ class XMLRPC_Router extends PMC_Singleton {
 
 			$error = $this->xmlrpc_client->error->message;
 
-			return new \WP_Error( "unknown_error", " - Taxonomy import failed with Exception " . $error );
+			return new \WP_Error( 'unknown_error', ' - Taxonomy import failed with Exception ' . $error );
 
 		} else {
 
@@ -179,7 +179,7 @@ class XMLRPC_Router extends PMC_Singleton {
 
 			$error = $this->xmlrpc_client->error->message;
 
-			return new \WP_Error( 'unauthorized_access', $error . " Failed with Exception - " );
+			return new \WP_Error( 'unauthorized_access', $error . ' Failed with Exception - ' );
 
 		} else {
 
@@ -208,8 +208,8 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		if ( empty( $this->xmlrpc_client ) ) {
 
-			error_log( "NO XMLRPC Client - " . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-			return new \WP_Error( "unknown_error", "NO XMLRPC Client - " . $taxonomy );
+			error_log( 'NO XMLRPC Client - ' . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			return new \WP_Error( 'unknown_error', 'NO XMLRPC Client - ' . $taxonomy );
 
 		}
 
@@ -227,13 +227,12 @@ class XMLRPC_Router extends PMC_Singleton {
 
 			$error = $this->xmlrpc_client->error->message;
 
-			return new \WP_Error( "unknown_error", "Taxonomy Term Failed with Exception - " . $error );
+			return new \WP_Error( 'unknown_error', 'Taxonomy Term Failed with Exception - ' . $error );
 
 		} else {
 			// Save Taxonomy Term if not exists in the current site.
 			return Terms_Importer::get_instance()->save_taxonomy_terms( $result );
 		}
-
 
 	}
 }

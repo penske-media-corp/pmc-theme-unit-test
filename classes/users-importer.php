@@ -38,7 +38,7 @@ class Users_Importer extends PMC_Singleton {
 
 			$user_ID = username_exists( $user_info['login'] );
 
-			error_log( $time . " -- User ID =" . $user_ID . " logging" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			error_log( $time . ' -- User ID =' . $user_ID . ' logging' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			if ( empty( $user_ID ) ) {
 
@@ -66,23 +66,20 @@ class Users_Importer extends PMC_Singleton {
 
 				$user_ID = wp_insert_user( $user_data );
 
-				if ( is_a( $user_ID, "WP_Error" ) ) {
+				if ( is_a( $user_ID, 'WP_Error' ) ) {
 
-					error_log( $time . " -- " . $user_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $user_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				} else {
 
 					error_log( "{$time} -- User **-- {$user_info['name']} --** added with ID = {$user_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 				}
-
 			} else {
 
 				error_log( "{$time} -- Exists User **-- {$user_info['name']} --** with ID = {$user_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			}
-
-
 		} catch ( \Exception $e ) {
 
 			error_log( $time . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );

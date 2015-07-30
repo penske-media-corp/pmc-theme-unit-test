@@ -23,16 +23,16 @@ class Autoloader {
 		}
 
 		$path = explode(
-					'\\',
-					str_replace( '_', '-', $resource )
-				);
+			'\\',
+			str_replace( '_', '-', $resource )
+		);
 
 		$class_path = strtolower(
-							implode(
-									'/',
-									array_slice( $path, 2 )
-							)
-						);
+			implode(
+				'/',
+				array_slice( $path, 2 )
+			)
+		);
 
 		$resource_path = sprintf( '%s/classes/%s.php', untrailingslashit( PMC_THEME_UNIT_TEST_ROOT ), $class_path );
 

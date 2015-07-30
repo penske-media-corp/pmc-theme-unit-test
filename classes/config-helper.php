@@ -31,7 +31,7 @@ class Config_Helper extends \PMC_Singleton {
 
 		add_filter( 'pmc_theme_ut_xmlrpc_client_auth', array(
 			$this,
-			'filter_pmc_theme_ut_xmlrpc_client_auth'
+			'filter_pmc_theme_ut_xmlrpc_client_auth',
 		), 10, 2 );
 
 		add_filter( 'pmc_theme_ut_domains', array( $this, 'filter_pmc_theme_ut_domains' ) );
@@ -46,12 +46,12 @@ class Config_Helper extends \PMC_Singleton {
 
 		add_filter( 'pmc_theme_ut_custom_post_types_to_import', array(
 			$this,
-			'filter_pmc_theme_ut_custom_post_types_to_import'
+			'filter_pmc_theme_ut_custom_post_types_to_import',
 		) );
 
 		add_filter( 'pmc_theme_ut_custom_taxonomies_to_import', array(
 			$this,
-			'filter_pmc_theme_ut_custom_taxonomies_to_import'
+			'filter_pmc_theme_ut_custom_taxonomies_to_import',
 		) );
 
 	}
@@ -64,7 +64,6 @@ class Config_Helper extends \PMC_Singleton {
 				$post_types[] = $post_type;
 			}
 		}
-
 
 		return $post_types;
 	}
@@ -101,8 +100,8 @@ class Config_Helper extends \PMC_Singleton {
 
 			$xmlrpc_args = array(
 				'server'   => "http://{$domain}/xmlrpc.php",
-				'username' => Config::$xmlrpc_auth[ $domain ]["username"],
-				'password' => Config::$xmlrpc_auth[ $domain ]["password"],
+				'username' => Config::$xmlrpc_auth[ $domain ]['username'],
+				'password' => Config::$xmlrpc_auth[ $domain ]['password'],
 			);
 
 		}
@@ -162,10 +161,9 @@ class Config_Helper extends \PMC_Singleton {
 
 			$client_id          = $client_configuration['client_id'];
 
-			$saved_access_token = get_option( $client_id . "_" . $args['domain'] );
+			$saved_access_token = get_option( $client_id . '_' . $args['domain'] );
 
 			$client_configuration['has_access_token'] = empty( $saved_access_token ) ? false : true;
-
 
 		}
 
@@ -235,11 +233,11 @@ class Config_Helper extends \PMC_Singleton {
 		foreach ( $route_post_types as $route_post_type ) {
 			$post_type = array(
 				'posts' => array(
-					"access_token" => false,
-					"query_params" => array(
-						"type" => $route_post_type,
-					)
-				)
+					'access_token' => false,
+					'query_params' => array(
+						'type' => $route_post_type,
+					),
+				),
 			);
 
 			$posts_routes[] = $post_type;

@@ -29,7 +29,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		if ( empty( $xmlrpc_args['server'] ) || empty( $xmlrpc_args['username'] ) || empty( $xmlrpc_args['password'] ) ) {
 
 			$time = date( '[d/M/Y:H:i:s]' );
-			error_log( $time . " -- " . get_called_class() . ': Missing credentials.' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			error_log( $time . ' -- ' . get_called_class() . ': Missing credentials.' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			return new \WP_Error( 'unknown_exception', get_called_class() . ': Missing credentials.' );
 		}
@@ -72,7 +72,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		$method = array_shift( $args );
 		$args   = (array) array_shift( $args );
 
-		$default_args = array( $this->blog_id, $this->username, $this->password, );
+		$default_args = array( $this->blog_id, $this->username, $this->password );
 		$args         = array_merge( $default_args, (array) $args );
 
 		return parent::query( $method, $args );
@@ -154,7 +154,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 		$args      = array(
 			$taxonomies,
-			$filter
+			$filter,
 		);
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
 		$terms     = get_transient( $cache_key );
@@ -182,7 +182,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 		$args = array(
 			$taxonomy,
-			$term
+			$term,
 		);
 
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
