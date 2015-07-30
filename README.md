@@ -1,6 +1,8 @@
 PMC Theme Unit Test v1.0 Alpha
 ---------------------------------
 
+[![Build Status](https://travis-ci.org/Penske-Media-Corp/pmc-theme-unit-test.svg?branch=master)](https://travis-ci.org/Penske-Media-Corp/pmc-theme-unit-test)
+
 WordPress plugin that provides a Theme Menu Option to Unit Test data by importing just enough data from production server and creating a local or test environment.
 
 The plugin is basically a data import tool that makes use of [WordPress Public REST API](https://developer.wordpress.com/docs/api/) and [WordPress XML-RPC API](https://codex.wordpress.org/XML-RPC_WordPress_API/Taxonomies) to make an authenticated call to the server to fetch just the required amount of data for the theme to replicate the Production Environment.
