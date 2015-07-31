@@ -217,20 +217,19 @@ class Admin extends PMC_Singleton {
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
 
-		if ( empty( $_POST['import_nOnce'] ) || ! wp_verify_nonce( $_POST['import_nOnce'], 'import-from-production' ) ) {
+		if ( empty( wp_unslash( $_POST['import_nOnce'] ) ) || ! wp_verify_nonce( wp_unslash( $_POST['import_nOnce'] ), 'import-from-production' ) ) {
 			return;
 		}
-		
+
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
 		if ( empty( $domain ) ) {
 			return;
 		}
 
-		$routes = isset( $_POST['route'] ) ? (array) $_POST['route'] : array();
-		$routes = array_map( 'wp_unslash', $routes );
+		$routes = array_map( 'wp_unslash', $_POST['route'] );
 		$routes = array_map( 'sanitize_text_field', $routes );
-
+		$code = sanitize_text_field( wp_unslash( $_POST['code'] ) );
 
 		$return_info = '';
 
@@ -253,8 +252,8 @@ class Admin extends PMC_Singleton {
 			}
 
 			$params = array(
-				'domain' => sanitize_text_field( $_POST['domain'] ),
-				'code'   => sanitize_text_field( $_POST['code'] ),
+				'domain' => $domain,
+				'code'   => $code,
 				'route'  => $route,
 			);
 
@@ -282,19 +281,20 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST['import_xmlrpc_nOnce'] ) || ! wp_verify_nonce( $_POST['import_xmlrpc_nOnce'], 'import-xmlrpc-from-production' ) ) {
+		if ( empty( wp_unslash( $_POST['import_xmlrpc_nOnce'] ) ) || ! wp_verify_nonce( wp_unslash( $_POST['import_xmlrpc_nOnce'] ), 'import-xmlrpc-from-production' ) ) {
 			return;
 		}
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
+		$route = sanitize_text_field( wp_unslash( $_POST['route'] ) );
 
-		if( empty( $domain ) ){
+		if ( empty( $domain ) ) {
 			return;
 		}
 
 		$params = array(
-			'domain' => sanitize_text_field( $_POST['domain'] ),
-			'route'  => sanitize_text_field( $_POST['route'] ),
+			'domain' => $domain,
+			'route'  => $route,
 		);
 
 		$return_info = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $params );
