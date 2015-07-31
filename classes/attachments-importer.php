@@ -50,7 +50,6 @@ class Attachments_Importer extends PMC_Singleton {
 				error_log( "{$time} -- Attachment URL **-- { $image_url } --** added with new url = {$attachment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -88,15 +87,13 @@ class Attachments_Importer extends PMC_Singleton {
 				'post_parent'    => $post_ID,
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'image',
-				'order'          => 'ASC'
+				'order'          => 'ASC',
 			) );
-
 
 			if ( sizeof( $attachments ) > 0 ) {
 				// set image as the post thumbnail
 				set_post_thumbnail( $post_ID, $attachments[0]->ID );
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( 'Save Featured Image Failed with Error ---- ' . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );

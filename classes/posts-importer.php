@@ -71,9 +71,9 @@ class Posts_Importer extends PMC_Singleton {
 
 		try {
 
-			$post_obj = get_page_by_title( $post_json['title'], OBJECT, 'post' );
+			$post_obj = wpcom_vip_get_page_by_title( $post_json['title'], OBJECT, 'post' );
 
-			if ( ! empty ( $post_obj ) ) {
+			if ( ! empty( $post_obj ) ) {
 
 				error_log( "{$time} -- Exists Post **-- {$post_json['title']} --** with ID = {$post_obj->ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 

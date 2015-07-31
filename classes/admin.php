@@ -216,21 +216,25 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
+
+		if ( empty( $_POST['import_nOnce'] ) || ! wp_verify_nonce( $_POST['import_nOnce'], 'import-from-production' ) ) {
+			return;
+		}
+		
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
-		$nOnce  = sanitize_text_field( wp_unslash( $_POST['import_nOnce'] ) );
+
+		if ( empty( $domain ) ) {
+			return;
+		}
+
 		$routes = isset( $_POST['route'] ) ? (array) $_POST['route'] : array();
 		$routes = array_map( 'wp_unslash', $routes );
 		$routes = array_map( 'sanitize_text_field', $routes );
 
-		if ( empty( $nOnce ) || ! wp_verify_nonce( $nOnce, 'import-from-production' ) || empty( $domain ) ) {
-
-			return;
-
-		}
 
 		$return_info = '';
 
-		if ( ! empty( $_POST['route'] ) ) {
+		if ( ! empty( $routes ) ) {
 
 			foreach ( $routes as $key => $value ) {
 
@@ -278,10 +282,14 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST['import_xmlrpc_nOnce'] ) || ! wp_verify_nonce( $_POST['import_xmlrpc_nOnce'], 'import-xmlrpc-from-production' ) || empty( $_POST['domain'] ) ) {
-
+		if ( empty( $_POST['import_xmlrpc_nOnce'] ) || ! wp_verify_nonce( $_POST['import_xmlrpc_nOnce'], 'import-xmlrpc-from-production' ) ) {
 			return;
+		}
 
+		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
+
+		if( empty( $domain ) ){
+			return;
 		}
 
 		$params = array(

@@ -76,60 +76,6 @@ class REST_API_oAuth extends PMC_Singleton {
 
 	}
 
-	/**
-	 * Authorise the request using the secret key access token
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
-	 *
-	 */
-	private function _get_authorization_code() {
-
-		if ( ! empty( $this->_access_token ) && $this->is_token_valid() ) {
-
-			return;
-
-		}
-
-		$time = date( '[d/M/Y:H:i:s]' );
-
-		try {
-
-			$params = array(
-				'client_id'     => $this->_client_id,
-				'response_type' => 'code',
-				'redirect_uri'  => $this->_redirect_uri,
-			);
-
-			$args = array(
-				'method'  => 'GET',
-				'timeout' => 500,
-				'body'    => $params,
-			);
-
-			$response = wp_remote_get( Config::AUTHORIZE_URL, $args );
-
-			if ( is_wp_error( $response ) ) {
-				return;
-			}
-
-			$code = sanitize_text_field( wp_unslash( $_GET['code'] ) );
-
-			$response_body = wp_remote_retrieve_body( $response );
-
-			$auth = json_decode( $response_body );
-
-			$this->_code = $auth->code;
-
-		} catch ( \Exception $ex ) {
-
-			error_log( $time . ' _get_authorization_code() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
-		}
-
-	}
-
 	private function _get_saved_token() {
 
 		return get_option( $this->_access_token_key );
