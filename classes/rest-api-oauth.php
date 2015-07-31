@@ -60,7 +60,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 			$this->_redirect_uri = $client_details['redirect_uri'];
 
-			if ( $args['route']['access_token'] === 'true' && empty( $this->_access_token ) ) {
+			if ( $args['route']['access_token'] && empty( $this->_access_token ) ) {
 
 				$this->_access_token_key = $this->_client_id . '_' . $args['domain'];
 
@@ -114,7 +114,7 @@ class REST_API_oAuth extends PMC_Singleton {
 				return;
 			}
 
-			$code = $_REQUEST['code'];
+			$code = sanitize_text_field( wp_unslash( $_GET['code'] ) );
 
 			$response_body = wp_remote_retrieve_body( $response );
 
@@ -324,7 +324,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 				$data = json_decode( $response, true );
 
-				if ( $data['code'] != 200 ) {
+				if ( 200 !== $data['code'] ) {
 
 					return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 				}
@@ -442,7 +442,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$data = json_decode( $response, true );
 
-		if ( $data['code'] != 200 ) {
+		if ( 200 !== $data['code'] ) {
 			return new \WP_Error( 'unauthorized_access', $data['body']['message'] );
 		}
 

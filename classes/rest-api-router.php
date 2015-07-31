@@ -26,7 +26,7 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
 	 */
-	private function _call_import_route( $api_data, $domain='' ) {
+	private function _call_import_route( $api_data, $domain = '' ) {
 
 		return $api_data;
 
@@ -113,7 +113,7 @@ class REST_API_Router extends PMC_Singleton {
 
 		$route = strtolower( $params['route']['name'] );
 
-		$access_token = ( $params['route']['access_token'] === 'true' );
+		$access_token = (bool) $params['route']['access_token'];
 
 		$query_params = array();
 

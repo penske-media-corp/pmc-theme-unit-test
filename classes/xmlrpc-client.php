@@ -247,10 +247,10 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 					$options = $default;
 
-				}else {
+				} else {
 					// not using cache
 					set_transient( $cache_key, $options, 300 );
-				} 
+				}
 			}
 		} else {
 			// using cache

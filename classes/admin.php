@@ -236,7 +236,7 @@ class Admin extends PMC_Singleton {
 
 				$route['name'] = sanitize_text_field( $key );
 
-				$route['access_token'] = $value['access_token'];
+				$route['access_token'] = (bool) $value['access_token'];
 
 				if ( array_key_exists( 'query_params', $value ) ) {
 
