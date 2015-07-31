@@ -229,9 +229,8 @@ class Admin extends PMC_Singleton {
 			return;
 		}
 
-
-		$routes = array_map( 'sanitize_text_field', (array) $_POST['route'] );
-		$routes = wp_unslash( $routes );
+		$routes = wp_unslash( (array) $_POST['route'] );
+		$routes = array_map( 'sanitize_text_field', $routes );
 		$code   = sanitize_text_field( wp_unslash( $_POST['code'] ) );
 
 		$return_info = '';
