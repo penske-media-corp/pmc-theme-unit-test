@@ -216,8 +216,9 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
+		$n_once = sanitize_text_field( wp_unslash( $_POST['import_nOnce'] ) );
 
-		if ( empty( wp_unslash( $_POST['import_nOnce'] ) ) || ! wp_verify_nonce( wp_unslash( $_POST['import_nOnce'] ), 'import-from-production' ) ) {
+		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'import-from-production' ) ) {
 			return;
 		}
 
@@ -227,9 +228,9 @@ class Admin extends PMC_Singleton {
 			return;
 		}
 
-		$routes = array_map( 'wp_unslash', $_POST['route'] );
-		$routes = array_map( 'sanitize_text_field', $routes );
-		$code = sanitize_text_field( wp_unslash( $_POST['code'] ) );
+		$routes = array_map( 'wp_unslash', (array) $_POST['route'] );
+		$routes = array_map( 'sanitize_text_field', (array) $routes );
+		$code   = sanitize_text_field( wp_unslash( $_POST['code'] ) );
 
 		$return_info = '';
 
@@ -281,12 +282,13 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( wp_unslash( $_POST['import_xmlrpc_nOnce'] ) ) || ! wp_verify_nonce( wp_unslash( $_POST['import_xmlrpc_nOnce'] ), 'import-xmlrpc-from-production' ) ) {
+		$n_once = sanitize_text_field( wp_unslash( $_POST['import_xmlrpc_nOnce'] ) );
+		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'import-xmlrpc-from-production' ) ) {
 			return;
 		}
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
-		$route = sanitize_text_field( wp_unslash( $_POST['route'] ) );
+		$route  = sanitize_text_field( wp_unslash( $_POST['route'] ) );
 
 		if ( empty( $domain ) ) {
 			return;
@@ -319,12 +321,12 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST['client_nOnce'] ) || ! wp_verify_nonce( $_POST['client_nOnce'], 'get-client-config-details' ) ) {
-
+		$n_once = sanitize_text_field( wp_unslash( $_POST['client_nOnce'] ) );
+		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'get-client-config-details' ) ) {
 			return;
-
 		}
-		$domain = sanitize_text_field( $_POST['domain'] );
+
+		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
 		$params = array(
 			'domain' => $domain,
