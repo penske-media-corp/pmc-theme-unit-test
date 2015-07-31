@@ -41,7 +41,7 @@ class Admin extends PMC_Singleton {
 	 */
 	protected function _setup_hooks() {
 
-		add_action( 'init',  array( $this, 'on_wp_init' ) );
+		add_action( 'init', array( $this, 'on_wp_init' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
@@ -216,7 +216,13 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		if ( empty( $_POST['import_nOnce'] ) || ! wp_verify_nonce( $_POST['import_nOnce'], 'import-from-production' ) || empty( $_POST['domain'] ) ) {
+		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
+		$nOnce  = sanitize_text_field( wp_unslash( $_POST['import_nOnce'] ) );
+		$routes = isset( $_POST['route'] ) ? (array) $_POST['route'] : array();
+		$routes = array_map( 'wp_unslash', $routes );
+		$routes = array_map( 'sanitize_text_field', $routes );
+
+		if ( empty( $nOnce ) || ! wp_verify_nonce( $nOnce, 'import-from-production' ) || empty( $domain ) ) {
 
 			return;
 
@@ -226,17 +232,17 @@ class Admin extends PMC_Singleton {
 
 		if ( ! empty( $_POST['route'] ) ) {
 
-			foreach ( $_POST['route'] as $key => $value ) {
+			foreach ( $routes as $key => $value ) {
 
 				$route['name'] = sanitize_text_field( $key );
 
-				$route['access_token'] = sanitize_text_field( $value['access_token'] );
+				$route['access_token'] = (bool) $value['access_token'];
 
 				if ( array_key_exists( 'query_params', $value ) ) {
 
 					foreach ( $value['query_params'] as $query_key => $query_value ) {
 
-						$route['query_params'][ $query_key ] = sanitize_text_field( $query_value );
+						$route['query_params'][ $query_key ] = $query_value;
 
 					}
 				}
@@ -331,6 +337,6 @@ class Admin extends PMC_Singleton {
 
 	}
 
-}	//end class
+}    //end class
 
 //EOF

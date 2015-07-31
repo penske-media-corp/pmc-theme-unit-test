@@ -18,14 +18,14 @@ class Attachments_Importer extends PMC_Singleton {
 	}
 
 	/**
-	 * Insert a new attachment to the DB.
+	 * Download an image from the specified URL and attach it to a post.
 	 *
 	 * @since 1.0
 	 *
 	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $attachment_json   containing attachment data
-	 *          @type int $post_id Post Id this attachment is associated with
+	 * @type int $post_id Post Id this attachment is associated with
 	 *
 	 *
 	 * @return int|WP_Error The attachment Id on success. The value 0 or WP_Error on failure.
@@ -33,61 +33,24 @@ class Attachments_Importer extends PMC_Singleton {
 	 */
 	private function _save_attachment( $image_url, $post_ID ) {
 
-		$time          = date( '[d/M/Y:H:i:s]' );
+		$time = date( '[d/M/Y:H:i:s]' );
 
 		$attachment_id = 0;
 
 		try {
 
-			$upload_dir = wp_upload_dir();
+			$attachment_id = media_sideload_image( $image_url, $post_ID );
 
-			$filename = basename( $image_url );
+			if ( is_wp_error( $attachment_id ) ) {
 
-			if ( wp_mkdir_p( $upload_dir['path'] ) ) {
-
-				$file = $upload_dir['path'] . '/' . $filename;
+				error_log( $time . ' -- ' . $attachment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			} else {
-				$file = $upload_dir['basedir'] . '/' . $filename;
+
+				error_log( "{$time} -- Attachment URL **-- { $image_url } --** added with new url = {$attachment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
 			}
 
-			if ( ! file_exists( $file ) ) {
-
-				$image_data = file_get_contents( $image_url );
-
-				if ( false === $image_data ) {
-					throw new \Exception( $time . ' No Image data returned for image URL ' . $image_url );
-				}
-
-				file_put_contents( $file, $image_data );
-
-				$wp_filetype = wp_check_filetype( $filename, null );
-
-				$attachment = array(
-					'post_mime_type' => $wp_filetype['type'],
-					'post_title'     => sanitize_file_name( $filename ),
-					'post_content'   => '',
-					'post_status'    => 'inherit',
-				);
-
-				$attachment_id = wp_insert_attachment( $attachment, $file, $post_ID );
-
-				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-				$attach_data = wp_generate_attachment_metadata( $attachment_id, $file );
-
-				wp_update_attachment_metadata( $attachment_id, $attach_data );
-
-				if ( is_a( $attachment_id, 'WP_Error' ) ) {
-
-					error_log( $time . ' -- ' . $attachment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
-				} else {
-
-					error_log( "{$time} -- Attachment URL **-- { $image_url } --** added with ID = {$attachment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
-
-				}
-			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -106,7 +69,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params @type int $author_id Author Id
-	 *         @type string $image_url URL of the image
+	 * @type string $image_url URL of the image
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -117,12 +80,23 @@ class Attachments_Importer extends PMC_Singleton {
 
 		try {
 
-			$attach_id = $this->_save_attachment( $image_url, $post_ID );
+			$this->_save_attachment( $image_url, $post_ID );
 
-			if ( ! empty( $attach_id ) ) {
-				$post_meta_id = set_post_thumbnail( $post_ID, $attach_id );
+			// then find the last image added to the post attachments
+			$attachments = get_posts( array(
+				'numberposts'    => '1',
+				'post_parent'    => $post_ID,
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'image',
+				'order'          => 'ASC'
+			) );
 
+
+			if ( sizeof( $attachments ) > 0 ) {
+				// set image as the post thumbnail
+				set_post_thumbnail( $post_ID, $attachments[0]->ID );
 			}
+
 		} catch ( \Exception $e ) {
 
 			error_log( 'Save Featured Image Failed with Error ---- ' . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -172,7 +146,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID, $domain=''  ) {
+	public function call_import_route( $api_data, $post_ID, $domain = '' ) {
 
 		return $this->instant_attachments_import( $api_data, $post_ID );
 

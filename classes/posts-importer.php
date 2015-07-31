@@ -65,23 +65,17 @@ class Posts_Importer extends PMC_Singleton {
 	 */
 	private function _save_post( $post_json, $author_id, $cat_IDs ) {
 
-		global $wpdb;
-
 		$time = date( '[d/M/Y:H:i:s]' );
 
 		$post_ID = 0;
 
 		try {
 
-			$query = $wpdb->prepare( 'SELECT ID FROM ' . $wpdb->posts . ' WHERE post_name = %s', sanitize_title_with_dashes( $post_json['title'] ) );
+			$post_obj = get_page_by_title( $post_json['title'], OBJECT, 'post' );
 
-			$wpdb->query( $query );
+			if ( ! empty ( $post_obj ) ) {
 
-			if ( $wpdb->num_rows ) {
-
-				$post_ID = $wpdb->get_var( $query );
-
-				error_log( "{$time} -- Exists {$post_json['type']} **-- {$post_json['title']} --** with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
+				error_log( "{$time} -- Exists Post **-- {$post_json['title']} --** with ID = {$post_obj->ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
 			} else {
 
@@ -111,7 +105,7 @@ class Posts_Importer extends PMC_Singleton {
 
 				}
 
-				if ( is_a( $post_ID, 'WP_Error' ) ) {
+				if ( is_wp_error( $post_ID ) ) {
 
 					error_log( $time . ' -- ' . $post_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
