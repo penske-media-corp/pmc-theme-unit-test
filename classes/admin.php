@@ -219,13 +219,17 @@ class Admin extends PMC_Singleton {
 
 		check_ajax_referer( 'import-from-production', 'import_nOnce' );
 
+		if ( ! isset( $_POST['domain'] ) || ! isset( $_POST['route'] ) || ! isset( $_POST['code'] ) ) {
+			return;
+		}
+
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
 		if ( empty( $domain ) ) {
 			return;
 		}
 
-		$routes = array_map( 'wp_unslash', (array) $_POST['route'] );
+		$routes = wp_unslash( $_POST['route'] );
 		$routes = array_map( 'sanitize_text_field', (array) $routes );
 		$code   = sanitize_text_field( wp_unslash( $_POST['code'] ) );
 
@@ -281,6 +285,10 @@ class Admin extends PMC_Singleton {
 		// generated nonce we created earlier
 		check_ajax_referer( 'import-xmlrpc-from-production', 'import_xmlrpc_nOnce' );
 
+		if ( ! isset( $_POST['domain'] ) || ! isset( $_POST['route'] ) ) {
+			return;
+		}
+
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 		$route  = sanitize_text_field( wp_unslash( $_POST['route'] ) );
 
@@ -316,6 +324,10 @@ class Admin extends PMC_Singleton {
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
 		check_ajax_referer( 'get-client-config-details', 'client_nOnce' );
+
+		if ( ! isset( $_POST['domain'] ) ) {
+			return;
+		}
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
