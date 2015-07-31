@@ -216,11 +216,8 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		$n_once = sanitize_text_field( wp_unslash( $_POST['import_nOnce'] ) );
 
-		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'import-from-production' ) ) {
-			return;
-		}
+		check_ajax_referer( 'import-from-production', 'import_nOnce' );
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
@@ -282,10 +279,7 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		$n_once = sanitize_text_field( wp_unslash( $_POST['import_xmlrpc_nOnce'] ) );
-		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'import-xmlrpc-from-production' ) ) {
-			return;
-		}
+		check_ajax_referer( 'import-xmlrpc-from-production', 'import_xmlrpc_nOnce' );
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 		$route  = sanitize_text_field( wp_unslash( $_POST['route'] ) );
@@ -321,10 +315,7 @@ class Admin extends PMC_Singleton {
 
 		// check to see if the submitted nonce matches with the
 		// generated nonce we created earlier
-		$n_once = sanitize_text_field( wp_unslash( $_POST['client_nOnce'] ) );
-		if ( empty( $n_once ) || ! wp_verify_nonce( $n_once, 'get-client-config-details' ) ) {
-			return;
-		}
+		check_ajax_referer( 'get-client-config-details', 'client_nOnce' );
 
 		$domain = sanitize_text_field( wp_unslash( $_POST['domain'] ) );
 
