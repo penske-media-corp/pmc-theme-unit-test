@@ -258,5 +258,39 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 		return $options;
 	}
+	
+	/**
+	 * Get the custom taxonomy term and custom fields for the posts
+	 *
+	 * @since 2015-08-10
+	 * @version 2015-08-10 Archana Mandhare - PPT-5077
+	 *
+	 */
+	public function get_post_custom_data( $post_id, $fields ) {
+
+		$args = array(
+			$post_id,
+			$fields,
+		);
+
+		$cache_key = md5( $this->cache_key . serialize( $args ) );
+		
+		$post_meta      = get_transient( $cache_key );
+		
+		if ( empty( $post_meta ) ) {
+		
+			$post_meta = $this->send_request( 'wp.getPost', $args );
+		
+			if ( empty( $this->error ) ) {
+				// not using cache
+				set_transient( $cache_key, $post_meta, 300 );
+			}
+		
+		} else {
+			// using cache
+		}
+
+		return $post_meta;
+	}
 }
 
