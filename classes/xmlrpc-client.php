@@ -23,7 +23,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 			'port'     => $port,
 			'timeout'  => $timeout,
 		);
-		$xmlrpc_args = apply_filters( 'pmc_tut_xmlrpc_client_credentials', $xmlrpc_args );
+		$xmlrpc_args = apply_filters( 'pmc_xmlrpc_client_credentials', $xmlrpc_args );
 
 		// @todo Corey Gilmore throw a WP Error here instead
 		if ( empty( $xmlrpc_args['server'] ) || empty( $xmlrpc_args['username'] ) || empty( $xmlrpc_args['password'] ) ) {
