@@ -11,6 +11,7 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 
 - WordPress 4.0 or above
 - PHP 5.4 or above
+- Your Theme PHP code for which data import is expected through this plugin.
 
 ## Instructions
 
