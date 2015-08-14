@@ -271,26 +271,17 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 			$post_id,
 			$fields,
 		);
-
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
-		
-		$post_meta      = get_transient( $cache_key );
-		
+		$post_meta = get_transient( $cache_key );
 		if ( empty( $post_meta ) ) {
-		
 			$post_meta = $this->send_request( 'wp.getPost', $args );
-		
-
 			if ( empty( $this->error ) ) {
 				// not using cache
 				set_transient( $cache_key, $post_meta, 300 );
 			}
-	
 		} else {
 			// using cache
 		}
-
-
 		return $post_meta;
 	}
 }

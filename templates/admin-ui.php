@@ -26,7 +26,7 @@
 
 								<form id="pmc-domain-creds" action="options.php" method="post">
 									<?php
-									settings_fields( "pmc_domain_creds" );
+									settings_fields( 'pmc_domain_creds' );
 									?>
 									<div>
 										<table id="domain-creds-layout" class="widefat">

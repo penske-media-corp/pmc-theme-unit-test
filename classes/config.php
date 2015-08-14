@@ -84,7 +84,7 @@ class Config {
 		),
 
 	);
-	
+
 	public static $default_taxonomies = array( 'post_tag', 'category' );
 
 }

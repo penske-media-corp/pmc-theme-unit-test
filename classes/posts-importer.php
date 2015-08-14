@@ -68,7 +68,7 @@ class Posts_Importer extends PMC_Singleton {
 
 		try {
 
-			$post_obj = get_page_by_title( $post_json['title'], OBJECT, $post_type );
+			$post_obj = wpcom_vip_get_page_by_title( $post_json['title'], OBJECT, $post_type );
 
 			if ( ! empty( $post_obj ) ) {
 
@@ -110,7 +110,6 @@ class Posts_Importer extends PMC_Singleton {
 
 					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
-
 			}
 		} catch ( \Exception $e ) {
 

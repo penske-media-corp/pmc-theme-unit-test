@@ -69,7 +69,7 @@ class Menus_Importer extends PMC_Singleton {
 				break;
 
 			case 'post_type':
-				$menu_item_object_id = url_to_postid( $url );
+				$menu_item_object_id = wpcom_vip_url_to_postid( $url );
 				if ( 0 === $menu_item_object_id ) {
 
 					$menu_item_object_id = $this->call_post_rest_api_route( $type, $content_id );

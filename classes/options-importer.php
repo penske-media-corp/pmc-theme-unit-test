@@ -61,7 +61,7 @@ class Options_Importer extends PMC_Singleton {
 				$option_exists = get_option( $option_name );
 
 				if ( empty( $option_exists ) ) {
-					
+
 					$option_value = maybe_unserialize( $option_value['value'] );
 
 					update_option( $option_name, $option_value );
@@ -69,7 +69,6 @@ class Options_Importer extends PMC_Singleton {
 					error_log( $time . $option_name . ' -- IMPORTED with value ' . json_enocde( $option_value ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 				}
-
 			} catch ( \Exception $ex ) {
 
 				error_log( $time . ' -- ' . $ex->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
