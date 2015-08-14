@@ -11,14 +11,7 @@ class Config {
 	const AUTHORIZE_URL = 'https://public-api.wordpress.com/oauth2/authorize';
 
 	public static $pmc_domains = array(
-		'deadline',
-		'bgr',
-		'hollywoodlife',
-		'variety',
-		'varietylatino',
-		'tvline',
-		'footwearnews',
-		'wwd',
+		'yourdomain',
 	);
 
 	public static $access_token_key = '_rest_api_access_token';
