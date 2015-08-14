@@ -1,5 +1,4 @@
 <?php
-
 namespace PMC\Theme_Unit_Test;
 
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
@@ -258,7 +257,7 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 		return $options;
 	}
-	
+
 	/**
 	 * Get the custom taxonomy term and custom fields for the posts
 	 *
@@ -281,14 +280,16 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		
 			$post_meta = $this->send_request( 'wp.getPost', $args );
 		
+
 			if ( empty( $this->error ) ) {
 				// not using cache
 				set_transient( $cache_key, $post_meta, 300 );
 			}
-		
+	
 		} else {
 			// using cache
 		}
+
 
 		return $post_meta;
 	}

@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class REST_API_Router extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -22,11 +19,13 @@ class REST_API_Router extends PMC_Singleton {
 	 * Just to make sure that if no class to save data
 	 * gets called then this method will return data as is.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-16
 	 *
-	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
+	 * @version 2015-07-16 Archana Mandhare - PPT-5077
+	 *
+	 * @params array data returned from json rest api
 	 */
-	private function _call_import_route( $api_data, $domain = '' ) {
+	private function _call_import_route( $api_data ) {
 
 		return $api_data;
 
@@ -39,9 +38,9 @@ class REST_API_Router extends PMC_Singleton {
 	 * This method will make a call to the public REST API
 	 * and fetch data from live site and save to the current site DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 * @params string $route - the name of the endpoint route that needs to be appended to the API URL
 	 * array $query_params the query params that need to be passed to the API
@@ -49,9 +48,9 @@ class REST_API_Router extends PMC_Singleton {
 	 * bool $access_token true if oAuth access token is required to fetch data. Default is false.
 	 *
 	 */
-	private function _access_endpoint( $domain, $route, $query_params = array(), $route_index, $access_token ) {
+	private function _access_endpoint( $route, $query_params = array(), $route_index = '', $access_token = false ) {
 
-		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $domain, $route, $query_params, $route_index, $access_token );
+		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $route, $query_params, $route_index, $access_token );
 
 		if ( is_wp_error( $api_data ) ) {
 
@@ -86,7 +85,7 @@ class REST_API_Router extends PMC_Singleton {
 					break;
 			}
 
-			return $route_class->call_import_route( $api_data, $domain );
+			return $route_class->call_import_route( $api_data );
 
 		}
 
@@ -98,46 +97,60 @@ class REST_API_Router extends PMC_Singleton {
 	 * This method will make a call to the public REST API
 	 * and fetch data from live site and save to the current site DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 *
+	 * @params string $route it is the endpoint name - e.g users, menu, categories, tags etc
 	 *
 	 */
-	public function call_rest_api_route( $params ) {
+	public function call_rest_api_all_route( $route ) {
 
-		if ( ! empty( $params['domain'] ) ) {
-			$domain = $params['domain'];
-		} else {
-			$domain = '';
+		foreach ( Config::$all_routes as $routes ) {
+
+			if ( ! empty( $routes[ $route ] ) ) {
+				$route_params = $routes[ $route ];
+				break;
+			}
 		}
 
-		$route = strtolower( $params['route']['name'] );
+		if ( ! empty( $route_params ) ) {
 
-		$access_token = (bool) $params['route']['access_token'];
+			$access_token = $route_params['access_token'];
 
-		$query_params = array();
+			$query_params = array();
 
-		if ( ! empty( $params['route']['query_params'] ) ) {
+			if ( ! empty( $route_params['query_params'] ) ) {
 
-			$query_params = $params['route']['query_params'];
+				$query_params = $route_params['query_params'];
 
-		}
+			}
 
-		if ( ! empty( $params['route']['route_index'] ) ) {
-			$route_index = $params['route']['route_index'];
-		} else {
-			$route_index = $route;
-		}
-
-		if ( $access_token ) {
-			// Initialize the oAuth params and set access token to be used by the routes
-			REST_API_oAuth::get_instance()->initialize_params( $params );
+			$data_ids[] = $this->_access_endpoint( $route, $query_params, $route, $access_token );
 
 		}
 
-		$data_ids[] = $this->_access_endpoint( $domain, $route, $query_params, $route_index, $access_token );
+		return true;
+	}
 
-		return $data_ids;
+	/**
+	 * Access posts endpoints to make call to REST API
+	 *
+	 * This method will make a call to the public REST API
+	 * and fetch data posts and custom posts data from live site and save to the current site DB.
+	 *
+	 * @since 2015-08-12
+	 *
+	 * @version 2015-08-12 Archana Mandhare - PPT-5077
+	 *
+	 * @params string $route it is post_type for the post endpoint
+	 *
+	 */
+	public function call_rest_api_posts_route( $route ) {
+
+		$data_ids[] = $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts', false );
+
+		return true;
 	}
 
 }

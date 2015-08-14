@@ -35,6 +35,7 @@
  * @version 2013-01-07 Corey Gilmore
  *
  */
+namespace PMC\Theme_Unit_Test;
 
 if ( ! class_exists( 'PMC_Singleton' ) ) {
 

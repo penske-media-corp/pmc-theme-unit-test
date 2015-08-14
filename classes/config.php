@@ -4,40 +4,24 @@ namespace PMC\Theme_Unit_Test;
 class Config {
 
 
-	const REST_BASE_URL = 'https://public-api.wordpress.com/rest/v1/sites/';
+	const REST_BASE_URL = 'https://public-api.wordpress.com/rest/v1.1/sites/';
 
 	const REQUEST_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token';
 
 	const AUTHORIZE_URL = 'https://public-api.wordpress.com/oauth2/authorize';
 
-	const AUTHENTICATE_URL = 'https://public-api.wordpress.com/oauth2/authenticate';
-
-	const VALIDATE_URL = 'https://public-api.wordpress.com/oauth2/token-info';
-
-	public static $rest_api_auth = array(
-		'YOURDOMAIN_1.com' => array(
-			'client_id'     => '',
-			'client_secret' => '',
-			'redirect_uri'  => '',
-		),
-		'YOURDOMAIN_2.com' => array(
-			'client_id'     => '',
-			'client_secret' => '',
-			'redirect_uri'  => '',
-		),
-
+	public static $pmc_domains = array(
+		'deadline',
+		'bgr',
+		'hollywoodlife',
+		'variety',
+		'varietylatino',
+		'tvline',
+		'footwearnews',
+		'wwd',
 	);
 
-	public static $xmlrpc_auth = array(
-		'YOURDOMAIN_1.com' => array(
-			'username' => '',
-			'password' => '',
-		),
-		'YOURDOMAIN_2.com' => array(
-			'username' => '',
-			'password' => '',
-		),
-	);
+	public static $access_token_key = '_rest_api_access_token';
 
 	public static $all_routes = array(
 		0 => array(
@@ -74,10 +58,10 @@ class Config {
 
 	public static $custom_taxonomies = array(
 		0 => array(
-			'name'              => 'NAMETAXONOMY', // Name of the taxonomy
+			'name'              => 'TAXNAME1', // Name of the taxonomy
 			'object_type'       => 'post', // Object type of the taxonomy . e.g post, page etc
-			'label'             => 'NAMETAXONOMY',
-			'labels'            => 'NAMETAXONOMY',
+			'label'             => 'TAXNAME1',
+			'labels'            => 'TAXNAME1',
 			'public'            => true,
 			'hierarchical'      => true,
 			'show_ui'           => true,
@@ -87,13 +71,13 @@ class Config {
 			'query_var'         => true,
 			'sort'              => true,
 			'args'              => array( 'orderby' => 'term_order' ),
-			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' ),
+			'rewrite'           => array( 'slug' => 'TAXNAME1' ),
 		),
 		1 => array(
-			'name'              => 'NAMETAXONOMY', // Name of the taxonomy
+			'name'              => 'TAXNAME2', // Name of the taxonomy
 			'object_type'       => 'post', // Object type of the taxonomy . e.g post, page etc
-			'label'             => 'NAMETAXONOMY',
-			'labels'            => 'NAMETAXONOMY',
+			'label'             => 'TAXNAME2',
+			'labels'            => 'TAXNAME2',
 			'public'            => true,
 			'hierarchical'      => true,
 			'show_ui'           => true,
@@ -103,7 +87,11 @@ class Config {
 			'query_var'         => true,
 			'sort'              => true,
 			'args'              => array( 'orderby' => 'term_order' ),
-			'rewrite'           => array( 'slug' => 'NAMETAXONOMY' ),
+			'rewrite'           => array( 'slug' => 'TAXNAME2' ),
 		),
+
 	);
+	
+	public static $default_taxonomies = array( 'post_tag', 'category' );
+
 }

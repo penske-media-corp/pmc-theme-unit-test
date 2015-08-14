@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class Comments_Importer extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-16
 	 *
-	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
+	 * @version 2015-07-16 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -21,9 +18,9 @@ class Comments_Importer extends PMC_Singleton {
 	/**
 	 * Insert a new Comment to the DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $comment_json   containing Comment data
 	 * @type int $post_ID Post Id this comment is associated with
@@ -77,9 +74,9 @@ class Comments_Importer extends PMC_Singleton {
 	/**
 	 * Assemble user data from API and inserts post comments.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of comments object
 	 *
@@ -103,14 +100,14 @@ class Comments_Importer extends PMC_Singleton {
 	/**
 	 * Route the call to the import function for this class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-15
 	 *
-	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
+	 * @version 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID, $domain = '' ) {
+	public function call_import_route( $api_data, $post_ID ) {
 
 		return $this->instant_comments_import( $api_data, $post_ID );
 
@@ -122,9 +119,9 @@ class Comments_Importer extends PMC_Singleton {
 	 * This method will make a call to the public REST API
 	 * and fetch data from live site and save to the current site DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function call_rest_api_route( $old_post_id, $new_post_ID ) {

@@ -7,7 +7,6 @@
  * Author Archana Mandhare <amandhare@pmc.com>
  *
  */
-namespace PMC\Theme_Unit_Test;
 
 class Test_Admin extends WP_UnitTestCase {
 	/**
@@ -48,6 +47,9 @@ class Test_Admin extends WP_UnitTestCase {
 	 */
 	public function test_load_assets() {
 
+		$admin = Admin::get_instance();
+		$admin->load_assets( 'tools_page_data-import' );
+
 		$this->assertTrue( wp_style_is( 'pmc_theme_unit_test_admin_css', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'pmc_theme_unit_test_admin_js', 'enqueued' ) );
 
@@ -56,14 +58,52 @@ class Test_Admin extends WP_UnitTestCase {
 	/**
 	 * @covers Admin::add_admin_menu()
 	 */
-	public function add_admin_menu() {
+	public function test_add_admin_menu() {
 
 		$menu_slug   = plugin_basename( 'data-import' );
 		$parent_slug = plugin_basename( 'tools.php' );
 
 		$hookname = get_plugin_page_hookname( $menu_slug, $parent_slug );
 
-		$this->assetTrue( ( 'tools_page_data-import' !== $hookname ) );
+		$this->assertTrue( ( 'tools_page_data-import' !== $hookname ) );
+
+	}
+
+	/**
+	 * @covers Admin::data_import_options()
+	 */
+	public function test_data_import_options() {
+
+		$admin = Admin::get_instance();
+		$administrator_id = $this->factory->user->create( array(
+			'user_login' => 'administrator',
+			'user_pass'  => 'administrator',
+			'role'       => 'administrator',
+		));
+		grant_super_admin( $administrator_id );
+		$admin->data_import_options();
+		$this->assertNotNull( $admin->domain );
+
+	}
+
+	/**
+	 * @covers Admin::import_data_from_production()
+	 */
+	public function test_import_data_from_production() {
+
+	}
+
+	/**
+	 * @covers Admin::import_xmlrpc_data_from_production()
+	 */
+	public function test_import_xmlrpc_data_from_production() {
+
+	}
+
+	/**
+	 * @covers Admin::get_client_configuration_details()
+	 */
+	public function test_get_client_configuration_details() {
 
 	}
 

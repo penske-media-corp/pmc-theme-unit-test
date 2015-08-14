@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class Attachments_Importer extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -20,9 +17,9 @@ class Attachments_Importer extends PMC_Singleton {
 	/**
 	 * Download an image from the specified URL and attach it to a post.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $attachment_json   containing attachment data
 	 * @type int $post_id Post Id this attachment is associated with
@@ -63,9 +60,9 @@ class Attachments_Importer extends PMC_Singleton {
 	/**
 	 * Create a media library image from the given URL and attach it as featured image of the post.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params @type int $author_id Author Id
 	 * @type string $image_url URL of the image
@@ -107,9 +104,9 @@ class Attachments_Importer extends PMC_Singleton {
 	/**
 	 * Assemble Attachments data from API and inserts new attachments.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of Attachment object
 	 *
@@ -136,14 +133,14 @@ class Attachments_Importer extends PMC_Singleton {
 	/**
 	 * Route the call to the import function for this class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-16
 	 *
-	 * @version 1.0, 2015-07-16 Archana Mandhare - PPT-5077
+	 * @version 2015-07-16 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID, $domain = '' ) {
+	public function call_import_route( $api_data, $post_ID ) {
 
 		return $this->instant_attachments_import( $api_data, $post_ID );
 

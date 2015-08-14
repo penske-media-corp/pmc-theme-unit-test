@@ -1,9 +1,6 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class Posts_Importer extends PMC_Singleton {
 
 	private $_domain;
@@ -11,9 +8,9 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -23,9 +20,9 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * Insert a Post Meta to the DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array containing Post Meta data
 	 *
@@ -52,9 +49,9 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * Insert a new Post to the DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @params  @type array   $post_json   containing Post data
 	 * @type int $author_id Author Id
@@ -63,7 +60,7 @@ class Posts_Importer extends PMC_Singleton {
 	 * @return int|WP_Error The Post Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	private function _save_post( $post_json, $author_id, $cat_IDs ) {
+	public function save_post( $post_json, $author_id, $cat_ids_arr = array(), $post_type = 'post' ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
@@ -71,7 +68,7 @@ class Posts_Importer extends PMC_Singleton {
 
 		try {
 
-			$post_obj = wpcom_vip_get_page_by_title( $post_json['title'], OBJECT, 'post' );
+			$post_obj = get_page_by_title( $post_json['title'], OBJECT, $post_type );
 
 			if ( ! empty( $post_obj ) ) {
 
@@ -94,7 +91,7 @@ class Posts_Importer extends PMC_Singleton {
 					'post_title'    => $post_json['title'],
 					'post_date'     => $post_json['date'],
 					'post_modified' => $post_json['modified'],
-					'post_category' => $cat_IDs,
+					'post_category' => $cat_ids_arr,
 				);
 
 				$post_ID = wp_insert_post( $post_data );
@@ -113,6 +110,7 @@ class Posts_Importer extends PMC_Singleton {
 
 					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 				}
+
 			}
 		} catch ( \Exception $e ) {
 
@@ -127,9 +125,9 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * Assemble post data from API and inserts new post.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of post object
 	 *
@@ -164,7 +162,7 @@ class Posts_Importer extends PMC_Singleton {
 				}
 
 				// Save post and get its ID in order to save other meta data related to it.
-				$post_ID = $this->_save_post( $post_json, $author_ID, $cat_ids );
+				$post_ID = $this->save_post( $post_json, $author_ID, $cat_ids, $post_json['type'] );
 
 				if ( $post_ID ) {
 
@@ -185,8 +183,43 @@ class Posts_Importer extends PMC_Singleton {
 
 						foreach ( $post_json['metadata'] as $post_metadata ) {
 
-							$meta_ids[] = $this->_save_post_meta( $post_ID, $post_metadata );
+							$old_meta_ids[] = $post_metadata['id'];
+							$meta_ids[]     = $this->_save_post_meta( $post_ID, $post_metadata );
 
+						}
+					}
+
+					// Fetch the custom taxonomy terms and custom fields for this post using XMLRPC.
+					$params = array( 'route' => 'posts', 'post_id' => $post_json['ID'] );
+
+					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $params );
+
+					error_log( "{$time} -- POST IMPORT INSERT ENDED**-- " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+					// Save the custom taxonomy terms for this post.
+					if ( ! empty( $post_meta ) && ! empty( $post_meta['terms'] ) ) {
+
+						foreach ( $post_meta['terms'] as $custom_term ) {
+
+							// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
+							if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
+
+								wp_set_post_terms( $post_ID, $custom_term['name'], $custom_term['taxonomy'] );
+
+							}
+						}
+					}
+
+					// Save the custom fields for this post.
+					if ( ! empty( $post_meta ) && ! empty( $post_meta['custom_fields'] ) ) {
+
+						foreach ( $post_meta['custom_fields'] as $custom_field ) {
+
+							if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
+
+								$meta_ids[] = $this->_save_post_meta( $post_ID, $custom_field );
+
+							}
 						}
 					}
 
@@ -226,16 +259,14 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * Route the call to the import function for this class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-15
 	 *
-	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
+	 * @version 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $domain = '' ) {
-
-		$this->_domain = $domain;
+	public function call_import_route( $api_data ) {
 
 		wp_defer_term_counting( true );
 
@@ -254,9 +285,9 @@ class Posts_Importer extends PMC_Singleton {
 	/**
 	 * If the post type does not exists register the new Custom Post Type
 	 *
-	 * @since 1.0
+	 * @since 2015-07-21
 	 *
-	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 * @params string $post_type post type name to register
 	 *

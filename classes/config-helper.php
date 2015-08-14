@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
-class Config_Helper extends \PMC_Singleton {
+class Config_Helper extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-21
 	 *
-	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 */
 	public function _init() {
@@ -20,43 +17,34 @@ class Config_Helper extends \PMC_Singleton {
 	}
 
 	/**
-	 * Setup Hooks required to create Config Helper class
+	 * Setup Hooks required in Config Helper class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-21
 	 *
-	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 */
 	protected function _setup_hooks() {
 
-		add_filter( 'pmc_theme_ut_xmlrpc_client_auth', array(
-			$this,
-			'filter_pmc_theme_ut_xmlrpc_client_auth',
-		), 10, 2 );
+		add_filter( 'pmc_custom_post_types_to_import', array( $this, 'filter_pmc_custom_post_types_to_import' ) );
 
-		add_filter( 'pmc_theme_ut_domains', array( $this, 'filter_pmc_theme_ut_domains' ) );
-
-		add_filter( 'pmc_theme_ut_domain_routes', array( $this, 'filter_pmc_theme_ut_domain_routes' ) );
-
-		add_filter( 'pmc_theme_ut_xmlrpc_routes', array( $this, 'filter_pmc_theme_ut_xmlrpc_routes' ) );
-
-		add_filter( 'pmc_theme_ut_endpoints_config', array( $this, 'filter_pmc_theme_ut_endpoints_config' ), 10, 2 );
-
-		add_filter( 'pmc_theme_ut_posts_routes', array( $this, 'filter_pmc_theme_ut_posts_routes' ) );
-
-		add_filter( 'pmc_theme_ut_custom_post_types_to_import', array(
-			$this,
-			'filter_pmc_theme_ut_custom_post_types_to_import',
-		) );
-
-		add_filter( 'pmc_theme_ut_custom_taxonomies_to_import', array(
-			$this,
-			'filter_pmc_theme_ut_custom_taxonomies_to_import',
-		) );
+		add_filter( 'pmc_custom_taxonomies_to_import', array( $this, 'filter_pmc_custom_taxonomies_to_import' ) );
 
 	}
 
-	public function filter_pmc_theme_ut_custom_post_types_to_import( $post_types ) {
+	/**
+	 * Get all the custom post types that need to be registered in init hook in admin
+	 *
+	 * @since 2015-07-30
+	 *
+	 * @version 2015-07-30 Archana Mandhare - PPT-5077
+	 *
+	 * @params
+	 *
+	 * @return array $post_types
+	 *
+	 */
+	public function filter_pmc_custom_post_types_to_import( $post_types ) {
 
 		$custom_posttypes = Config::$custom_posttypes;
 		if ( ! empty( $custom_posttypes ) ) {
@@ -68,8 +56,19 @@ class Config_Helper extends \PMC_Singleton {
 		return $post_types;
 	}
 
-
-	public function filter_pmc_theme_ut_custom_taxonomies_to_import( $taxonomies ) {
+	/**
+	 * Get all the custom taxonomies that need to be registered in init hook in admin
+	 *
+	 * @since 2015-07-30
+	 *
+	 * @version 2015-07-30 Archana Mandhare - PPT-5077
+	 *
+	 * @params array $taxonomies array containing the details required to register taxonomy
+	 *
+	 * @return array $taxonomies
+	 *
+	 */
+	public function filter_pmc_custom_taxonomies_to_import( $taxonomies ) {
 
 		$custom_taxonomies = Config::$custom_taxonomies;
 		if ( ! empty( $custom_taxonomies ) ) {
@@ -82,92 +81,20 @@ class Config_Helper extends \PMC_Singleton {
 	}
 
 	/**
-	 * The xmlrpc client credentials to get access to the server
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
-	 *
-	 * @param array $domain The server to pull data from
-	 *
-	 * @return array $xmlrpc_args The array containing the credentials
-	 *
-	 *
-	 */
-	public function filter_pmc_theme_ut_xmlrpc_client_auth( $xmlrpc_args, $domain = '' ) {
-
-		if ( ! empty( $domain ) ) {
-
-			$xmlrpc_args = array(
-				'server'   => "http://{$domain}/xmlrpc.php",
-				'username' => Config::$xmlrpc_auth[ $domain ]['username'],
-				'password' => Config::$xmlrpc_auth[ $domain ]['password'],
-			);
-
-		}
-
-		return $xmlrpc_args;
-	}
-
-	/**
 	 * The list of domains we can pull data from
 	 *
-	 * @since 1.0
+	 * @since 2015-07-22
 	 *
-	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
-	 *
-	 * @param array $domain_list The array containing the domain details
+	 * @version 2015-07-22 Archana Mandhare - PPT-5077
 	 *
 	 * @return array $domain_list The array containing the domain details
 	 *
 	 *
 	 */
-	public function filter_pmc_theme_ut_domains( $domain_list ) {
+	public static function get_domains() {
 
-		$domain_config = Config::$rest_api_auth;
+		return Config::$pmc_domains;
 
-		foreach ( $domain_config as $key => $value ) {
-			$domain_list[] = $key;
-		}
-
-		return array_unique( $domain_list );
-	}
-
-	/**
-	 * Return the oAuth client details for the domain that is being passed.
-	 *
-	 * @since 1.0
-	 *
-	 * @version 1.0, 2015-07-22 Archana Mandhare - PPT-5077
-	 *
-	 * @param array $client_configuration The array containing the client details
-	 *        array $args contains the Domain that is required to indentify the client and get its details
-	 *
-	 * @return array $client_configuration The array containing the client details
-	 *
-	 *
-	 */
-	public function filter_pmc_theme_ut_endpoints_config( $client_configuration, $args ) {
-
-		if ( ! empty( $args['domain'] ) && ! empty( Config::$rest_api_auth ) ) {
-
-			$domain = $args['domain'];
-
-			$client_auth = Config::$rest_api_auth;
-
-			$client_configuration = $client_auth[ $domain ];
-
-			$client_configuration['has_access_token'] = true;
-
-			$client_id          = $client_configuration['client_id'];
-
-			$saved_access_token = get_option( $client_id . '_' . $args['domain'] );
-
-			$client_configuration['has_access_token'] = empty( $saved_access_token ) ? false : true;
-
-		}
-
-		return $client_configuration;
 	}
 
 	/**
@@ -176,15 +103,21 @@ class Config_Helper extends \PMC_Singleton {
 	 *
 	 * We can modify the Config::$all_routes array to fetch just the required data.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-14
 	 *
-	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
+	 * @version 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function filter_pmc_theme_ut_domain_routes( $domain_routes ) {
+	public static function get_all_routes() {
+
+		$domain_routes = array();
 
 		if ( ! empty( Config::$all_routes ) ) {
-			$domain_routes = Config::$all_routes;
+
+			foreach ( Config::$all_routes as $route ) {
+				$route_name      = array_keys( $route );
+				$domain_routes[] = $route_name[0];
+			}
 		}
 
 		return $domain_routes;
@@ -194,13 +127,14 @@ class Config_Helper extends \PMC_Singleton {
 	/**
 	 * Return the endpoint routes for xmlrpc that need to be accessed with this API
 	 *
-	 * @since 1.0
+	 * @since 2015-07-21
 	 *
-	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function filter_pmc_theme_ut_xmlrpc_routes( $xmlrpc_routes ) {
+	public static function get_xmlrpc_routes() {
 
+		$xmlrpc_routes = array();
 		if ( ! empty( Config::$xmlrpc_routes ) ) {
 			$xmlrpc_routes = Config::$xmlrpc_routes;
 		}
@@ -214,38 +148,49 @@ class Config_Helper extends \PMC_Singleton {
 	 * that are required to make a call to the REST API
 	 * Use 'rest_api_allowed_post_types' filter to allow CPT support
 	 *
-	 * @since 1.0
+	 * @since 2015-07-14
 	 *
-	 * @version 1.0, 2015-07-14 Archana Mandhare - PPT-5077
+	 * @version 2015-07-14 Archana Mandhare - PPT-5077
 	 *
 	 *
 	 */
-	public function filter_pmc_theme_ut_posts_routes( $posts_routes = array() ) {
-
+	public static function get_posts_routes() {
 		// Fetch the posts and the custom post types.
-
-		$allowed_types = apply_filters( 'pmc_theme_ut_custom_post_types_to_import', array() );
+		$allowed_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
 
 		$allowed_custom_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
 
 		$route_post_types = array_unique( $allowed_custom_types );
 
-		foreach ( $route_post_types as $route_post_type ) {
-			$post_type = array(
-				'posts' => array(
-					'access_token' => false,
-					'query_params' => array(
-						'type' => $route_post_type,
-					),
-				),
-			);
-
-			$posts_routes[] = $post_type;
-		}
-
-		return $posts_routes;
+		return $route_post_types;
 
 	}
+
+	/**
+	 * Get the current domain that we are on to match it with the one we want to pull data from
+	 *
+	 * @since 2015-08-12
+	 *
+	 * @version 2015-08-12 Archana Mandhare - PPT-5077
+	 *
+	 */
+	public static function get_current_domain() {
+
+		$current_host = parse_url( get_home_url(), PHP_URL_HOST );
+
+		foreach ( Config::$pmc_domains as $domain ) {
+
+			if ( false !== stripos( $current_host, $domain ) ) {
+
+				$current_domain = $domain;
+
+				break;
+			}
+		}
+
+		return $current_domain;
+	}
+
 
 	/**
 	 * A template function so that we don't have to put inline HTML.
@@ -274,5 +219,6 @@ class Config_Helper extends \PMC_Singleton {
 
 		return ob_get_clean();
 	}
+
 
 }

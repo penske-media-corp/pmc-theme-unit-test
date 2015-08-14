@@ -4,15 +4,27 @@ jQuery(document).ready(function () {
 
         window.PMC_Theme_Unit_Test.init(pmc_unit_test_ajax);
 
+        window.PMC_Theme_Unit_Test.getClientDetails();
+
         jQuery('#sync-from-prod').on("click", function () {
             window.PMC_Theme_Unit_Test.importData();
         });
 
-        jQuery('#domain-names').on("change", function () {
-            window.PMC_Theme_Unit_Test.getClientDetails();
+        jQuery('#authorize-url').on( "click", function (e) {
+            var href = this.href;
+            var client_id = jQuery("#client_id").val();
+            if (href.indexOf(client_id) < 0) {
+                href = href + '&client_id=' + client_id;
+            }
+            var redirect_uri = jQuery("#redirect_uri").val();
+            if (href.indexOf(redirect_uri) < 0) {
+                href = href + '&redirect_uri=' + redirect_uri;
+            }
+            this.href = href;
         });
 
     }
+
 
 });
 
@@ -33,20 +45,20 @@ window.PMC_Theme_Unit_Test = {
         if (self.routes !== 'undefined') {
 
             if (self.routes.all_routes !== 'undefined') {
-                jQuery.each(self.routes.all_routes, function (i, end_routes) {
-                    self.callRestEndpoints(end_routes, false);
+                jQuery.each(self.routes.all_routes, function (i, end_route) {
+                    self.callRestAllEndpoints(end_route, false);
                 });
             }
 
             if (self.routes.post_routes !== 'undefined') {
-                jQuery.each(self.routes.post_routes, function (i, end_routes) {
-                    self.callRestEndpoints(end_routes, true);
+                jQuery.each(self.routes.post_routes, function (i, end_route) {
+                    self.callRestPostEndpoints(end_route, true);
                 });
             }
 
             if (self.routes.xmlrpc_routes !== 'undefined') {
-                jQuery.each(self.routes.xmlrpc_routes, function (i, end_routes) {
-                    self.callXmlrpcEndpoints(end_routes);
+                jQuery.each(self.routes.xmlrpc_routes, function (i, end_route) {
+                    self.callXmlrpcEndpoints(end_route);
                 });
             }
         }
@@ -59,8 +71,6 @@ window.PMC_Theme_Unit_Test = {
 
         try {
 
-            jQuery('#authorize-text').empty();
-            jQuery('.domain-code').hide();
             jQuery('.spin-loader').show();
 
             jQuery.ajax({
@@ -68,14 +78,10 @@ window.PMC_Theme_Unit_Test = {
                 url: self.options.admin_url,
                 data: {
                     action: "get_client_configuration_details",
-                    client_nOnce: self.options.client_nOnce,
-                    domain: jQuery('#domain-names').val()
+                    client_nOnce: self.options.client_nOnce
                 },
                 success: function (data, textStatus, jqXHR) {
-
-                    jQuery('.spin-loader').hide();
-
-                    if ( data !== "undefined" ) {
+                    if (data !== "undefined") {
                         self.setupAdminPage(data)
                     }
                 },
@@ -101,62 +107,51 @@ window.PMC_Theme_Unit_Test = {
 
         var self = this;
 
-        if (data.all_routes !== 'undefined' && data.post_routes !== 'undefined') {
-
-            self.routes = {
-                "all_routes": data.all_routes,
-                "post_routes": data.post_routes,
-                "xmlrpc_routes": data.xmlrpc_routes
-            };
-        }
-        if (data.config_oauth.redirect_uri !== 'undefined' && data.config_oauth.client_id !== 'undefined') {
-
-            if( false === data.config_oauth.has_access_token ) {
-
-                var redirect_uri = encodeURI(data.config_oauth.redirect_uri);
-                var query_params = {
-                    client_id: data.config_oauth.client_id,
-                    redirect_uri: redirect_uri,
-                    response_type: 'code',
-                    scope: 'global'
-                };
-
-                var params = jQuery.param(query_params);
-                var authorize_url = self.options.API + '?' + params;
-                var authorize_href = jQuery('<a />');
-                authorize_href.attr('href', authorize_url);
-                authorize_href.attr('target', '_blank');
-                authorize_href.text('Authorize URL');
-
-                jQuery('#authorize-text').append(authorize_href);
-                jQuery('.domain-code').show();
-            }
-
+        if (data.all_routes !== 'undefined') {
+            self.routes.all_routes = data.all_routes;
         }
 
-        jQuery('.sync-button').show();
+        if (data.post_routes !== 'undefined') {
+            self.routes.post_routes = data.post_routes;
+        }
+
+        if (data.xmlrpc_routes !== 'undefined') {
+            self.routes.xmlrpc_routes = data.xmlrpc_routes;
+        }
+
+        jQuery('#sync-from-prod').prop('disabled', false);
+
+        jQuery('.spin-loader').hide();
+
 
     },
 
-    callRestEndpoints: function (end_route, is_post) {
+    callRestAllEndpoints: function (end_route) {
 
         var self = this;
 
         var ajax_data = {
-            action: "import_data_from_production",
+            action: "import_all_data_from_production",
             import_nOnce: self.options.import_nOnce,
-            domain: jQuery('#domain-names').val(),
-            code: jQuery('#wp-auth-code').val(),
             route: end_route
         };
 
-        var route_name = Object.keys(end_route);
-        if( is_post ){
-            route_params = end_route[route_name];
-            route_name = route_params["query_params"]["type"];
-        }
+        self.makeAjaxRequest(ajax_data, end_route);
 
-        self.makeAjaxRequest(ajax_data, route_name);
+
+    },
+
+    callRestPostEndpoints: function (end_route) {
+
+        var self = this;
+
+        var ajax_data = {
+            action: "import_posts_data_from_production",
+            import_posts_nOnce: self.options.import_posts_nOnce,
+            route: end_route
+        };
+
+        self.makeAjaxRequest(ajax_data, end_route);
 
 
     },
@@ -168,7 +163,6 @@ window.PMC_Theme_Unit_Test = {
         var ajax_data = {
             action: "import_xmlrpc_data_from_production",
             import_xmlrpc_nOnce: self.options.import_xmlrpc_nOnce,
-            domain: jQuery('#domain-names').val(),
             route: end_route
         };
 
@@ -189,7 +183,7 @@ window.PMC_Theme_Unit_Test = {
             routes_span.append(route_name + ' Import Started : <div class="loader"></div>');
 
             jQuery('.log-output').append(routes_span);
-            jQuery('.log-output').append( jQuery('<br /><br />') );
+            jQuery('.log-output').append(jQuery('<br /><br />'));
 
             jQuery.ajax({
 

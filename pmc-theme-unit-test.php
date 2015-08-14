@@ -19,7 +19,6 @@ define( 'PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/d
 function pmc_theme_unit_test_loader() {
 
 	require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/autoloader.php';
-	require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/pmc-singleton.php';
 
 	\PMC\Theme_Unit_Test\Admin::get_instance();
 	\PMC\Theme_Unit_Test\Config_Helper::get_instance();

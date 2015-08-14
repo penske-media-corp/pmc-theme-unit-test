@@ -24,7 +24,6 @@
 
 .domain-code {
     margin: 15px;
-    display: none;
 }
 #authorize-text {
     margin:0 0 15px 0;
@@ -40,9 +39,6 @@
 
 #sync-from-prod {
     margin: 15px;
-}
-.sync-button {
-    display: none;
 }
 .route-label{
     text-transform: capitalize;
@@ -63,6 +59,7 @@
 .log-output{
     margin: 15px;
 }
+
 
 
 

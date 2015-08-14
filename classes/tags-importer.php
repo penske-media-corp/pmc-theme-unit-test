@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class Tags_Importer extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -20,9 +17,9 @@ class Tags_Importer extends PMC_Singleton {
 	/**
 	 * Insert a new Post Tag to the DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array containing tag data
 	 *
@@ -76,9 +73,9 @@ class Tags_Importer extends PMC_Singleton {
 	/**
 	 * Assemble tags data from API and inserts new tags.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of tag object
 	 *
@@ -102,14 +99,14 @@ class Tags_Importer extends PMC_Singleton {
 	/**
 	 * Route the call to the import function for this class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-15
 	 *
-	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
+	 * @version 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $domain = ''  ) {
+	public function call_import_route( $api_data ) {
 
 		if ( $api_data ) {
 

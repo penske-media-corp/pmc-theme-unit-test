@@ -1,17 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test;
 
-use \PMC;
-use \PMC_Singleton;
-
 class Terms_Importer extends PMC_Singleton {
 
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-06
 	 *
-	 * @version 1.0, 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
@@ -21,9 +18,9 @@ class Terms_Importer extends PMC_Singleton {
 	/**
 	 * Insert a new Taxonomy Term to the DB.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-21
 	 *
-	 * @version 1.0, 2015-07-21 Archana Mandhare - PPT-5077
+	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 * @param array containing Taxonomy Term data
 	 *
@@ -87,9 +84,9 @@ class Terms_Importer extends PMC_Singleton {
 	/**
 	 * Assemble Taxonomies Term data from XMLRPC and inserts new Taxonomy.
 	 *
-	 * @since 1.0
+	 * @since 2015-07-13
 	 *
-	 * @version 1.0, 2015-07-13 Archana Mandhare - PPT-5077
+	 * @version 2015-07-13 Archana Mandhare - PPT-5077
 	 *
 	 * @param array json_decode() array of Taxonomy Term object
 	 *
@@ -112,14 +109,14 @@ class Terms_Importer extends PMC_Singleton {
 	/**
 	 * Route the call to the import function for this class
 	 *
-	 * @since 1.0
+	 * @since 2015-07-15
 	 *
-	 * @version 1.0, 2015-07-15 Archana Mandhare - PPT-5077
+	 * @version 2015-07-15 Archana Mandhare - PPT-5077
 	 *
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $domain = '' ) {
+	public function call_import_route( $api_data ) {
 
 		return $this->instant_terms_import( $api_data );
 
