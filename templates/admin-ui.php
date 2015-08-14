@@ -21,8 +21,7 @@
 					<div class="inside">
 						<?php if ( $show_cred_form ) { ?>
 							<div class="domain-creds-form">
-								<p>Please enter the following credentials for
-									- <strong><?php echo esc_html( $domain ) ?></strong>.</p>
+								<p>Please enter the following credentials for the Production domain : .</p>
 
 								<form id="pmc-domain-creds" action="options.php" method="post">
 									<?php
@@ -30,6 +29,10 @@
 									?>
 									<div>
 										<table id="domain-creds-layout" class="widefat">
+											<tr>
+												<td><span>Production Domain Name: e.g  http://exampledomain.com/ Just enter <strong>exampledomain.com</strong> </span></td>
+												<td><input type="text" id="domain" name="domain" value=""/></td>
+											</tr>
 											<tr>
 												<td><span>REST API Client ID : </span></td>
 												<td><input type="text" id="client_id" name="client_id" value=""/></td>

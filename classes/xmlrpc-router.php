@@ -14,7 +14,6 @@ class XMLRPC_Router extends PMC_Singleton {
 	 * @todo - Add functions and params that are required at _init
 	 */
 	public function _init() {
-
 		$this->_setup_hooks();
 	}
 
@@ -43,16 +42,16 @@ class XMLRPC_Router extends PMC_Singleton {
 	 */
 	public function filter_pmc_xmlrpc_client_credentials( $xmlrpc_args ) {
 
-		$domain          = Config_Helper::get_current_domain();
-		$xmlrpc_username = get_option( $domain . '_xmlrpc_username' );
-		$xmlrpc_password = get_option( $domain . '_xmlrpc_password' );
+		$domain          = get_option( Config::$api_domain );
+		$xmlrpc_username = get_option( Config::$api_xmlrpc_username );
+		$xmlrpc_password = get_option( Config::$api_xmlrpc_password );
 
-		if ( empty( $xmlrpc_username ) || empty( $xmlrpc_password ) ) {
+		if ( empty( $domain ) || empty( $xmlrpc_username ) || empty( $xmlrpc_password ) ) {
 			return $xmlrpc_args;
 		}
 
 		$xmlrpc_args = array(
-			'server'   => "http://{$domain}.com/xmlrpc.php",
+			'server'   => "http://{$domain}/xmlrpc.php",
 			'username' => $xmlrpc_username,
 			'password' => $xmlrpc_password,
 		);
@@ -74,7 +73,7 @@ class XMLRPC_Router extends PMC_Singleton {
 		$xmlrpc_data = array();
 
 		$this->xmlrpc_client = new XMLRPC_Client();
-
+		
 		switch ( $route ) {
 
 			case 'taxonomies' :
@@ -113,8 +112,6 @@ class XMLRPC_Router extends PMC_Singleton {
 		$terms_ids = array();
 
 		$result = $this->xmlrpc_client->get_taxonomies();
-
-		error_log( 'Taxonomies STARTED  - ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		if ( ! $result ) {
 
@@ -166,8 +163,6 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		$result = $this->xmlrpc_client->get_all_options();
 
-		error_log( 'Options STARTED  - ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
 		if ( ! $result ) {
 
 			$error = $this->xmlrpc_client->error->message;
@@ -195,7 +190,7 @@ class XMLRPC_Router extends PMC_Singleton {
 	 */
 	private function _call_posts_route( $post_id ) {
 
-		error_log( 'Custom taxonomy and Custom fields for post failed to import - ' . $this->xmlrpc_client . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+		$result = false;
 
 		$fields = array( 'post', 'terms', 'custom_fields' );
 
@@ -204,7 +199,6 @@ class XMLRPC_Router extends PMC_Singleton {
 		if ( ! $result ) {
 
 			$error = $this->xmlrpc_client->error->message;
-			error_log( 'Custom taxonomy and Custom fields for post failed to import - ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			return new \WP_Error( 'unauthorized_access', $error . ' Failed with Exception - ' );
 
@@ -214,7 +208,7 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		}
 
-		return false;
+		return $result;
 	}
 
 	/**

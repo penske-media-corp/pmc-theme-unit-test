@@ -193,8 +193,6 @@ class Posts_Importer extends PMC_Singleton {
 
 					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $params );
 
-					error_log( "{$time} -- POST IMPORT INSERT ENDED**-- " . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
 					// Save the custom taxonomy terms for this post.
 					if ( ! empty( $post_meta ) && ! empty( $post_meta['terms'] ) ) {
 

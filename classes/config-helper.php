@@ -81,23 +81,6 @@ class Config_Helper extends PMC_Singleton {
 	}
 
 	/**
-	 * The list of domains we can pull data from
-	 *
-	 * @since 2015-07-22
-	 *
-	 * @version 2015-07-22 Archana Mandhare - PPT-5077
-	 *
-	 * @return array $domain_list The array containing the domain details
-	 *
-	 *
-	 */
-	public static function get_domains() {
-
-		return Config::$pmc_domains;
-
-	}
-
-	/**
 	 * Return the endpoint routes that need to be accessed
 	 * from the REST API using the Config::$all_routes array
 	 *
@@ -165,32 +148,6 @@ class Config_Helper extends PMC_Singleton {
 		return $route_post_types;
 
 	}
-
-	/**
-	 * Get the current domain that we are on to match it with the one we want to pull data from
-	 *
-	 * @since 2015-08-12
-	 *
-	 * @version 2015-08-12 Archana Mandhare - PPT-5077
-	 *
-	 */
-	public static function get_current_domain() {
-
-		$current_host = parse_url( get_home_url(), PHP_URL_HOST );
-
-		foreach ( Config::$pmc_domains as $domain ) {
-
-			if ( false !== stripos( $current_host, $domain ) ) {
-
-				$current_domain = $domain;
-
-				break;
-			}
-		}
-
-		return $current_domain;
-	}
-
 
 	/**
 	 * A template function so that we don't have to put inline HTML.

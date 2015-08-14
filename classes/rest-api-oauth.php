@@ -23,12 +23,21 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function fetch_access_token( $code, $client_id, $client_secret, $redirect_uri ) {
+	public function fetch_access_token( $code ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
+		$client_id     = get_option( Config::$api_client_id );
+		$client_secret = get_option( Config::$api_client_secret );
+		$redirect_uri  = get_option( Config::$api_redirect_uri );
+
+		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
+
+			error_log( $time . ' Admin Settings form input date not saved. Please try saving the credentials again. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return false;
+		}
 		try {
-			$domain = Config_Helper::get_current_domain();
 
 			$params = array(
 				'client_id'     => $client_id,
@@ -63,7 +72,7 @@ class REST_API_oAuth extends PMC_Singleton {
 				return false;
 			}
 
-			update_option( $domain . Config::$access_token_key, $auth->access_token );
+			update_option( Config::$access_token_key, $auth->access_token );
 
 			return true;
 
@@ -93,11 +102,18 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$domain = Config_Helper::get_current_domain();
+		$domain = get_option( Config::$api_domain );
+
+		if ( empty( $domain ) ) {
+
+			error_log( $time . ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return new \WP_Error( 'unauthorized_access', 'No Domain set. Please Try again. --' );
+		}
 
 		$route_name = ! empty( $route_name ) ? $route_name : $route;
 
-		$access_token_key = $domain . Config::$access_token_key;
+		$access_token_key = Config::$access_token_key;
 
 		$saved_access_token = get_option( $access_token_key );
 
@@ -110,10 +126,6 @@ class REST_API_oAuth extends PMC_Singleton {
 		}
 
 		try {
-
-			if ( false === stripos( $domain, '.com' ) ) {
-				$domain = $domain . '.com';
-			}
 
 			$headers = $this->_get_required_header( $token_required );
 
@@ -137,12 +149,12 @@ class REST_API_oAuth extends PMC_Singleton {
 				return new \WP_Error( 'unauthorized_access', $api_url . '$$$$  No Data returned. Please Try again. --' );
 			}
 
-			$data = wp_remote_retrieve_body( $response );
+			$response = wp_remote_retrieve_body( $response );
 
-			$data = json_decode( $data, true );
+			$data = json_decode( $response, true );
 
 			if ( 200 !== $data['code'] ) {
-				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . ' ' . json_encode( $response ) . ' and api url = ' . $api_url . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
@@ -175,18 +187,17 @@ class REST_API_oAuth extends PMC_Singleton {
 	private function _get_required_header( $token_required ) {
 
 		$args = array(
-			'timeout' => 1500,
+			'timeout' => 500,
 		);
 
 		if ( $token_required ) {
 
-			$domain             = Config_Helper::get_current_domain();
-			$access_token_key   = $domain . Config::$access_token_key;
+			$access_token_key   = Config::$access_token_key;
 			$saved_access_token = get_option( $access_token_key );
 
 			if ( ! empty( $saved_access_token ) ) {
 				$args = array(
-					'timeout' => 1500,
+					'timeout' => 500,
 					'headers' => array(
 						'authorization' => 'Bearer ' . $saved_access_token,
 					),
@@ -216,6 +227,57 @@ class REST_API_oAuth extends PMC_Singleton {
 		$query_params = wp_parse_args( $params, $defaults );
 
 		return http_build_query( $query_params );
+
+	}
+
+	/**
+	 * Returns if the saved token is valid or not
+	 *
+	 * @since 2015-08-14
+	 *
+	 * @version 2015-08-14 Archana Mandhare - PPT-5077
+	 *
+	 * @return bool - true if token is valid else false
+	 *
+	 */
+	public function is_valid_token() {
+
+		$time = date( '[d/M/Y:H:i:s]' );
+
+		$client_id    = get_option( Config::$api_client_id );
+		$access_token = get_option( Config::$access_token_key );
+
+		if ( empty( $client_id ) || empty( $access_token ) ) {
+			return false;
+		}
+
+		$args = array(
+			'client_id' => (string) $client_id,
+			'token'     => $access_token,
+		);
+
+		$params = http_build_query( $args );
+
+		/**
+		 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
+		 * Recommended function is vip_safe_wp_remote_get() but since it has a max timeout of 3 secs which
+		 * is not feasible since the response time is way ahead 3 secs here and I am unable to fetch data
+		 * if I use vip_safe_wp_remote_get()
+		 */
+		// @codingStandardsIgnoreStart
+		$response = wp_remote_get( esc_url_raw( Config::VALIDATE_TOKEN_URL ) . '?' . $params );
+		// @codingStandardsIgnoreEnd
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( ! empty( $response_body ) ) {
+			$token_info = json_decode( $response_body, true );
+
+			if ( ! empty( $token_info['client_id'] ) && $token_info['client_id'] === $client_id ) {
+				return true;
+			}
+		}
+
+		return false;
 
 	}
 
