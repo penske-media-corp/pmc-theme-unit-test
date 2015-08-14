@@ -73,7 +73,7 @@ class XMLRPC_Router extends PMC_Singleton {
 		$xmlrpc_data = array();
 
 		$this->xmlrpc_client = new XMLRPC_Client();
-		
+
 		switch ( $route ) {
 
 			case 'taxonomies' :
