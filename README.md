@@ -21,15 +21,13 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
   * This would give you `client_id`, `client_secret` and `redirect_uri`. Add these to `$rest_api_auth` in `config.php`
   * All these would be required for OAuth2 authentication.
 2. Create an [application-specific password for your WordPress.com account](https://en.support.wordpress.com/security/two-step-authentication/#application-specific-passwords) (because you're using Two-Step Authentication).
-  * Add these to `$xmlrpc_auth` in `config.php`
 3. In wp-admin look for Management Menu Option :  Tools => Sync from Production
 			OR
 	Navigate to http://YOURSITEDOMAIN.com/wp-admin/tools.php?page=data-import
-4. Add the domain name that you want to import in $pmc_domain static var in Config.php. Please remember live domain should be a substring of your local domain YOURSITEDOMAIN. For example : to download from http://mydomain.com - create http://mydomain.local.com OR http://mydomainlocal.com.
-5. You will see a form which you have to input credentials for the first time and will be saved in the database. Please Authorize yourself by clicking on the Authorize URL. You will be redirected to redirect_uri of the site. Get the "code" query parameter and enter in the textbox provided.
-6. Hit Save All and you will get Import Button replcing the form.
-7. Hit Import Data from Production and wait patiently as the data gets imported in the background.
-8. Voila! Your theme is setup and you can start to unit test you theme.
+4. You will see a form which you have to input domain name , credentials for the first time and will be saved in the database. Please Authorize yourself by clicking on the Authorize URL. You will be redirected to redirect_uri of the site. Get the "code" query parameter and enter in the textbox provided.
+5. Hit Save All and you will get Import Button replcing the form.
+6. Hit `Import Data from Production` and wait patiently as the data gets imported in the background.
+7. Voila! Your theme is setup and you can start to unit test you theme.
 
 ## Filters required in the Production site
 
@@ -73,7 +71,7 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 
 3. Add a filter `options_import_whitelist` to whitelist the wp_options that you would like to be imported to another site.
 
-4. Add filter `pmc_xmlrpc_client_credentials` to fetch the credentials for XMLRPC calls
+4. Add filter `pmc_xmlrpc_client_credentials` to fetch the credentials for XMLRPC calls.
 
 
 
