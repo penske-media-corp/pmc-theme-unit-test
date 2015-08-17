@@ -4,18 +4,6 @@ namespace PMC\Theme_Unit_Test;
 class REST_API_oAuth extends PMC_Singleton {
 
 	/**
-	 * Setup Hooks.
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare - PPT-5077
-	 *
-	 */
-	protected function _init() {
-	}
-
-
-	/**
 	 * Authorise the request using the secret key and save the access token
 	 *
 	 * @since 2015-07-06
@@ -240,7 +228,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @return bool - true if token is valid else false
 	 *
 	 */
-	public function is_valid_token() {
+	public function is_valid_token( $count = 1 ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
@@ -251,12 +239,16 @@ class REST_API_oAuth extends PMC_Singleton {
 			return false;
 		}
 
-		$args = array(
+		$query = array(
 			'client_id' => (string) $client_id,
 			'token'     => $access_token,
 		);
 
-		$params = http_build_query( $args );
+		$params = http_build_query( $query );
+
+		$args = array(
+			'timeout' => 500,
+		);
 
 		/**
 		 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
@@ -265,8 +257,19 @@ class REST_API_oAuth extends PMC_Singleton {
 		 * if I use vip_safe_wp_remote_get()
 		 */
 		// @codingStandardsIgnoreStart
-		$response = wp_remote_get( esc_url_raw( Config::VALIDATE_TOKEN_URL ) . '?' . $params );
+		$response = wp_remote_get( esc_url_raw( Config::VALIDATE_TOKEN_URL ) . '?' . $params, $args );
 		// @codingStandardsIgnoreEnd
+
+		if ( is_wp_error( $response ) ) {
+
+			error_log( $time . 'Failed to validate token giving error ' . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$count ++;
+			if ( $count <= 3 ) {
+				$this->is_valid_token( $count );
+			}
+
+			return false;
+		}
 		$response_body = wp_remote_retrieve_body( $response );
 
 		if ( ! empty( $response_body ) ) {

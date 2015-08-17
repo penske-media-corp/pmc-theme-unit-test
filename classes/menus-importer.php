@@ -3,20 +3,6 @@ namespace PMC\Theme_Unit_Test;
 
 class Menus_Importer extends PMC_Singleton {
 
-	private $_domain;
-
-	/**
-	 * Hook in the methods during initialization.
-	 *
-	 * @since 2015-07-20
-	 *
-	 * @version 2015-07-20 Archana Mandhare - PPT-5077
-	 * @todo - Add functions and params that are required at _init
-	 */
-	public function _init() {
-
-	}
-
 	/**
 	 * Get the URL of the current item by replacing the imported URL with the current domain
 	 *

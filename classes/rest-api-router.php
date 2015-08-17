@@ -4,18 +4,6 @@ namespace PMC\Theme_Unit_Test;
 class REST_API_Router extends PMC_Singleton {
 
 	/**
-	 * Hook in the methods during initialization.
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare - PPT-5077
-	 * @todo - Add functions and params that are required at _init
-	 */
-	public function _init() {
-	}
-
-
-	/**
 	 * Just to make sure that if no class to save data
 	 * gets called then this method will return data as is.
 	 *

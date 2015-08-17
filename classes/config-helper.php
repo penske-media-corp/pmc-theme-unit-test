@@ -11,7 +11,7 @@ class Config_Helper extends PMC_Singleton {
 	 * @version 2015-07-21 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function _init() {
+	protected function _init() {
 
 		$this->_setup_hooks();
 	}

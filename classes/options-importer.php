@@ -4,17 +4,6 @@ namespace PMC\Theme_Unit_Test;
 class Options_Importer extends PMC_Singleton {
 
 	/**
-	 * Hook in the methods during initialization.
-	 *
-	 * @since 2015-07-22
-	 *
-	 * @version 2015-07-22 Archana Mandhare - PPT-5077
-	 * @todo - Add functions and params that are required at _init
-	 */
-	public function _init() {
-	}
-
-	/**
 	 * Route the call to the import function for this class
 	 *
 	 * @since 2015-07-15

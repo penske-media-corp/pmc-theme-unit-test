@@ -3,20 +3,6 @@ namespace PMC\Theme_Unit_Test;
 
 class Posts_Importer extends PMC_Singleton {
 
-	private $_domain;
-
-	/**
-	 * Hook in the methods during initialization.
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare - PPT-5077
-	 * @todo - Add functions and params that are required at _init
-	 */
-	public function _init() {
-
-	}
-
 	/**
 	 * Insert a Post Meta to the DB.
 	 *

@@ -8,12 +8,12 @@ class XMLRPC_Router extends PMC_Singleton {
 	/**
 	 * Hook in the methods during initialization.
 	 *
-	 * @since 2015-07-22
+	 * @since 2015-07-21
 	 *
 	 * @version 2015-07-21 Archana Mandhare - PPT-5077
-	 * @todo - Add functions and params that are required at _init
+	 *
 	 */
-	public function _init() {
+	protected function _init() {
 		$this->_setup_hooks();
 	}
 
@@ -26,7 +26,6 @@ class XMLRPC_Router extends PMC_Singleton {
 	 *
 	 */
 	protected function _setup_hooks() {
-
 		add_filter( 'pmc_xmlrpc_client_credentials', array( $this, 'filter_pmc_xmlrpc_client_credentials' ) );
 	}
 
@@ -67,12 +66,15 @@ class XMLRPC_Router extends PMC_Singleton {
 	 *
 	 * @version 2015-07-22 Archana Mandhare - PPT-5077
 	 *
+	 * @param string - the name of the endpoint route that we need to fetch data for
+	 *
 	 */
 	public function call_xmlrpc_api_route( $route ) {
 
 		$xmlrpc_data = array();
 
 		$this->xmlrpc_client = new XMLRPC_Client();
+		$this->xmlrpc_client->cache_key = md5( 'pmc-theme-unit-test-' . $route );
 
 		switch ( $route ) {
 
@@ -219,15 +221,19 @@ class XMLRPC_Router extends PMC_Singleton {
 	 *
 	 * @version 2015-07-24 Archana Mandhare - PPT-5077
 	 *
+	 * @param string $taxonomy -taxonomy name on Production Site
+	 *         int $term_id - the term_id for the Term on production Site
+	 *
 	 */
 	public function get_taxonomy_term_by_id( $taxonomy, $term_id ) {
 
-		// Fetch taxonomy
+		// Check taxonomy
 		$taxonomy_id = taxonomy_exists( $taxonomy );
 
 		if ( false === $taxonomy_id ) {
 			error_log( 'Taxonomy does not exits hence Menu Import failed  - ' . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-			return new \WP_Error( 'unknown_error', 'Taxonomy does not exits hence Menu Import failed - ' . $taxonomy );
+
+			return new \WP_Error( 'taxonomy_error', 'Taxonomy does not exits hence Menu Import failed - ' . $taxonomy );
 		}
 		//Fetch Term
 		$result = $this->xmlrpc_client->get_term( $term_id, $taxonomy );
@@ -235,7 +241,8 @@ class XMLRPC_Router extends PMC_Singleton {
 		if ( empty( $result ) ) {
 			$error = $this->xmlrpc_client->error->message;
 			error_log( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-			return new \WP_Error( 'unknown_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
+
+			return new \WP_Error( 'taxonomy_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
 		} else {
 			// Save Taxonomy Term if not exists in the current site.
 			return Terms_Importer::get_instance()->save_taxonomy_terms( $result );
