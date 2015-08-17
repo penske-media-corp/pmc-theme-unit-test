@@ -10,7 +10,7 @@ jQuery(document).ready(function () {
             window.PMC_Theme_Unit_Test.importData();
         });
 
-        jQuery('#authorize-url').on( "click", function (e) {
+        jQuery('#authorize-url').on("click", function (e) {
             var href = this.href;
             var client_id = jQuery("#client_id").val();
             if (href.indexOf(client_id) < 0) {
@@ -24,7 +24,6 @@ jQuery(document).ready(function () {
         });
 
     }
-
 
 });
 
@@ -40,19 +39,18 @@ window.PMC_Theme_Unit_Test = {
     importData: function () {
 
         var self = this;
-        jQuery(".log-output").empty();
 
         if (self.routes !== 'undefined') {
 
             if (self.routes.all_routes !== 'undefined') {
                 jQuery.each(self.routes.all_routes, function (i, end_route) {
-                    self.callRestAllEndpoints(end_route, false);
+                    self.callRestAllEndpoints(end_route);
                 });
             }
 
             if (self.routes.post_routes !== 'undefined') {
                 jQuery.each(self.routes.post_routes, function (i, end_route) {
-                    self.callRestPostEndpoints(end_route, true);
+                    self.callRestPostEndpoints(end_route);
                 });
             }
 
@@ -109,20 +107,82 @@ window.PMC_Theme_Unit_Test = {
 
         if (data.all_routes !== 'undefined') {
             self.routes.all_routes = data.all_routes;
+
+            jQuery.each(self.routes.all_routes, function (i, end_route) {
+                self.setupIndividualImportForAll(end_route);
+            });
         }
 
         if (data.post_routes !== 'undefined') {
             self.routes.post_routes = data.post_routes;
+
+            jQuery.each(self.routes.post_routes, function (i, end_route) {
+                self.setupIndividualImportForPosts(end_route);
+            });
         }
 
         if (data.xmlrpc_routes !== 'undefined') {
             self.routes.xmlrpc_routes = data.xmlrpc_routes;
+            jQuery.each(self.routes.xmlrpc_routes, function (i, end_route) {
+                self.setupIndividualImportForxmlrpc(end_route);
+            });
         }
 
         jQuery('#sync-from-prod').prop('disabled', false);
 
         jQuery('.spin-loader').hide();
 
+
+    },
+
+    setupIndividualImport: function (end_route) {
+
+        var routes_span = jQuery('<div>').attr('id', end_route).addClass('label-blue').addClass("route-label");
+        routes_span.append('<span>'+ end_route+ '</span>');
+        routes_span.append(jQuery('<div />').append( jQuery('<button />', {
+            text: 'Import',
+            class: 'button',
+            id: 'import' + end_route
+        })));
+
+        jQuery('.log-output').append(routes_span);
+        jQuery('.log-output').append(jQuery('<br /><br />'));
+
+    },
+
+    setupIndividualImportForAll: function (end_route) {
+
+        var self = this;
+
+        self.setupIndividualImport(end_route);
+
+        jQuery('#import' + end_route).on('click', function () {
+            self.callRestAllEndpoints(end_route);
+        });
+
+    },
+
+    setupIndividualImportForPosts: function (end_route) {
+
+        var self = this;
+
+        self.setupIndividualImport(end_route);
+
+        jQuery('#import' + end_route).on('click', function () {
+            self.callRestPostEndpoints(end_route);
+        });
+
+    },
+
+    setupIndividualImportForxmlrpc: function (end_route) {
+
+        var self = this;
+
+        self.setupIndividualImport(end_route);
+
+        jQuery('#import' + end_route).on('click', function () {
+            self.callXmlrpcEndpoints(end_route);
+        });
 
     },
 
@@ -179,11 +239,10 @@ window.PMC_Theme_Unit_Test = {
 
         try {
 
-            var routes_span = jQuery('<span />').attr('id', route_name).addClass('label-blue').addClass("route-label");
-            routes_span.append(route_name + ' Import Started : <div class="loader"></div>');
-
-            jQuery('.log-output').append(routes_span);
-            jQuery('.log-output').append(jQuery('<br /><br />'));
+            var routes_span = jQuery('#' + route_name);
+            routes_span.empty();
+            routes_span.addClass('label-blue');
+            routes_span.append('<span class="display:table-cell">' + route_name + ' Import Started : </span><div class="loader"></div>');
 
             jQuery.ajax({
 
@@ -193,8 +252,8 @@ window.PMC_Theme_Unit_Test = {
                 data: ajax_data,
                 success: function (data, textStatus, jqXHR) {
 
-                    jQuery('#' + route_name).empty();
-                    jQuery('#' + route_name).append('<span class="route-label label-green">' + route_name + ' Import Done </span>');
+                    routes_span.empty();
+                    routes_span.removeClass('label-blue').addClass('label-green').append('<span class="display:table-cell">' + route_name + ' Import Done </span>');
 
                 },
                 error: function (x, t, m) {
@@ -204,9 +263,8 @@ window.PMC_Theme_Unit_Test = {
                     } else {
                         alert(t + " : " + m);
                     }
-
-                    jQuery('#' + route_name).empty();
-                    jQuery('#' + route_name).append('<span class="route-label label-red">' + route_name + ' Import Failed</span>');
+                    routes_span.empty();
+                    routes_span.removeClass('label-blue').addClass('label-red').append('<span class="display:table-cell">' + route_name + ' Import Failed</span>');
 
                 }
 

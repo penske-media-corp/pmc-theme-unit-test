@@ -97,7 +97,7 @@
 						<?php } else if ( $show_data_import ) { ?>
 							<div class="sync-button">
 
-								<button id="sync-from-prod" class="button" disabled><b>Import From Production</b></button><div class="spin-loader"></div>
+								<button id="sync-from-prod" class="button" disabled><b>Import All From Production</b></button><div class="spin-loader"></div>
 
 							</div>
 

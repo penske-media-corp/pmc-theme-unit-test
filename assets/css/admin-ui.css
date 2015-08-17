@@ -1,9 +1,5 @@
 .loader {
     background: url('../images/ajax-loader-bar.gif') no-repeat;
-    width: 115px;
-    height: 15px;
-    border: 1px solid #000000;
-    margin: 30px;
 }
 
 .spin-loader {
@@ -17,7 +13,6 @@
     margin: 15px;
 }
 
-
 .domain-select {
     margin: 15px;
 }
@@ -25,13 +20,15 @@
 .domain-code {
     margin: 15px;
 }
+
 #authorize-text {
-    margin:0 0 15px 0;
+    margin: 0 0 15px 0;
 }
 
-#authorize-text a{
+#authorize-text a {
     text-decoration: none;
 }
+
 .domain-code p strong {
     font-style: italic;
     font-weight: bold;
@@ -40,24 +37,43 @@
 #sync-from-prod {
     margin: 15px;
 }
-.route-label{
+
+.route-label {
     text-transform: capitalize;
     font-size: 14px;
     font-weight: bold;
+    display: table-row;
 }
+
+.route-label span {
+    margin: 10px 100px;
+    text-align: left;
+    display: table-cell;
+}
+
+.route-label div {
+    margin: 10px 100px;
+    display: table-cell;
+    text-align: left;
+    width:30%;
+}
+
 .label-red {
-    color:red;
+    color: red;
 }
 
 .label-green {
-    color:green;
+    color: green;
 }
 
 .label-blue {
-    color:blue;
+    color: blue;
 }
-.log-output{
+
+.log-output {
     margin: 15px;
+    display: table;
+    width:500px;
 }
 
 
