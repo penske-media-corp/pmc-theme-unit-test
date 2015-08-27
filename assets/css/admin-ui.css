@@ -2,7 +2,7 @@
     background: url('../images/ajax-loader-bar.gif') no-repeat;
 }
 
-.spin-loader {
+.spin-loader, .spin-loader1 {
     background: url('../images/ajax-loader.gif') no-repeat;
     width: 17px;
     height: 17px;
@@ -74,6 +74,24 @@
     margin: 15px;
     display: table;
     width:500px;
+}
+.import-block{
+    display: table;
+}
+.import-row1{
+    display: table-row;
+}
+.import-row2{
+    display: table-row;
+}
+.sync-button{
+    display: table-cell;
+}
+.credentials{
+    display: table-cell;
+}
+.show-output{
+    display: table-row;
 }
 
 

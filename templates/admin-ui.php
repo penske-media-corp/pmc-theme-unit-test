@@ -95,13 +95,21 @@
 
 
 						<?php } else if ( $show_data_import ) { ?>
-							<div class="sync-button">
+							<div class="import-block">
+								<div class="import-row1">
+									<div class="sync-button">
 
-								<button id="sync-from-prod" class="button" disabled><b>Import All From Production</b></button><div class="spin-loader"></div>
+										<button id="sync-from-prod" class="button" disabled><b>Import All From
+												Production</b></button>
+										<div class="spin-loader"></div>
 
+									</div>
+									<div class="credentials"><a id="change-credentials" href="#">Change Credentials</a><div class="spin-loader1"></div></div>
+								</div>
+								<div class="import-row2">
+									<div class="log-output"></div>
+								</div>
 							</div>
-
-							<div class="log-output"></div>
 						<?php } ?>
 					</div>
 

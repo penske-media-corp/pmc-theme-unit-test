@@ -38,6 +38,8 @@ class Admin extends PMC_Singleton {
 
 		add_action( 'wp_ajax_import_posts_data_from_production', array( $this, 'import_posts_data_from_production' ) );
 
+		add_action( 'wp_ajax_change_credentials', array( $this, 'change_credentials' ) );
+
 		add_action(
 			'wp_ajax_import_xmlrpc_data_from_production', array(
 				$this,
@@ -77,6 +79,7 @@ class Admin extends PMC_Singleton {
 				'import_xmlrpc_nOnce' => wp_create_nonce( 'import-xmlrpc-from-production' ),
 				'import_posts_nOnce'  => wp_create_nonce( 'import-posts-from-production' ),
 				'client_nOnce'        => wp_create_nonce( 'get-client-config-details' ),
+				'change_nOnce'        => wp_create_nonce( 'change-credentials' ),
 				'AUTHORIZE_URL'       => Config::AUTHORIZE_URL,
 
 			)
@@ -200,12 +203,14 @@ class Admin extends PMC_Singleton {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.' ) );
 
 		}
+
 		$show_cred_form     = false;
 		$authorize_url      = '';
 		$saved_access_token = get_option( Config::access_token_key );
+		$show_form          = get_option( Config::show_form );
 		$is_valid_token     = REST_API_oAuth::get_instance()->is_valid_token();
 
-		if ( empty( $saved_access_token ) || ! $is_valid_token ) {
+		if ( 1 === intval( $show_form ) || empty( $saved_access_token ) || ! $is_valid_token ) {
 			$args = array(
 				'response_type' => 'code',
 				'scope'         => 'global',
@@ -214,6 +219,7 @@ class Admin extends PMC_Singleton {
 			$query_params   = http_build_query( $args );
 			$authorize_url  = Config::AUTHORIZE_URL . '?' . $query_params;
 			$show_cred_form = true;
+			update_option( Config::show_form, 0, false );
 		}
 
 		$args = array(
@@ -291,6 +297,7 @@ class Admin extends PMC_Singleton {
 		if ( ! empty( $client_id ) && ! empty( $client_secret ) && ! empty( $redirect_uri ) && ! empty( $code ) ) {
 			$token_saved = REST_API_oAuth::get_instance()->fetch_access_token( $code );
 		}
+
 	}
 
 
@@ -395,6 +402,26 @@ class Admin extends PMC_Singleton {
 		$client_details['post_routes'] = Config_Helper::get_posts_routes();
 
 		wp_send_json( $client_details );
+		exit();
+
+	}
+
+	/**
+	 * Ajax call made from the Admin UI to indicate change of credentials
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 */
+	public function change_credentials() {
+
+		// check to see if the submitted nonce matches with the
+		// generated nonce we created earlier
+		check_ajax_referer( 'change-credentials', 'change_nOnce' );
+
+		update_option( Config::show_form, 1, false );
+
+		wp_send_json( array( 'success' => 1 ) );
 		exit();
 
 	}

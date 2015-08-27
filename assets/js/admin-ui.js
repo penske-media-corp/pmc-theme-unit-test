@@ -321,6 +321,25 @@ window.PMC_Theme_Unit_Test = {
             console.log(e);
         }
 
+    },
+
+    changeCredentials: function () {
+
+        var self = this;
+
+        jQuery('.spin-loader1').show();
+        jQuery.ajax({
+            type: "post",
+            url: self.options.admin_url,
+            data: {
+                action: "change_credentials",
+                change_nOnce: self.options.change_nOnce
+            },
+            success: function (data, textStatus, jqXHR) {
+                jQuery('.spin-loader1').hide();
+                window.location.reload();
+            }
+        });
     }
 
 }
@@ -336,6 +355,10 @@ jQuery(document).ready(function () {
 
         jQuery('#sync-from-prod').on("click", function () {
             window.PMC_Theme_Unit_Test.importData();
+        });
+
+        jQuery('#change-credentials').on("click", function () {
+            window.PMC_Theme_Unit_Test.changeCredentials();
         });
 
         jQuery('#authorize-url').on("click", function (e) {

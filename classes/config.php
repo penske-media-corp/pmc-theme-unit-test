@@ -19,6 +19,7 @@ class Config {
 	const api_redirect_uri = 'rest_api_redirect_uri';
 	const api_xmlrpc_username = 'xmlrpc_username';
 	const api_xmlrpc_password = 'xmlrpc_password';
+	const show_form = 'show_data_import_form';
 
 	public static $all_routes = array(
 		0 => array(
