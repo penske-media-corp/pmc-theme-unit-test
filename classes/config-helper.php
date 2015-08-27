@@ -176,6 +176,4 @@ class Config_Helper extends PMC_Singleton {
 
 		return ob_get_clean();
 	}
-
-
 }

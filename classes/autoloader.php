@@ -40,7 +40,6 @@ class Autoloader {
 			require_once $resource_path;
 		}
 	}
-
 }
 
 

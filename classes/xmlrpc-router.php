@@ -76,7 +76,7 @@ class XMLRPC_Router extends PMC_Singleton {
 		try {
 
 			$this->xmlrpc_client = new XMLRPC_Client();
-			if ( empty ( $this->xmlrpc_client ) ) {
+			if ( empty( $this->xmlrpc_client ) ) {
 				error_log( 'XMLRPC_Client not initialized because of missing credentials' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 				return false;
@@ -245,7 +245,7 @@ class XMLRPC_Router extends PMC_Singleton {
 
 		$this->xmlrpc_client = new XMLRPC_Client();
 
-		if ( empty ( $this->xmlrpc_client ) ) {
+		if ( empty( $this->xmlrpc_client ) ) {
 			error_log( 'XMLRPC_Client not initialized because of missing credentials' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			return false;

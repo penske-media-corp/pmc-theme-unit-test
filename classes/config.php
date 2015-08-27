@@ -53,18 +53,7 @@ class Config {
 
 	public static $custom_posttypes = array( 'post', 'page' );
 
-	public static $custom_taxonomies = array(
-		0 => array(
-			'name'    => 'vertical',
-			'args'    => array( 'orderby' => 'term_order' ),
-			'rewrite' => array( 'slug' => 'vertical' ),
-		),
-		1 => array(
-			'name'    => 'editorial',
-			'args'    => array( 'orderby' => 'term_order' ),
-			'rewrite' => array( 'slug' => 'editorial' ),
-		)
-	);
+	public static $custom_taxonomies = array();
 
 	public static $default_taxonomies = array( 'post_tag', 'category' );
 

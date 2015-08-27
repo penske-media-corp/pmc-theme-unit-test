@@ -43,13 +43,13 @@ abstract class PMC_Singleton {
 	/**
 	 * Prevent direct object creation
 	 */
-	protected function  __construct() {
+	protected function __construct() {
 	}
 
 	/**
 	 * Prevent object cloning
 	 */
-	final private function  __clone() {
+	final private function __clone() {
 	}
 
 	/**
@@ -89,7 +89,6 @@ abstract class PMC_Singleton {
 	 */
 	protected function _init() {
 	}
-
 }    //end class
 
 //EOF
