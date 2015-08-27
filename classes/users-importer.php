@@ -23,7 +23,8 @@ class Users_Importer extends PMC_Singleton {
 
 			if ( empty( $user_info ) ) {
 
-				error_log( $time . ' No User data Passed. '  . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . ' No User data Passed. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
 				return false;
 
 			}
@@ -37,6 +38,8 @@ class Users_Importer extends PMC_Singleton {
 				'ID'            => $user_ID,
 				'user_login'    => $user_info['login'],
 				'user_name'     => $user_info['name'],
+				'first_name'    => $user_info['first_name'],
+				'last_name'     => $user_info['last_name'],
 				'user_nicename' => $user_info['nice_name'],
 				'user_url'      => $user_info['URL'],
 				'user_email'    => $user_info['email'],
@@ -46,18 +49,14 @@ class Users_Importer extends PMC_Singleton {
 				$user_data['user_pass'] = $user_info['login'];
 			}
 
-			if ( ! empty( $user_info['roles'] ) ) {
-
+			if ( ! empty( $user_info['roles'] ) && is_array( $user_info['roles'] ) ) {
 				$role = $user_info['roles'][0];
-
+				// Check if the role exists
 				$role_obj = get_role( $role );
-
 				if ( empty( $role_obj ) ) {
 					$role = 'editor';
 				}
-
 				$user_data['role'] = $role;
-
 			}
 
 			$user_ID = wp_insert_user( $user_data );
@@ -72,6 +71,7 @@ class Users_Importer extends PMC_Singleton {
 
 				error_log( "{$time} -- User **-- {$user_info['name']} --** added with ID = {$user_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
+				return $user_ID;
 			}
 		} catch ( \Exception $e ) {
 
@@ -80,8 +80,6 @@ class Users_Importer extends PMC_Singleton {
 			return false;
 
 		}
-
-		return $user_ID;
 	}
 
 

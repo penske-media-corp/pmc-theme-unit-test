@@ -137,13 +137,19 @@ class Posts_Importer extends PMC_Singleton {
 			try {
 
 				if ( ! empty( $post_json['author'] ) ) {
-					// Save Author to DB and attach its ID to the post object
-					$author_ID = get_user_by( 'login', $post_json['author']['login'] );
+					$author = get_user_by( 'login', $post_json['author']['login'] );
+					if ( $author ) {
+						$author_ID = $author->ID;
+					} else {
+						// Save Author to DB and attach its ID to the post object
+						$author_ID = Users_Importer::get_instance()->save_user( $post_json['author'] );
+					}
 				}
 
-				if ( empty( $author_ID ) ) {
+				if ( empty( $post_json['author'] ) || empty( $author_ID ) || is_wp_error( $author_ID ) ) {
 					$author_ID = get_current_user_id();
 				}
+
 				// save Categories associated with the post.
 				$cat_ids = array();
 				if ( ! empty( $post_json['categories'] ) ) {
@@ -183,7 +189,7 @@ class Posts_Importer extends PMC_Singleton {
 					// Fetch the custom taxonomy terms and custom fields for this post using XMLRPC.
 					$params = array( 'post_id' => $post_json['ID'] );
 
-					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts',  $params );
+					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts', $params );
 
 					// Save the custom taxonomy terms for this post.
 					if ( ! empty( $post_meta ) && ! empty( $post_meta['terms'] ) ) {
