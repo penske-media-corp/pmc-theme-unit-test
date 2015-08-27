@@ -21,9 +21,13 @@ class Comments_Importer extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$comment_id = 0;
-
 		try {
+
+			if ( empty( $comment_json ) ) {
+				error_log( $time . ' No Comment data provided for post ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
 
 			$comment_data = array(
 				'comment_post_ID'      => $post_ID,
@@ -40,22 +44,24 @@ class Comments_Importer extends PMC_Singleton {
 
 			$comment_id = wp_insert_comment( $comment_data );
 
-			if ( is_a( $comment_id, 'WP_Error' ) ) {
+			if ( is_wp_error( $comment_id ) ) {
 
 				error_log( $time . ' -- ' . $comment_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+				return $comment_id;
 			} else {
 
 				error_log( "{$time} -- Comment from author **-- {$comment_json['author']['name'] } --** added with ID = {$comment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
+				return $comment_id;
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
 		}
 
-		return $comment_id;
 	}
 
 
@@ -75,6 +81,10 @@ class Comments_Importer extends PMC_Singleton {
 	public function instant_comments_import( $json_data, $post_ID ) {
 
 		$comments_ids = array();
+
+		if ( empty( $json_data ) || ! is_array( $json_data ) ) {
+			return $comments_ids;
+		}
 
 		foreach ( $json_data as $comment_data ) {
 
@@ -126,6 +136,4 @@ class Comments_Importer extends PMC_Singleton {
 		}
 
 	}
-
-
 }

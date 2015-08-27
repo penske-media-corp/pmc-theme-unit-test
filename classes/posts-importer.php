@@ -46,11 +46,9 @@ class Posts_Importer extends PMC_Singleton {
 	 * @return int|WP_Error The Post Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	public function save_post( $post_json, $author_id, $cat_ids_arr = array(), $post_type = 'post' ) {
+	public function save_post( $post_json, $author_id = 0, $cat_ids_arr = array(), $post_type = 'post' ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
-
-		$post_ID = 0;
 
 		try {
 
@@ -65,11 +63,10 @@ class Posts_Importer extends PMC_Singleton {
 				$post_data = array(
 					'post_status'   => $post_json['status'],
 					'post_type'     => $post_json['type'],
-					'post_author'   => $author_id,
+					'post_author'   => ! empty( $author_id ) ? $author_id : get_current_user_id(),
 					'ping_status'   => get_option( 'default_ping_status' ),
 					'post_parent'   => ( false === $post_json['parent'] ) ? 0 : $post_json['parent'],
 					'menu_order'    => $post_json['menu_order'],
-					'to_ping'       => $post_json['pings_open'],
 					'post_password' => $post_json['password'],
 					'post_excerpt'  => $post_json['excerpt'],
 					'import_id'     => $post_json['ID'],
@@ -92,18 +89,23 @@ class Posts_Importer extends PMC_Singleton {
 
 					error_log( $time . ' -- ' . $post_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+					return $post_ID;
+
 				} else {
 
 					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
+					return $post_ID;
 				}
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
+
 		}
 
-		return $post_ID;
 	}
 
 
@@ -125,6 +127,10 @@ class Posts_Importer extends PMC_Singleton {
 		$post_ids = array();
 
 		$time = date( '[d/M/Y:H:i:s]' );
+
+		if ( empty( $posts_json ) || ! is_array( $posts_json ) ) {
+			return $post_ids;
+		}
 
 		foreach ( $posts_json as $post_json ) {
 
@@ -175,9 +181,9 @@ class Posts_Importer extends PMC_Singleton {
 					}
 
 					// Fetch the custom taxonomy terms and custom fields for this post using XMLRPC.
-					$params = array( 'route' => 'posts', 'post_id' => $post_json['ID'] );
+					$params = array( 'post_id' => $post_json['ID'] );
 
-					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $params );
+					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts',  $params );
 
 					// Save the custom taxonomy terms for this post.
 					if ( ! empty( $post_meta ) && ! empty( $post_meta['terms'] ) ) {
@@ -288,6 +294,4 @@ class Posts_Importer extends PMC_Singleton {
 		}
 
 	}
-
-
 }

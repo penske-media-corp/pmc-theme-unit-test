@@ -21,6 +21,12 @@ class Users_Importer extends PMC_Singleton {
 		$time = date( '[d/M/Y:H:i:s]' );
 		try {
 
+			if ( empty( $user_info ) ) {
+
+				error_log( $time . ' No User data Passed. '  . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				return false;
+
+			}
 			$user_ID = username_exists( $user_info['login'] );
 
 			$user_ID = ( ! empty( $user_ID ) ) ? $user_ID : 0;
@@ -35,6 +41,10 @@ class Users_Importer extends PMC_Singleton {
 				'user_url'      => $user_info['URL'],
 				'user_email'    => $user_info['email'],
 			);
+
+			if ( empty( $user_ID ) ) {
+				$user_data['user_pass'] = $user_info['login'];
+			}
 
 			if ( ! empty( $user_info['roles'] ) ) {
 
@@ -52,9 +62,11 @@ class Users_Importer extends PMC_Singleton {
 
 			$user_ID = wp_insert_user( $user_data );
 
-			if ( is_a( $user_ID, 'WP_Error' ) ) {
+			if ( is_wp_error( $user_ID ) ) {
 
 				error_log( $time . ' -- ' . $user_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return $user_ID;
 
 			} else {
 
@@ -64,6 +76,8 @@ class Users_Importer extends PMC_Singleton {
 		} catch ( \Exception $e ) {
 
 			error_log( $time . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return false;
 
 		}
 
@@ -82,11 +96,15 @@ class Users_Importer extends PMC_Singleton {
 	 *
 	 * @return array of Users ids on success.
 	 */
-	public function instant_users_import( $json_data ) {
+	public function instant_users_import( $users_json ) {
 
 		$user_ids = array();
 
-		foreach ( $json_data as $user_data ) {
+		if ( empty( $users_json ) || ! is_array( $users_json ) ) {
+			return $user_ids;
+		}
+
+		foreach ( $users_json as $user_data ) {
 
 			$user_ids[] = $this->save_user( $user_data );
 
@@ -110,7 +128,6 @@ class Users_Importer extends PMC_Singleton {
 		return $this->instant_users_import( $api_data );
 
 	}
-
 }
 
 

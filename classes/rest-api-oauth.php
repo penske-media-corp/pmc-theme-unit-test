@@ -15,9 +15,9 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$client_id     = get_option( Config::$api_client_id );
-		$client_secret = get_option( Config::$api_client_secret );
-		$redirect_uri  = get_option( Config::$api_redirect_uri );
+		$client_id     = get_option( Config::api_client_id );
+		$client_secret = get_option( Config::api_client_secret );
+		$redirect_uri  = get_option( Config::api_redirect_uri );
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
 
@@ -60,16 +60,16 @@ class REST_API_oAuth extends PMC_Singleton {
 				return false;
 			}
 
-			update_option( Config::$access_token_key, $auth->access_token );
+			update_option( Config::access_token_key, $auth->access_token );
 
 			return true;
 
 		} catch ( \Exception $ex ) {
 
 			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-		}
 
-		return false;
+			return false;
+		}
 
 	}
 
@@ -90,7 +90,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$domain = get_option( Config::$api_domain );
+		$domain = get_option( Config::api_domain );
 
 		if ( empty( $domain ) ) {
 
@@ -101,9 +101,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$route_name = ! empty( $route_name ) ? $route_name : $route;
 
-		$access_token_key = Config::$access_token_key;
-
-		$saved_access_token = get_option( $access_token_key );
+		$saved_access_token = get_option( Config::access_token_key );
 
 		if ( $token_required && empty( $saved_access_token ) ) {
 
@@ -180,8 +178,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		if ( $token_required ) {
 
-			$access_token_key   = Config::$access_token_key;
-			$saved_access_token = get_option( $access_token_key );
+			$saved_access_token = get_option( Config::access_token_key );
 
 			if ( ! empty( $saved_access_token ) ) {
 				$args = array(
@@ -232,8 +229,8 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$client_id    = get_option( Config::$api_client_id );
-		$access_token = get_option( Config::$access_token_key );
+		$client_id    = get_option( Config::api_client_id );
+		$access_token = get_option( Config::access_token_key );
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
@@ -283,5 +280,4 @@ class REST_API_oAuth extends PMC_Singleton {
 		return false;
 
 	}
-
 }

@@ -24,7 +24,6 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		);
 		$xmlrpc_args = apply_filters( 'pmc_xmlrpc_client_credentials', $xmlrpc_args );
 
-		// @todo Corey Gilmore throw a WP Error here instead
 		if ( empty( $xmlrpc_args['server'] ) || empty( $xmlrpc_args['username'] ) || empty( $xmlrpc_args['password'] ) ) {
 
 			$time = date( '[d/M/Y:H:i:s]' );
@@ -94,8 +93,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	/**
 	 * Get the custom taxonomies for the site
 	 *
-	 * @since 1.0
-	 * @version 1.0 for PPT-5077, Archana Mandhare
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 */
 	public function get_taxonomies( $filter = array() ) {
@@ -120,8 +119,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	/**
 	 * Get the single custom taxonomy for the site
 	 *
-	 * @since 1.0
-	 * @version 1.0 for PPT-5077, Archana Mandhare
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 */
 	public function get_taxonomy( $taxonomy ) {
@@ -145,8 +144,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	/**
 	 * Get the all the terms for a particular custom taxonomy for the site
 	 *
-	 * @since 1.0
-	 * @version 1.0 for PPT-5077, Archana Mandhare
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 */
 	public function get_terms( $taxonomies, $filter = array() ) {
@@ -173,11 +172,11 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	/**
 	 * Get the single custom taxonomy term for the site
 	 *
-	 * @since 1.0
-	 * @version 1.0 for PPT-5077, Archana Mandhare
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 */
-	public function get_term( $term, $taxonomy ) {
+	public function get_term( $taxonomy, $term ) {
 
 		$args = array(
 			$taxonomy,
@@ -202,8 +201,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	/**
 	 * Wrapper for get_options() function to get all options without any filter
 	 *
-	 * @since 1.0
-	 * @version 1.0 2015-07-22 Archana Mandhare PPT-5077
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 */
 	public function get_all_options() {
@@ -214,8 +213,8 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	 * Get all site options that are not blacklisted from the wp_options table
 	 * To blacklist use 'options_export_blacklist' filter so that those will not be exported.
 	 *
-	 * @since 1.0
-	 * @version 1.0 2015-07-22 Archana Mandhare PPT-5077
+	 * @since 2015-07-22
+	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 * @params array $args the arguments containing credentials and filter to get option
 	 *         string|bool $default default value to return if no data found

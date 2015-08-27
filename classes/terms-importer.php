@@ -21,15 +21,24 @@ class Terms_Importer extends PMC_Singleton {
 
 		try {
 
+			if ( empty( $term_json ) ) {
+
+				error_log( $time . ' No Term data Passed. '  . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+
+			}
+
 			$taxonomy_id = taxonomy_exists( $term_json['taxonomy'] );
 
 			if ( false === $taxonomy_id ) {
 
-				error_log( $time . 'Taxonomy -- ' . $term_json['taxonomy'] .' --  does not exists'. PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				error_log( $time . 'Taxonomy -- ' . $term_json['taxonomy'] . ' --  does not exists' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
 				return false;
 			}
 
-			$term_id     = term_exists( $term_json['name'], $term_json['taxonomy'] );
+			$term_id = term_exists( $term_json['name'], $term_json['taxonomy'] );
 
 			if ( empty( $term_id ) && false !== $taxonomy_id ) {
 
@@ -44,7 +53,7 @@ class Terms_Importer extends PMC_Singleton {
 					)
 				);
 
-				if ( is_a( $term_id, 'WP_Error' ) ) {
+				if ( is_wp_error( $term_id ) ) {
 
 					error_log( $time . ' -- ' . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
@@ -53,19 +62,23 @@ class Terms_Importer extends PMC_Singleton {
 				} else {
 
 					error_log( "{$time} -- Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **-- added with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
+					return $term_id['term_id'];
 				}
 			} else {
 
 				error_log( "{$time} -- Exists Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **--  with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
+				return $term_id['term_id'];
+
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			return false;
 
 		}
 
-		return $term_id['term_id'];
 	}
 
 
@@ -84,6 +97,10 @@ class Terms_Importer extends PMC_Singleton {
 	public function instant_terms_import( $terms_json ) {
 
 		$terms_info = array();
+
+		if ( empty( $terms_json ) || ! is_array( $terms_json ) ) {
+			return $terms_info;
+		}
 
 		foreach ( $terms_json as $term_json ) {
 
@@ -109,6 +126,4 @@ class Terms_Importer extends PMC_Singleton {
 		return $this->instant_terms_import( $api_data );
 
 	}
-
-
 }

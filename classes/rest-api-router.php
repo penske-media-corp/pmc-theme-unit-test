@@ -91,6 +91,8 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @params string $route it is the endpoint name - e.g users, menu, categories, tags etc
 	 *
+	 * @return array of entity IDs that got saved.
+	 *
 	 */
 	public function call_rest_api_all_route( $route ) {
 
@@ -114,11 +116,11 @@ class REST_API_Router extends PMC_Singleton {
 
 			}
 
-			$data_ids[] = $this->_access_endpoint( $route, $query_params, $route, $access_token );
+			return $this->_access_endpoint( $route, $query_params, $route, $access_token );
 
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -133,14 +135,14 @@ class REST_API_Router extends PMC_Singleton {
 	 *
 	 * @params string $route it is post_type for the post endpoint
 	 *
+	 * @return array of entity IDs that got saved.
+	 *
 	 */
 	public function call_rest_api_posts_route( $route ) {
 
-		$data_ids[] = $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts', false );
+		return $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts', false );
 
-		return true;
 	}
-
 }
 
 

@@ -20,9 +20,6 @@ class Attachments_Importer extends PMC_Singleton {
 	private function _save_attachment( $image_url, $post_ID ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
-
-		$attachment_id = 0;
-
 		try {
 
 			$attachment_id = media_sideload_image( $image_url, $post_ID );
@@ -34,15 +31,17 @@ class Attachments_Importer extends PMC_Singleton {
 			} else {
 
 				error_log( "{$time} -- Attachment URL **-- { $image_url } --** added with new url = {$attachment_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
-
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
+
 		}
 
 		return $attachment_id;
+
 	}
 
 
@@ -61,11 +60,26 @@ class Attachments_Importer extends PMC_Singleton {
 
 	public function save_featured_image( $image_url, $post_ID ) {
 
-		$post_meta_id = 0;
+		$time = date( '[d/M/Y:H:i:s]' );
 
 		try {
 
-			$this->_save_attachment( $image_url, $post_ID );
+			if ( empty( $image_url ) || empty( $post_ID ) ) {
+
+				error_log( $time . ' No Image URL and Post ID passed to save attachment' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
+
+			// @todo - add title, caption, description to the attachment
+			$attachment_html = $this->_save_attachment( $image_url, $post_ID );
+
+			if ( is_wp_error( $attachment_html ) || empty( $attachment_html ) ) {
+
+				error_log( $time . ' Image URL not uploaded ' . $image_url . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
 
 			// then find the last image added to the post attachments
 			$attachments = get_posts( array(
@@ -78,15 +92,16 @@ class Attachments_Importer extends PMC_Singleton {
 
 			if ( sizeof( $attachments ) > 0 ) {
 				// set image as the post thumbnail
-				set_post_thumbnail( $post_ID, $attachments[0]->ID );
+				return set_post_thumbnail( $post_ID, $attachments[0]->ID );
+			} else {
+				return false;
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( 'Save Featured Image Failed with Error ---- ' . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
 		}
-
-		return $post_meta_id;
 
 	}
 
@@ -104,6 +119,10 @@ class Attachments_Importer extends PMC_Singleton {
 	public function instant_attachments_import( $attachments_json, $post_ID ) {
 
 		$attachments_info = array();
+
+		if ( empty( $attachments_json ) || ! is_array( $attachments_json ) ) {
+			return $attachments_info;
+		}
 
 		foreach ( $attachments_json as $key => $attachment_json ) {
 
@@ -134,6 +153,4 @@ class Attachments_Importer extends PMC_Singleton {
 		return $this->instant_attachments_import( $api_data, $post_ID );
 
 	}
-
-
 }

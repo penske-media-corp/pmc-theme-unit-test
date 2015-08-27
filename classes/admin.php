@@ -202,7 +202,7 @@ class Admin extends PMC_Singleton {
 		}
 		$show_cred_form     = false;
 		$authorize_url      = '';
-		$saved_access_token = get_option( Config::$access_token_key );
+		$saved_access_token = get_option( Config::access_token_key );
 		$is_valid_token     = REST_API_oAuth::get_instance()->is_valid_token();
 
 		if ( empty( $saved_access_token ) || ! $is_valid_token ) {
@@ -241,7 +241,7 @@ class Admin extends PMC_Singleton {
 		$domain = sanitize_text_field( wp_unslash( $domain ) );
 
 		if ( ! empty( $domain ) ) {
-			update_option( Config::$api_domain, $domain );
+			update_option( Config::api_domain, $domain );
 		}
 
 		// sanitize client id
@@ -249,7 +249,7 @@ class Admin extends PMC_Singleton {
 		$client_id = sanitize_text_field( wp_unslash( $client_id ) );
 
 		if ( ! empty( $client_id ) ) {
-			update_option( Config::$api_client_id, $client_id );
+			update_option( Config::api_client_id, $client_id );
 		}
 
 		// sanitize client secret
@@ -257,7 +257,7 @@ class Admin extends PMC_Singleton {
 		$client_secret = sanitize_text_field( wp_unslash( $client_secret ) );
 
 		if ( ! empty( $client_secret ) ) {
-			update_option( Config::$api_client_secret, $client_secret );
+			update_option( Config::api_client_secret, $client_secret );
 		}
 
 		// sanitize redirect uri
@@ -265,7 +265,7 @@ class Admin extends PMC_Singleton {
 		$redirect_uri = sanitize_text_field( wp_unslash( $redirect_uri ) );
 
 		if ( ! empty( $redirect_uri ) ) {
-			update_option( Config::$api_redirect_uri, $redirect_uri );
+			update_option( Config::api_redirect_uri, $redirect_uri );
 		}
 
 		// sanitize xmlrpc_username
@@ -273,7 +273,7 @@ class Admin extends PMC_Singleton {
 		$xmlrpc_username = sanitize_text_field( wp_unslash( $xmlrpc_username ) );
 
 		if ( ! empty( $xmlrpc_username ) ) {
-			update_option( Config::$api_xmlrpc_username, $xmlrpc_username );
+			update_option( Config::api_xmlrpc_username, $xmlrpc_username );
 		}
 
 		// sanitize xmlrpc_password
@@ -281,7 +281,7 @@ class Admin extends PMC_Singleton {
 		$xmlrpc_password = sanitize_text_field( wp_unslash( $xmlrpc_password ) );
 
 		if ( ! empty( $xmlrpc_password ) ) {
-			update_option( Config::$api_xmlrpc_password, $xmlrpc_password );
+			update_option( Config::api_xmlrpc_password, $xmlrpc_password );
 		}
 
 		// sanitize code
@@ -310,16 +310,14 @@ class Admin extends PMC_Singleton {
 
 		$route = filter_input( INPUT_POST, 'route' );
 
-		$route = sanitize_text_field( wp_unslash( $route ) );
+		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
 			$return_info[] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
 		}
 
-		ob_clean();
-		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $return_info );
-		wp_die();
+		wp_send_json( $return_info );
+		exit();
 
 	}
 
@@ -339,17 +337,14 @@ class Admin extends PMC_Singleton {
 
 		$route = filter_input( INPUT_POST, 'route' );
 
-		$route = sanitize_text_field( wp_unslash( $route ) );
+		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
 			$return_info[] = REST_API_Router::get_instance()->call_rest_api_posts_route( $route );
 		}
 
-		ob_clean();
-		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $return_info );
-		wp_die();
-
+		wp_send_json( $return_info );
+		exit();
 	}
 
 
@@ -375,10 +370,8 @@ class Admin extends PMC_Singleton {
 			$return_info[] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
 		}
 
-		ob_clean();
-		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $return_info );
-		wp_die();
+		wp_send_json( $return_info );
+		exit();
 
 	}
 
@@ -401,13 +394,10 @@ class Admin extends PMC_Singleton {
 
 		$client_details['post_routes'] = Config_Helper::get_posts_routes();
 
-		ob_clean();
-		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $client_details );
-		wp_die();
+		wp_send_json( $client_details );
+		exit();
 
 	}
-
 }    //end class
 
 //EOF

@@ -17,9 +17,17 @@ class Taxonomies_Importer extends PMC_Singleton {
 	 */
 	public function save_taxonomy( $taxonomy_json ) {
 
+		global $wp_taxonomies;
 		$time               = date( '[d/M/Y:H:i:s]' );
 		$built_in_posttypes = array( 'post', 'page', 'attachment', 'revision', 'nav_menu_item' );
 		try {
+
+			if ( empty( $taxonomy_json ) ) {
+
+				error_log( $time . ' No Taxonomy data Passed. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
 
 			$taxonomy_id = taxonomy_exists( $taxonomy_json['name'] );
 
@@ -46,8 +54,7 @@ class Taxonomies_Importer extends PMC_Singleton {
 
 				} else {
 
-					register_taxonomy_for_object_type( $taxonomy_json['name'],
-					$taxonomy_json['object_type'] );
+					register_taxonomy_for_object_type( $taxonomy_json['name'], $taxonomy_json['object_type'] );
 
 				}
 
@@ -57,23 +64,25 @@ class Taxonomies_Importer extends PMC_Singleton {
 
 					error_log( $time . ' -- ' . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+					return false;
+
 				} else if ( false !== $taxonomy_id ) {
 
 					error_log( "{$time} -- Taxonomy **-- {$taxonomy_json['name']} --** added." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
+					return $wp_taxonomies[ $taxonomy_json['name'] ];
 				}
 			} else {
 
 				error_log( "{$time} -- Exists Taxonomy **-- {$taxonomy_json['name']} --**" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
+				return $wp_taxonomies[ $taxonomy_json['name'] ];
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 		}
-
-		return $taxonomy_id;
 	}
 
 
@@ -92,6 +101,10 @@ class Taxonomies_Importer extends PMC_Singleton {
 	public function instant_taxonomies_import( $taxonomies_json ) {
 
 		$taxonomies_info = array();
+
+		if ( empty( $taxonomies_json ) || ! is_array( $taxonomies_json ) ) {
+			return $taxonomies_info;
+		}
 
 		foreach ( $taxonomies_json as $taxonomy_json ) {
 
@@ -121,8 +134,5 @@ class Taxonomies_Importer extends PMC_Singleton {
 	public function call_import_route( $api_data ) {
 
 		return $this->instant_taxonomies_import( $api_data );
-
 	}
-
-
 }

@@ -1,68 +1,27 @@
-jQuery(document).ready(function () {
-
-    if (typeof pmc_unit_test_ajax !== 'undefined') {
-
-        window.PMC_Theme_Unit_Test.init(pmc_unit_test_ajax);
-
-        window.PMC_Theme_Unit_Test.getClientDetails();
-
-        jQuery('#sync-from-prod').on("click", function () {
-            window.PMC_Theme_Unit_Test.importData();
-        });
-
-        jQuery('#authorize-url').on("click", function (e) {
-            var href = this.href;
-            var client_id = jQuery("#client_id").val();
-            if (href.indexOf(client_id) < 0) {
-                href = href + '&client_id=' + client_id;
-            }
-            var redirect_uri = jQuery("#redirect_uri").val();
-            if (href.indexOf(redirect_uri) < 0) {
-                href = href + '&redirect_uri=' + redirect_uri;
-            }
-            this.href = href;
-        });
-
-    }
-
-});
-
 window.PMC_Theme_Unit_Test = {
 
+    /**
+     * Register settings for JS object
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     options: 0,
     routes: {},
 
+    /**
+     * Kick things off
+     */
     init: function (settings) {
         this.options = settings;
     },
 
-    importData: function () {
-
-        var self = this;
-
-        if (self.routes !== 'undefined') {
-
-            if (self.routes.all_routes !== 'undefined') {
-                jQuery.each(self.routes.all_routes, function (i, end_route) {
-                    self.callRestAllEndpoints(end_route);
-                });
-            }
-
-            if (self.routes.post_routes !== 'undefined') {
-                jQuery.each(self.routes.post_routes, function (i, end_route) {
-                    self.callRestPostEndpoints(end_route);
-                });
-            }
-
-            if (self.routes.xmlrpc_routes !== 'undefined') {
-                jQuery.each(self.routes.xmlrpc_routes, function (i, end_route) {
-                    self.callXmlrpcEndpoints(end_route);
-                });
-            }
-        }
-
-    },
-
+    /**
+     * Get the details from the server to setup the page and what data to import
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     getClientDetails: function () {
 
         var self = this;
@@ -101,6 +60,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Setup the admin page HTML
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     setupAdminPage: function (data) {
 
         var self = this;
@@ -135,11 +100,17 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Create HTML for the endpoint to show in Admin UI
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     setupIndividualImport: function (end_route) {
 
         var routes_span = jQuery('<div>').attr('id', end_route).addClass('label-blue').addClass("route-label");
-        routes_span.append('<span>'+ end_route+ '</span>');
-        routes_span.append(jQuery('<div />').append( jQuery('<button />', {
+        routes_span.append(jQuery('<span>').text(end_route));
+        routes_span.append(jQuery('<div />').append(jQuery('<button />', {
             text: 'Import',
             class: 'button',
             id: 'import' + end_route
@@ -150,6 +121,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Create HTML for the most endpoints to show in Admin UI
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     setupIndividualImportForAll: function (end_route) {
 
         var self = this;
@@ -162,6 +139,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Create HTML for the posts endpoints to show in Admin UI
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     setupIndividualImportForPosts: function (end_route) {
 
         var self = this;
@@ -174,6 +157,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Create HTML for the xmlrpc endpoints to show in Admin UI
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     setupIndividualImportForxmlrpc: function (end_route) {
 
         var self = this;
@@ -186,6 +175,46 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Start the actual data import by making an ajax call for each endpoint
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
+    importData: function () {
+
+        var self = this;
+
+        if (self.routes !== 'undefined') {
+
+            if (self.routes.all_routes !== 'undefined') {
+                jQuery.each(self.routes.all_routes, function (i, end_route) {
+                    self.callRestAllEndpoints(end_route);
+                });
+            }
+
+            if (self.routes.post_routes !== 'undefined') {
+                jQuery.each(self.routes.post_routes, function (i, end_route) {
+                    self.callRestPostEndpoints(end_route);
+                });
+            }
+
+            if (self.routes.xmlrpc_routes !== 'undefined') {
+                jQuery.each(self.routes.xmlrpc_routes, function (i, end_route) {
+                    self.callXmlrpcEndpoints(end_route);
+                });
+            }
+        }
+
+    },
+
+
+    /**
+     * Call the ajax method for each endpoint
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     callRestAllEndpoints: function (end_route) {
 
         var self = this;
@@ -201,6 +230,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Call the ajax method for post endpoint
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     callRestPostEndpoints: function (end_route) {
 
         var self = this;
@@ -216,6 +251,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
+    /**
+     * Call the ajax method for xmlrpc endpoint
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     callXmlrpcEndpoints: function (end_route) {
 
         var self = this;
@@ -232,7 +273,12 @@ window.PMC_Theme_Unit_Test = {
 
     },
 
-
+    /**
+     * Ajax method to fetch data from server
+     *
+     * @since 2015-07-15
+     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     */
     makeAjaxRequest: function (ajax_data, route_name) {
 
         var self = this;
@@ -242,7 +288,8 @@ window.PMC_Theme_Unit_Test = {
             var routes_span = jQuery('#' + route_name);
             routes_span.empty();
             routes_span.addClass('label-blue');
-            routes_span.append('<span class="display:table-cell">' + route_name + ' Import Started : </span><div class="loader"></div>');
+            routes_span.append( jQuery('<span style="display:table-cell">').text(route_name + ' Import Started : '));
+            routes_span.append( jQuery('<div>').addClass('loader'));
 
             jQuery.ajax({
 
@@ -253,7 +300,8 @@ window.PMC_Theme_Unit_Test = {
                 success: function (data, textStatus, jqXHR) {
 
                     routes_span.empty();
-                    routes_span.removeClass('label-blue').addClass('label-green').append('<span class="display:table-cell">' + route_name + ' Import Done </span>');
+
+                    routes_span.removeClass('label-blue').addClass('label-green').append(jQuery('<span style="display:table-cell">').text(route_name + ' Import Done') );
 
                 },
                 error: function (x, t, m) {
@@ -264,7 +312,7 @@ window.PMC_Theme_Unit_Test = {
                         alert(t + " : " + m);
                     }
                     routes_span.empty();
-                    routes_span.removeClass('label-blue').addClass('label-red').append('<span class="display:table-cell">' + route_name + ' Import Failed</span>');
+                    routes_span.removeClass('label-blue').addClass('label-red').append(jQuery('<span style="display:table-cell">').text( route_name + ' Import Failed') );
 
                 }
 
@@ -276,3 +324,33 @@ window.PMC_Theme_Unit_Test = {
     }
 
 }
+
+
+jQuery(document).ready(function () {
+
+    if (typeof pmc_unit_test_ajax !== 'undefined') {
+
+        window.PMC_Theme_Unit_Test.init(pmc_unit_test_ajax);
+
+        window.PMC_Theme_Unit_Test.getClientDetails();
+
+        jQuery('#sync-from-prod').on("click", function () {
+            window.PMC_Theme_Unit_Test.importData();
+        });
+
+        jQuery('#authorize-url').on("click", function (e) {
+            var href = this.href;
+            var client_id = jQuery("#client_id").val();
+            if (href.indexOf(client_id) < 0) {
+                href = href + '&client_id=' + client_id;
+            }
+            var redirect_uri = jQuery("#redirect_uri").val();
+            if (href.indexOf(redirect_uri) < 0) {
+                href = href + '&redirect_uri=' + redirect_uri;
+            }
+            this.href = href;
+        });
+
+    }
+
+});

@@ -12,13 +12,13 @@ class Config {
 
 	const VALIDATE_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token-info';
 
-	public static $access_token_key = 'rest_api_access_token';
-	public static $api_domain = 'rest_api_domain';
-	public static $api_client_id = 'rest_api_client_id';
-	public static $api_client_secret = 'rest_api_client_secret';
-	public static $api_redirect_uri = 'rest_api_redirect_uri';
-	public static $api_xmlrpc_username = 'xmlrpc_username';
-	public static $api_xmlrpc_password = 'xmlrpc_password';
+	const access_token_key = 'rest_api_access_token';
+	const api_domain = 'rest_api_domain';
+	const api_client_id = 'rest_api_client_id';
+	const api_client_secret = 'rest_api_client_secret';
+	const api_redirect_uri = 'rest_api_redirect_uri';
+	const api_xmlrpc_username = 'xmlrpc_username';
+	const api_xmlrpc_password = 'xmlrpc_password';
 
 	public static $all_routes = array(
 		0 => array(
@@ -53,7 +53,18 @@ class Config {
 
 	public static $custom_posttypes = array( 'post', 'page' );
 
-	public static $custom_taxonomies = array();
+	public static $custom_taxonomies = array(
+		0 => array(
+			'name'    => 'vertical',
+			'args'    => array( 'orderby' => 'term_order' ),
+			'rewrite' => array( 'slug' => 'vertical' ),
+		),
+		1 => array(
+			'name'    => 'editorial',
+			'args'    => array( 'orderby' => 'term_order' ),
+			'rewrite' => array( 'slug' => 'editorial' ),
+		)
+	);
 
 	public static $default_taxonomies = array( 'post_tag', 'category' );
 

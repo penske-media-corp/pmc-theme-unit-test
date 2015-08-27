@@ -21,9 +21,16 @@ class Tags_Importer extends PMC_Singleton {
 
 		try {
 
+			if ( empty( $tag_json ) || empty( $tag_json['name'] ) ) {
+
+				error_log( $time . ' No tag data Passed. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
+
 			$term_id = term_exists( $tag_json['name'], 'post_tag' );
 
-			if ( ! $term_id ) {
+			if ( empty( $term_id ) ) {
 
 				$tag_array = array(
 					'term_id'     => 0,
@@ -31,32 +38,34 @@ class Tags_Importer extends PMC_Singleton {
 					'description' => $tag_json['description'],
 				);
 
-				$tag_info = wp_insert_term( $tag_array['name'], 'post_tag', $tag_array );
+				$term_id = wp_insert_term( $tag_array['name'], 'post_tag', $tag_array );
 
-				$term_id = $tag_info['term_id'];
+				if ( is_a( $term_id, 'WP_Error' ) ) {
 
-				if ( is_a( $tag_info, 'WP_Error' ) ) {
+					error_log( $time . ' -- ' . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-					error_log( $time . ' -- ' . $tag_info->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-					return $tag_info;
+					return $term_id;
+
 				} else {
 
-					$tag_ids[] = $tag_info['term_id'];
-
 					error_log( "{$time} -- Tag **-- {$tag_json['name']} --** added with ID = {$term_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+
+					return $term_id['term_id'];
 				}
 			} else {
 
 				error_log( "{$time} -- Exists Tag **-- {$tag_json['name']} --** with ID = {$term_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
+				return $term_id['term_id'];
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
+
 		}
 
-		return $term_id;
 	}
 
 	/**
@@ -75,6 +84,10 @@ class Tags_Importer extends PMC_Singleton {
 	public function instant_tags_import( $tags_json ) {
 
 		$tag_ids = array();
+
+		if ( empty( $tags_json ) || ! is_array( $tags_json ) ) {
+			return $tag_ids;
+		}
 
 		foreach ( $tags_json as $tag_json ) {
 
@@ -97,13 +110,7 @@ class Tags_Importer extends PMC_Singleton {
 	 */
 	public function call_import_route( $api_data ) {
 
-		if ( $api_data ) {
-
-			return $this->instant_tags_import( $api_data );
-
-		}
+		return $this->instant_tags_import( $api_data );
 
 	}
-
-
 }

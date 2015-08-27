@@ -21,9 +21,15 @@ class Categories_Importer extends PMC_Singleton {
 
 		try {
 
-			$category_id = term_exists( $category_json['name'], 'category' );
+			if ( empty( $category_json ) || empty( $category_json['name'] ) ) {
 
-			if ( ! $category_id ) {
+				error_log( $time . ' No Category data Passed. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
+			$category_info = term_exists( $category_json['name'], 'category' );
+
+			if ( empty( $category_info ) ) {
 
 				$category_array = array(
 					'cat_ID'               => 0,
@@ -33,31 +39,33 @@ class Categories_Importer extends PMC_Singleton {
 					'taxonomy'             => 'category',
 				);
 
-				$category_id = wp_insert_category( $category_array );
+				$category_info = wp_insert_category( $category_array );
 
-				if ( is_a( $category_id, 'WP_Error' ) ) {
+				if ( is_wp_error( $category_info ) ) {
 
-					error_log( $time . ' -- ' . $category_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $category_info->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+					return $category_info;
 				} else {
 
-					$categories_info[] = $category_id;
+					error_log( "{$time} -- Category **-- {$category_json['name']} --** added with ID = {$category_info}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
-					error_log( "{$time} -- Category **-- {$category_json['name']} --** added with ID = {$category_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
-
+					return $category_info;
 				}
 			} else {
 
-				error_log( "{$time} -- Exists Category **-- {$category_json['name']} --** with ID = {$category_id['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
+				error_log( "{$time} -- Exists Category **-- {$category_json['name']} --** with ID = {$category_info['term_id']}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
+				return $category_info['term_id'];
 			}
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			return false;
+
 		}
 
-		return $category_id;
 	}
 
 
@@ -77,6 +85,10 @@ class Categories_Importer extends PMC_Singleton {
 	public function instant_categories_import( $categories_json ) {
 
 		$categories_info = array();
+
+		if ( empty( $categories_json ) || ! is_array( $categories_json ) ) {
+			return $categories_info;
+		}
 
 		foreach ( $categories_json as $category_json ) {
 
@@ -103,6 +115,4 @@ class Categories_Importer extends PMC_Singleton {
 		return $this->instant_categories_import( $api_data );
 
 	}
-
-
 }
