@@ -58,6 +58,8 @@ class Posts_Importer extends PMC_Singleton {
 
 				error_log( "{$time} -- Exists Post **-- {$post_json['title']} --** with ID = {$post_obj->ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
 
+				return $post_obj->ID;
+
 			} else {
 
 				$post_data = array(
@@ -189,26 +191,25 @@ class Posts_Importer extends PMC_Singleton {
 					// Fetch the custom taxonomy terms and custom fields for this post using XMLRPC.
 					$params = array( 'post_id' => $post_json['ID'] );
 
-					$post_meta = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts', $params );
+					$post_meta_data = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts', $params );
 
 					// Save the custom taxonomy terms for this post.
-					if ( ! empty( $post_meta ) && ! empty( $post_meta['terms'] ) ) {
+					if ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
 
-						foreach ( $post_meta['terms'] as $custom_term ) {
+						// Expecting only one value in $post_meta_data with 0 index since this is only for one post
+						// Save all the terms
+						foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
 
 							// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
 							if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
 
-								wp_set_post_terms( $post_ID, $custom_term['name'], $custom_term['taxonomy'] );
+								$term_id = Terms_Importer::get_instance()->save_taxonomy_terms($custom_term);
+								wp_set_object_terms( $post_ID, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
 
 							}
 						}
-					}
-
-					// Save the custom fields for this post.
-					if ( ! empty( $post_meta ) && ! empty( $post_meta['custom_fields'] ) ) {
-
-						foreach ( $post_meta['custom_fields'] as $custom_field ) {
+						// Save all the custom fields
+						foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
 
 							if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
 
@@ -216,6 +217,7 @@ class Posts_Importer extends PMC_Singleton {
 
 							}
 						}
+
 					}
 
 					// Save the featured image of the post
