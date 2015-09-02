@@ -57,7 +57,7 @@ class PMC_WP_CLI_Base extends WPCOM_VIP_CLI_Command {
 					$this->$key = $assoc_args[ $name ];
 				}
 			}
-			unset ( $this->_assoc_args_properties_mapping );
+			unset( $this->_assoc_args_properties_mapping );
 		}
 	}
 
@@ -80,7 +80,7 @@ class PMC_WP_CLI_Base extends WPCOM_VIP_CLI_Command {
 	}
 
 	protected function _write_log( $msg, $is_error = false ) {
-		$is_error   = ( $is_error === true ) ? true : false;
+		$is_error   = ( true === $is_error ) ? true : false;
 		$msg_prefix = '';
 
 		if ( ! $is_error ) {
@@ -90,7 +90,13 @@ class PMC_WP_CLI_Base extends WPCOM_VIP_CLI_Command {
 		}
 
 		if ( ! empty( $this->log_file ) ) {
+			/**
+			 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
+			 * Filesystem writes are forbidden, you should not be using file_put_contents()
+			 */
+			// @codingStandardsIgnoreStart
 			file_put_contents( $this->log_file, $msg_prefix . $msg . "\n", FILE_APPEND );
+			// @codingStandardsIgnoreEnd
 		}
 
 		if ( $is_error ) {
