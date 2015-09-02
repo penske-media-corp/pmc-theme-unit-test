@@ -17,7 +17,9 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	}
 
 	/**
-	 * Import data from production server for a given theme and URL.
+	 * Import data from production server for a given local theme and URL.
+	 * Pass in the json file that has the credentials information if credentials are not yet in the database
+	 * The format of the file should be same as auth.json file added to the root of this plugin
 	 *
 	 * @since 2015-09-01
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
@@ -27,6 +29,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	 *
 	 *
 	 * Example usage :
+	 * wp --url=vip.local pmc-import-live import-all
 	 * wp --url=vip.local pmc-import-live import-all --file=/path/to/auth.json
 	 */
 	public function import_all( $args = array(), $assoc_args = array() ) {
@@ -35,8 +38,8 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 
 		$this->_extract_common_args( $assoc_args );
 
-		$has_credentials = true;
-		if ( ! empty( $assoc_args['file'] ) ) {
+		$has_credentials = $this->_get_credentials_from_db();
+		if ( ! $has_credentials && ! empty( $assoc_args['file'] ) ) {
 			$has_credentials = $this->_validate_credentials( $assoc_args['file'] );
 		}
 
@@ -54,7 +57,8 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 
 	/**
 	 * Import specific route data from production server for a given theme and URL.
-	 *
+	 * Pass in the json file that has the credentials information if credentials are not yet in the database
+	 * The format of the file should be same as auth.json file added to the root of this plugin
 	 *
 	 * @since 2015-09-01
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
@@ -64,7 +68,12 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	 *
 	 *
 	 * Example usage :
-	 * wp --url=vip.local pmc-import-live import-routes --dry-run --file=/path/to/auth.json --routes=users,menus --post-type=pmc-gallery,pmc_featured --xmlrpc=taxonomies,options
+	 * wp --url=vip.local pmc-import-live import-routes --dry-run --file=/path/to/auth.json --routes=users,menus --post-type=post,pmc-gallery,page --xmlrpc=taxonomies,options
+	 * wp --url=vip.local pmc-import-live import-routes --routes=users
+	 *
+	 * possible values for --routes param should be endpoint keys from the $all_routes in Config.php
+	 * possible values for --post_type param is all the whitelisted post types for the rest api
+	 * possible values for --xmlrpc should be from $xmlrpc_routes array in Config.php
 	 */
 	public function import_routes( $args = array(), $assoc_args = array() ) {
 
@@ -72,8 +81,9 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 
 		$this->_extract_common_args( $assoc_args );
 
-		$has_credentials = true;
-		if ( ! empty( $assoc_args['file'] ) ) {
+		$has_credentials = $this->_get_credentials_from_db();
+
+		if ( ! $has_credentials && ! empty( $assoc_args['file'] ) ) {
 			$has_credentials = $this->_validate_credentials( $assoc_args['file'] );
 		}
 
@@ -87,13 +97,13 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 			$this->_import_rest_routes( $rest_endpoints );
 		}
 
-		// REST API Post Endpoints
+		// REST API Post and custom post type Endpoints
 		if ( ! empty( $assoc_args['post-type'] ) ) {
 			$post_endpoints = $assoc_args['post-type'];
 			$this->_import_post_routes( $post_endpoints );
 		}
 
-		// REST API xmlrpc Endpoints
+		// REST API xmlrpc Endpoints - for custom taxonomies and options
 		if ( ! empty( $assoc_args['xmlrpc'] ) ) {
 			$post_endpoints = $assoc_args['xmlrpc'];
 			$this->_import_xmlrpc_routes( $post_endpoints );
@@ -102,28 +112,13 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	}
 
 	/**
-	 * Validates the user credentials to begin the import
+	 * Check that the credentials are saved in the database and return true Else return false
 	 *
-	 * @since 2015-09-01
-	 * @version 2015-09-01 Archana Mandhare PPT-5366
+	 * @since 2015-09-02
+	 * @version 2015-09-02 Archana Mandhare PPT-5366
 	 *
 	 */
-	private function _validate_credentials( $credentials_file = '' ) {
-
-		WP_CLI::line( 'Credentials File = ' . $credentials_file );
-		if ( ! empty( $credentials_file ) ) {
-
-			if ( ! file_exists( $credentials_file ) ) {
-				WP_CLI::error( "Credentials file '$credentials_file' does not exists. Please create one." );
-
-				return false;
-			}
-			if ( ! is_readable( $credentials_file ) ) {
-				WP_CLI::error( "Unable to read credentials from file '$credentials_file'." );
-
-				return false;
-			}
-		}
+	private function _get_credentials_from_db() {
 
 		// Check the saved values from DB for REST API and XMLRPC
 		$rest_auth    = false;
@@ -143,11 +138,39 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 		// if both are saved return true
 		if ( $rest_auth && $xlmrpc_auth ) {
 			WP_CLI::line( 'Authentication SUCCESSFUL with saved access token in DB !!' );
-
 			return true;
 		}
 
-		// Else read the file and fetch the access token and save to DB.
+		return false;
+
+	}
+
+	/**
+	 * Validates the user credentials from a file and saves to the database
+	 *
+	 * @since 2015-09-01
+	 * @version 2015-09-01 Archana Mandhare PPT-5366
+	 *
+	 */
+	private function _validate_credentials( $credentials_file = '' ) {
+
+		// Else look for the file that has credentials
+		WP_CLI::line( 'Credentials File = ' . $credentials_file );
+		if ( ! empty( $credentials_file ) ) {
+
+			if ( ! file_exists( $credentials_file ) ) {
+				WP_CLI::error( "Credentials file '$credentials_file' does not exists. Please create one." );
+
+				return false;
+			}
+			if ( ! is_readable( $credentials_file ) ) {
+				WP_CLI::error( "Unable to read credentials from file '$credentials_file'." );
+
+				return false;
+			}
+		}
+
+		// Read the file and fetch the access token and save to DB.
 		try {
 			$creds_details = PMC\Theme_Unit_Test\Admin::get_instance()->read_credentials_from_json_file( $credentials_file );
 
@@ -186,7 +209,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	}
 
 	/**
-	 * Import from all the REST API routes other than posts and post types
+	 * Import data from all the REST API routes other than posts and post types
 	 *
 	 * @since 2015-09-01
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
@@ -228,7 +251,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	}
 
 	/**
-	 * Import from all post and post type REST API routes
+	 * Import data from all post and post type REST API routes
 	 *
 	 * @since 2015-09-01
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
