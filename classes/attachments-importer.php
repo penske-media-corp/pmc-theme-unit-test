@@ -124,7 +124,14 @@ class Attachments_Importer extends PMC_Singleton {
 			return $attachments_info;
 		}
 
+		$count = 0;
+
 		foreach ( $attachments_json as $key => $attachment_json ) {
+
+			// fetch only 5 attachments
+			if( $count > 5 ) {
+				break;
+			}
 
 			$attachments_id = $this->_save_attachment( $attachment_json['URL'], $post_ID );
 
@@ -133,6 +140,8 @@ class Attachments_Importer extends PMC_Singleton {
 				$attachments_info[] = $attachments_id;
 
 			}
+
+			$count++;
 		}
 
 		return $attachments_info;

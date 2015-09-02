@@ -74,6 +74,61 @@ class REST_API_oAuth extends PMC_Singleton {
 	}
 
 	/**
+	 * Authorise the request using the secret key and save the access token
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 *
+	 */
+	public function get_authorization_code() {
+
+		$time = date( '[d/M/Y:H:i:s]' );
+
+		$client_id    = get_option( Config::api_client_id );
+		$redirect_uri = get_option( Config::api_redirect_uri );
+
+		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
+
+			error_log( $time . ' Admin Settings Form values not saved. Please try saving the credentials again. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return false;
+		}
+		try {
+
+
+			$args = array(
+				'response_type' => 'code',
+				'scope'         => 'global',
+				'client_id'     => $client_id,
+				'redirect_uri'  => $redirect_uri,
+			);
+
+			$params = array(
+				'timeout' => 500,
+				'body'    => $args,
+			);
+
+			$response = wp_remote_get( esc_url_raw( Config::AUTHORIZE_URL ), $params );
+
+			if ( is_wp_error( $response ) ) {
+				error_log( $time . ' get_authorization_code() Failed -- ' . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+				return false;
+			}
+
+			return true;
+
+		} catch ( \Exception $ex ) {
+
+			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+			return false;
+		}
+
+	}
+
+	/**
 	 * Access the API end point to pull data based on the route being passed
 	 *
 	 * @since 2015-07-14

@@ -10,17 +10,31 @@ if ( ! defined( 'WP_TEST_IGNORE_BOOTSTRAP' ) ) {
 }
 
 // need to use enclosure function here to avoid function name conflict when unit test are reference from root
-tests_add_filter( 'after_setup_theme', function() {
+tests_add_filter( 'after_setup_theme', function () {
 
 	// suppress warning and only reports errors
 	error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
 	$plugins_dir = dirname( dirname( dirname( __DIR__ ) ) );
 	require_once( $plugins_dir . '/plugins/vip-init.php' );
 
+	add_filter( 'pmc_xmlrpc_client_credentials', function () {
+
+		$xmlrpc_args['server']   = "http://vip.tests.com/xmlrpc.php";
+		$xmlrpc_args['username'] = 'abc';
+		$xmlrpc_args['password'] = 'abc';
+
+		return $xmlrpc_args;
+	} );
+
 	// Load required plugins here
-	wpcom_vip_load_plugin( 'pmc-http-ixr-client', 'pmc-dev-plugins' );
-	wpcom_vip_load_plugin( 'pmc-xmlrpc-server', 'pmc-plugins' );
 	wpcom_vip_load_plugin( 'pmc-theme-unit-test', 'pmc-plugins' );
+
+
+	update_option( \PMC\Theme_Unit_Test\Config::api_domain, 'vip.tests.com' );
+	update_option( \PMC\Theme_Unit_Test\Config::api_client_id, '' );
+	update_option( \PMC\Theme_Unit_Test\Config::api_client_secret, '' );
+	update_option( \PMC\Theme_Unit_Test\Config::api_redirect_uri, '' );
+	update_option( \PMC\Theme_Unit_Test\Config::access_token_key, '' );
 
 } );
 

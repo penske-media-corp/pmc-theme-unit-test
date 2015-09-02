@@ -49,11 +49,9 @@ class XMLRPC_Router extends PMC_Singleton {
 			return $xmlrpc_args;
 		}
 
-		$xmlrpc_args = array(
-			'server'   => "http://{$domain}/xmlrpc.php",
-			'username' => $xmlrpc_username,
-			'password' => $xmlrpc_password,
-		);
+		$xmlrpc_args['server']   = "http://{$domain}/xmlrpc.php";
+		$xmlrpc_args['username'] = $xmlrpc_username;
+		$xmlrpc_args['password'] = $xmlrpc_password;
 
 		return $xmlrpc_args;
 
@@ -251,14 +249,14 @@ class XMLRPC_Router extends PMC_Singleton {
 			return false;
 		}
 
-		$this->xmlrpc_client->cache_key = md5( 'pmc-theme-unit-test-' . term_id );
+		$this->xmlrpc_client->cache_key = md5( 'pmc-theme-unit-test-' . $term_id );
 
 		//Fetch Term
 		$result = $this->xmlrpc_client->get_term( $taxonomy, $term_id );
 
 		if ( empty( $result ) ) {
 			$error = $this->xmlrpc_client->error->message;
-			error_log( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error . ' for taxonomy' . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			error_log( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 			return new \WP_Error( 'taxonomy_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
 		} else {

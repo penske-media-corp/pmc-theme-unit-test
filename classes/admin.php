@@ -206,20 +206,46 @@ class Admin extends PMC_Singleton {
 
 		$show_cred_form     = false;
 		$authorize_url      = '';
-		$saved_access_token = get_option( Config::access_token_key );
 		$show_form          = get_option( Config::show_form );
+		$saved_access_token = get_option( Config::access_token_key );
 		$is_valid_token     = REST_API_oAuth::get_instance()->is_valid_token();
 
-		if ( 1 === intval( $show_form ) || empty( $saved_access_token ) || ! $is_valid_token ) {
-			$args = array(
-				'response_type' => 'code',
-				'scope'         => 'global',
-			);
+		if ( 1 === intval( $show_form ) || ( empty( $saved_access_token ) || ! $is_valid_token ) ) {
+			if ( file_exists( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' ) ) {
+				$creds_details = $this->read_credentials_from_json_file( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
 
-			$query_params   = http_build_query( $args );
+				// the array values are already sanitized
+				if ( is_array( $creds_details ) ) {
+					$file_args = array(
+						'domain'          => ! empty( $creds_details['domain'] ) ? $creds_details['domain'] : '',
+						'client_id'       => ! empty( $creds_details['client_id'] ) ? $creds_details['client_id'] : '',
+						'client_secret'   => ! empty( $creds_details['client_secret'] ) ? $creds_details['client_secret'] : '',
+						'redirect_uri'    => ! empty( $creds_details['redirect_uri'] ) ? $creds_details['redirect_uri'] : '',
+						'xmlrpc_username' => ! empty( $creds_details['xmlrpc_username'] ) ? $creds_details['xmlrpc_username'] : '',
+						'xmlrpc_password' => ! empty( $creds_details['xmlrpc_password'] ) ? $creds_details['xmlrpc_password'] : '',
+					);
+				}
+			}
+
+			if ( is_array( $creds_details ) && ! empty( $creds_details['client_id'] ) && ! empty( $creds_details['redirect_uri'] ) ) {
+				$auth_args = array(
+					'response_type' => 'code',
+					'scope'         => 'global',
+					'client_id'     => $creds_details['client_id'],
+					'redirect_uri'  => $creds_details['redirect_uri'],
+				);
+			} else {
+				$auth_args = array(
+					'response_type' => 'code',
+					'scope'         => 'global',
+				);
+			}
+
+			$query_params   = http_build_query( $auth_args );
 			$authorize_url  = Config::AUTHORIZE_URL . '?' . $query_params;
 			$show_cred_form = true;
 			update_option( Config::show_form, 0, false );
+
 		}
 
 		$args = array(
@@ -227,6 +253,10 @@ class Admin extends PMC_Singleton {
 			'show_data_import' => ! $show_cred_form,
 			'authorize_url'    => esc_url( $authorize_url ),
 		);
+
+		if ( ! empty( $file_args ) ) {
+			$args = array_merge( $args, $file_args );
+		}
 
 		/*
 		 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
@@ -240,66 +270,118 @@ class Admin extends PMC_Singleton {
 
 	}
 
+	/**
+	 * Admin UI credentials form post function
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-09-01 Archana Mandhare - PPT-5366
+	 */
 	public function pmc_domain_creds_sanitize_callback() {
 
-		// sanitize domain name
-		$domain = filter_input( INPUT_POST, 'domain' );
-		$domain = sanitize_text_field( wp_unslash( $domain ) );
+		$creds_details['domain']          = filter_input( INPUT_POST, 'domain' );
+		$creds_details['client_id']       = filter_input( INPUT_POST, 'client_id' );
+		$creds_details['client_secret']   = filter_input( INPUT_POST, 'client_secret' );
+		$creds_details['redirect_uri']    = filter_input( INPUT_POST, 'redirect_uri' );
+		$creds_details['xmlrpc_username'] = filter_input( INPUT_POST, 'xmlrpc_username' );
+		$creds_details['xmlrpc_password'] = filter_input( INPUT_POST, 'xmlrpc_password' );
+		$creds_details['code']            = filter_input( INPUT_POST, 'code' );
 
-		if ( ! empty( $domain ) ) {
-			update_option( Config::api_domain, $domain );
-		}
-
-		// sanitize client id
-		$client_id = filter_input( INPUT_POST, 'client_id' );
-		$client_id = sanitize_text_field( wp_unslash( $client_id ) );
-
-		if ( ! empty( $client_id ) ) {
-			update_option( Config::api_client_id, $client_id );
-		}
-
-		// sanitize client secret
-		$client_secret = filter_input( INPUT_POST, 'client_secret' );
-		$client_secret = sanitize_text_field( wp_unslash( $client_secret ) );
-
-		if ( ! empty( $client_secret ) ) {
-			update_option( Config::api_client_secret, $client_secret );
-		}
-
-		// sanitize redirect uri
-		$redirect_uri = filter_input( INPUT_POST, 'redirect_uri' );
-		$redirect_uri = sanitize_text_field( wp_unslash( $redirect_uri ) );
-
-		if ( ! empty( $redirect_uri ) ) {
-			update_option( Config::api_redirect_uri, $redirect_uri );
-		}
-
-		// sanitize xmlrpc_username
-		$xmlrpc_username = filter_input( INPUT_POST, 'xmlrpc_username' );
-		$xmlrpc_username = sanitize_text_field( wp_unslash( $xmlrpc_username ) );
-
-		if ( ! empty( $xmlrpc_username ) ) {
-			update_option( Config::api_xmlrpc_username, $xmlrpc_username );
-		}
-
-		// sanitize xmlrpc_password
-		$xmlrpc_password = filter_input( INPUT_POST, 'xmlrpc_password' );
-		$xmlrpc_password = sanitize_text_field( wp_unslash( $xmlrpc_password ) );
-
-		if ( ! empty( $xmlrpc_password ) ) {
-			update_option( Config::api_xmlrpc_password, $xmlrpc_password );
-		}
-
-		// sanitize code
-		$code = filter_input( INPUT_POST, 'code' );
-		$code = sanitize_text_field( wp_unslash( $code ) );
-
-		if ( ! empty( $client_id ) && ! empty( $client_secret ) && ! empty( $redirect_uri ) && ! empty( $code ) ) {
-			$token_saved = REST_API_oAuth::get_instance()->fetch_access_token( $code );
-		}
-
+		$this->save_credentials_to_db( $creds_details );
 	}
 
+
+	/**
+	 * Read credentials form file and return array
+	 *
+	 * @since 2015-09-02
+	 *
+	 * @version 2015-09-02 Archana Mandhare - PPT-5366
+	 *
+	 * @param string File that has credentials
+	 *
+	 * @return array $creds_details that has all the required credentials to fetch access token
+	 */
+	public function read_credentials_from_json_file( $credentials_file ) {
+
+		$contents    = file_get_contents( $credentials_file );
+		$json        = json_decode( $contents, true );
+		$rest_auth   = true;
+		$xmlrpc_auth = true;
+
+		foreach ( $json as $key => $value ) {
+			if ( 'rest-api' === $key ) {
+				$domain        = sanitize_text_field( wp_unslash( $value['domain'] ) );
+				$client_id     = sanitize_text_field( wp_unslash( $value['client_id'] ) );
+				$client_secret = sanitize_text_field( wp_unslash( $value['client_secret'] ) );
+				$redirect_uri  = sanitize_text_field( wp_unslash( $value['redirect_uri'] ) );
+				if ( empty( $domain ) || empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) ) {
+					$rest_auth = false;
+				} else {
+					$creds_details['domain']        = $domain;
+					$creds_details['client_id']     = $client_id;
+					$creds_details['client_secret'] = $client_secret;
+					$creds_details['redirect_uri']  = $redirect_uri;
+				}
+			}
+			if ( 'xmlrpc' === $key ) {
+				$xmlrpc_username = sanitize_text_field( wp_unslash( $value['xmlrpc_username'] ) );
+				$xmlrpc_password = sanitize_text_field( wp_unslash( $value['xmlrpc_password'] ) );
+
+				if ( empty( $xmlrpc_username ) || empty( $xmlrpc_password ) ) {
+					$xmlrpc_auth = true;
+				} else {
+					$creds_details['xmlrpc_username'] = $xmlrpc_username;
+					$creds_details['xmlrpc_password'] = $xmlrpc_password;
+				}
+			}
+		}
+
+		if ( $rest_auth && $xmlrpc_auth ) {
+			return $creds_details;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Save the credentials to the database
+	 *
+	 * @since 2015-09-01
+	 *
+	 * @version 2015-09-01 Archana Mandhare - PPT-5366
+	 */
+	public function save_credentials_to_db( $creds_details = array() ) {
+
+		$creds_details = array_map( 'wp_unslash', $creds_details );
+		$creds_details = array_map( 'sanitize_text_field', $creds_details );
+
+		if ( ! empty( $creds_details['xmlrpc_username'] ) ) {
+			update_option( Config::api_xmlrpc_username, $creds_details['xmlrpc_username'] );
+		}
+
+		if ( ! empty( $creds_details['xmlrpc_password'] ) ) {
+			update_option( Config::api_xmlrpc_password, $creds_details['xmlrpc_password'] );
+		}
+
+		if ( empty( $creds_details['domain'] )
+		     || empty( $creds_details['client_id'] )
+		     || empty( $creds_details['client_secret'] )
+		     || empty( $creds_details['redirect_uri'] )
+		     || empty( $creds_details['code'] )
+		) {
+			return false;
+		}
+
+		update_option( Config::api_domain, $creds_details['domain'] );
+		update_option( Config::api_client_id, $creds_details['client_id'] );
+		update_option( Config::api_client_secret, $creds_details['client_secret'] );
+		update_option( Config::api_redirect_uri, $creds_details['redirect_uri'] );
+
+		return REST_API_oAuth::get_instance()->fetch_access_token( $creds_details['code'] );
+
+	}
 
 	/**
 	 * Ajax call made from the Admin UI button to fetch data and save to current site DB

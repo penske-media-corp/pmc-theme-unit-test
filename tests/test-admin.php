@@ -1,34 +1,44 @@
 <?php
+
 /**
- * @group pmc-theme-unit-test
  *
  * Unit test for class Admin
  *
  * Author Archana Mandhare <amandhare@pmc.com>
  *
  */
-
+/**
+ * @group test_admin
+ */
 class Test_Admin extends WP_UnitTestCase {
-	/**
-	 * @covers Admin::get_instance()
-	 */
-	public function test_get_instance() {
 
-		$admin = Admin::get_instance();
-		$this->assertInstanceOf( 'Admin', $admin );
+	function setUp() {
+		// to speeed up unit test, we bypass files scanning on upload folder
+		self::$ignore_files = true;
+		parent::setUp();
+	}
 
+	function remove_added_uploads() {
+		// To prevent all upload files from deletion, since set $ignore_files = true
+		// we override the function and do nothing here
 	}
 
 	/**
-	 * @covers Admin::setup_hooks()
+	 * @covers Admin::_init()
+	 *
 	 */
-	public function test_setup_hooks() {
-		$admin = Admin::get_instance();
+	public function test_init() {
+
+		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
+		$this->assertInstanceOf( 'PMC\Theme_Unit_Test\Admin', $admin );
 
 		$filters = array(
+			'init'                                       => 'on_wp_init',
+			'admin_init'                                 => 'action_admin_init',
 			'admin_menu'                                 => 'add_admin_menu',
 			'admin_enqueue_scripts'                      => 'load_assets',
-			'wp_ajax_import_data_from_production'        => 'import_data_from_production',
+			'wp_ajax_import_all_data_from_production'    => 'import_all_data_from_production',
+			'wp_ajax_import_posts_data_from_production'  => 'import_posts_data_from_production',
 			'wp_ajax_import_xmlrpc_data_from_production' => 'import_xmlrpc_data_from_production',
 			'wp_ajax_get_client_configuration_details'   => 'get_client_configuration_details',
 		);
@@ -43,17 +53,18 @@ class Test_Admin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Admin::load_assets()
+	 * @covers Admin::action_admin_init()
 	 */
-	public function test_load_assets() {
+	public function test_action_admin_init() {
 
-		$admin = Admin::get_instance();
-		$admin->load_assets( 'tools_page_data-import' );
+		global $new_whitelist_options;
 
-		$this->assertTrue( wp_style_is( 'pmc_theme_unit_test_admin_css', 'enqueued' ) );
-		$this->assertTrue( wp_script_is( 'pmc_theme_unit_test_admin_js', 'enqueued' ) );
+		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
+		$admin->action_admin_init();
+		$this->assertTrue( in_array( 'pmc_domain_creds', $new_whitelist_options['pmc_domain_creds'] ) );
 
 	}
+
 
 	/**
 	 * @covers Admin::add_admin_menu()
@@ -70,42 +81,16 @@ class Test_Admin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Admin::data_import_options()
+	 * @covers Admin::load_assets()
 	 */
-	public function test_data_import_options() {
+	public function test_load_assets() {
 
-		$admin = Admin::get_instance();
-		$administrator_id = $this->factory->user->create( array(
-			'user_login' => 'administrator',
-			'user_pass'  => 'administrator',
-			'role'       => 'administrator',
-		));
-		grant_super_admin( $administrator_id );
-		$admin->data_import_options();
-		$this->assertNotNull( $admin->domain );
+		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
+		$admin->load_assets( 'tools_page_data-import' );
+
+		$this->assertTrue( wp_style_is( 'pmc_theme_unit_test_admin_css', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'pmc_theme_unit_test_admin_js', 'enqueued' ) );
 
 	}
-
-	/**
-	 * @covers Admin::import_data_from_production()
-	 */
-	public function test_import_data_from_production() {
-
-	}
-
-	/**
-	 * @covers Admin::import_xmlrpc_data_from_production()
-	 */
-	public function test_import_xmlrpc_data_from_production() {
-
-	}
-
-	/**
-	 * @covers Admin::get_client_configuration_details()
-	 */
-	public function test_get_client_configuration_details() {
-
-	}
-
 
 }

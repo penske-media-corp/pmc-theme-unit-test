@@ -31,35 +31,35 @@
 										<table id="domain-creds-layout" class="widefat">
 											<tr>
 												<td><span>Production Domain Name: e.g  http://exampledomain.com/ Just enter <strong>exampledomain.com</strong> </span></td>
-												<td><input type="text" id="domain" name="domain" value=""/></td>
+												<td><input type="text" id="domain" name="domain" value="<?php echo $domain;?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Client ID : </span></td>
-												<td><input type="text" id="client_id" name="client_id" value=""/></td>
+												<td><input type="text" id="client_id" name="client_id" value="<?php echo $client_id;?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Client Secret : </span></td>
 												<td><input type="text"
 												           name="client_secret"
-												           value=""/></td>
+												           value="<?php echo $client_secret;?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Redirect URI : </span></td>
 												<td><input type="text" id="redirect_uri"
 												           name="redirect_uri"
-												           value=""/></td>
+												           value="<?php echo $redirect_uri;?>"/></td>
 											</tr>
 											<tr>
 												<td><span>XMLRPC Username : </span></td>
 												<td><input type="text"
 												           name="xmlrpc_username"
-												           value=""/></td>
+												           value="<?php echo $xmlrpc_username;?>"/></td>
 											</tr>
 											<tr>
 												<td><span>XMLRPC Password : </span></td>
 												<td><input type="text"
 												           name="xmlrpc_password"
-												           value=""/></td>
+												           value="<?php echo $xmlrpc_password;?>"/></td>
 											</tr>
 											<tr>
 												<td>

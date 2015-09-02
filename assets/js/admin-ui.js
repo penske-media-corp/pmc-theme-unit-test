@@ -340,6 +340,26 @@ window.PMC_Theme_Unit_Test = {
                 window.location.reload();
             }
         });
+    },
+
+    queryParamReplace : function (name, value, string) {
+        // Update the appropriate href query string parameter
+        // Find the param with regex
+        // Grab the first character in the returned string (should be ? or &)
+        // Replace our href string with our new value, passing on the name and delimeter
+
+        var re = new RegExp("[\\?&]" + name + "=([^&#]*)");
+        var matches = re.exec(string);
+        var newString;
+
+        if (matches === null) {
+            // if there are no params, append the parameter
+            newString = string + '&' + name + '=' + value;
+        } else {
+            var delimeter = matches[0].charAt(0);
+            newString = string.replace(re, delimeter + name + "=" + value);
+        }
+        return newString;
     }
 
 }
@@ -363,17 +383,22 @@ jQuery(document).ready(function () {
 
         jQuery('#authorize-url').on("click", function (e) {
             var href = this.href;
+
             var client_id = jQuery("#client_id").val();
-            if (href.indexOf(client_id) < 0) {
+            if (href.indexOf('client_id') < 0) {
                 href = href + '&client_id=' + client_id;
+            } else {
+                href =  window.PMC_Theme_Unit_Test.queryParamReplace( 'client_id', client_id, href );
             }
+
             var redirect_uri = jQuery("#redirect_uri").val();
-            if (href.indexOf(redirect_uri) < 0) {
+            if (href.indexOf('redirect_uri') < 0) {
                 href = href + '&redirect_uri=' + redirect_uri;
+            } else {
+                href =  window.PMC_Theme_Unit_Test.queryParamReplace( 'redirect_uri', redirect_uri, href );
             }
             this.href = href;
         });
-
     }
 
 });
