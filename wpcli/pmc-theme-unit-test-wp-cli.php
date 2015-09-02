@@ -166,8 +166,8 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 			$query_params  = http_build_query( $args );
 			$authorize_url = PMC\Theme_Unit_Test\Config::AUTHORIZE_URL . '?' . $query_params;
 
-			WP_CLI::line( sprintf( "Open in your browser: %s", $authorize_url ) );
-			echo "Enter the verification code: ";
+			WP_CLI::line( sprintf( 'Open in your browser: %s', $authorize_url ) );
+			echo 'Enter the verification code: ';
 			$creds_details['code'] = sanitize_text_field( wp_unslash( trim( fgets( STDIN ) ) ) );
 
 			$authenticated = PMC\Theme_Unit_Test\Admin::get_instance()->save_credentials_to_db( $creds_details );
@@ -225,8 +225,6 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 				WP_CLI::warning( 'Invalid REST endpoint: ' . sanitize_title_with_dashes( $entity ) );
 			}
 		}
-
-
 	}
 
 	/**
@@ -267,7 +265,6 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 				if ( $bad_endpoint ) {
 					WP_CLI::warning( 'Invalid post endpoint: ' . sanitize_title_with_dashes( $entity ) );
 				}
-
 			}
 		}
 	}

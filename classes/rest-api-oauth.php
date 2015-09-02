@@ -96,7 +96,6 @@ class REST_API_oAuth extends PMC_Singleton {
 		}
 		try {
 
-
 			$args = array(
 				'response_type' => 'code',
 				'scope'         => 'global',

@@ -43,7 +43,7 @@ class Users_Importer extends PMC_Singleton {
 				'user_nicename' => $user_info['nice_name'],
 				'user_url'      => $user_info['URL'],
 				'user_email'    => $user_info['email'],
-				'user_pass'     => $user_info['login']
+				'user_pass'     => $user_info['login'],
 			);
 
 			if ( ! empty( $user_info['roles'] ) && is_array( $user_info['roles'] ) ) {

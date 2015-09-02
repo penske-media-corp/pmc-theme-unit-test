@@ -129,7 +129,7 @@ class Attachments_Importer extends PMC_Singleton {
 		foreach ( $attachments_json as $key => $attachment_json ) {
 
 			// fetch only 5 attachments
-			if( $count > 5 ) {
+			if ( $count > 5 ) {
 				break;
 			}
 
@@ -141,7 +141,7 @@ class Attachments_Importer extends PMC_Singleton {
 
 			}
 
-			$count++;
+			$count ++;
 		}
 
 		return $attachments_info;

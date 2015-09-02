@@ -201,9 +201,9 @@ class Posts_Importer extends PMC_Singleton {
 						foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
 
 							// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
-							if ( ! in_array( $custom_term[ 'taxonomy' ], Config::$default_taxonomies ) ) {
+							if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
 
-								$term_id = Terms_Importer::get_instance()->save_taxonomy_terms($custom_term);
+								$term_id = Terms_Importer::get_instance()->save_taxonomy_terms( $custom_term );
 								wp_set_object_terms( $post_ID, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
 
 							}
@@ -212,11 +212,9 @@ class Posts_Importer extends PMC_Singleton {
 						foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
 
 							if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
-
 								$meta_ids[] = $this->_save_post_meta( $post_ID, $custom_field );
 							}
 						}
-
 					}
 
 					// Save the featured image of the post
