@@ -55,7 +55,6 @@ class Options_Importer extends PMC_Singleton {
 
 		error_log( $time . json_encode( $options_data ) . ' - OPTIONS IMPORT ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-
 		foreach ( $options_data['options'] as $option_name => $option_value ) {
 
 			error_log( $time . json_encode( $option_name ) . ' - START IMPORT ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
@@ -104,8 +103,6 @@ class Options_Importer extends PMC_Singleton {
 			error_log( $time . $option_name . ' - IMPORTED with value ' . json_encode( $option_value ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 		}
-
 		return $option_added;
 	}
-
 }

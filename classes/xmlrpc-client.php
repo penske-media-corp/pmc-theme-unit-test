@@ -251,7 +251,6 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 
 			}
 
-
 			if ( empty( $this->error ) ) {
 
 				// If nothing set then return the default value
@@ -305,13 +304,10 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 	 * @version 2015-09-03 Archana Mandhare - PPT-
 	 *
 	 */
-	public function method_exists( $method_name ){
+	public function method_exists( $method_name ) {
 
 		$args   = array();
-		$status = $this->send_request(
-			"system.listMethods",    // method name
-			$args
-		);
+		$status = $this->send_request( 'system.listMethods', $args );
 
 		if ( is_array( $status ) ) {
 			$key = array_search( $method_name, $status );
@@ -320,8 +316,6 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 			}
 		}
 		return false;
-
-
 	}
 }
 
