@@ -36,9 +36,9 @@ class REST_API_Router extends PMC_Singleton {
 	 * bool $access_token true if oAuth access token is required to fetch data. Default is false.
 	 *
 	 */
-	private function _access_endpoint( $route, $query_params = array(), $route_index = '', $access_token = false ) {
+	private function _access_endpoint( $route, $query_params = array(), $route_index = '' ) {
 
-		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $route, $query_params, $route_index, $access_token );
+		$api_data = REST_API_oAuth::get_instance()->access_endpoint( $route, $query_params, $route_index );
 
 		if ( is_wp_error( $api_data ) ) {
 
@@ -106,8 +106,6 @@ class REST_API_Router extends PMC_Singleton {
 
 		if ( ! empty( $route_params ) ) {
 
-			$access_token = $route_params['access_token'];
-
 			$query_params = array();
 
 			if ( ! empty( $route_params['query_params'] ) ) {
@@ -116,7 +114,7 @@ class REST_API_Router extends PMC_Singleton {
 
 			}
 
-			return $this->_access_endpoint( $route, $query_params, $route, $access_token );
+			return $this->_access_endpoint( $route, $query_params, $route );
 
 		}
 
@@ -140,7 +138,7 @@ class REST_API_Router extends PMC_Singleton {
 	 */
 	public function call_rest_api_posts_route( $route ) {
 
-		return $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts', false );
+		return $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts' );
 
 	}
 }

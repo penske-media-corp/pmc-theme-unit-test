@@ -32,8 +32,6 @@ class Users_Importer extends PMC_Singleton {
 
 			$user_ID = ( ! empty( $user_ID ) ) ? $user_ID : 0;
 
-			error_log( $time . ' -- User ID =' . $user_ID . ' logging ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
 			$user_data = array(
 				'ID'            => $user_ID,
 				'user_login'    => $user_info['login'],

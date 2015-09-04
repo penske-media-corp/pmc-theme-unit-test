@@ -6,14 +6,33 @@
  */
 
 use PMC\Theme_Unit_Test;
-use \PMC_WP_CLI;
 
 WP_CLI::add_command( 'pmc-import-live', 'PMC_Theme_Unit_Test_WP_Cli' );
 
-class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
+class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
+
+	public $dry_run = false;
+	public $auth_file = '';
 
 	public function __construct( $args = array(), $assoc_args = array() ) {
-		parent::__construct( $args, $assoc_args );
+		$this->_extract_common_args( $assoc_args );
+	}
+
+	protected function _extract_common_args( $assoc_args ) {
+		if ( empty( $assoc_args ) ) {
+			return false;
+		}
+
+		if ( empty( $assoc_args ) ) {
+			return;
+		}
+
+		$this->dry_run = ! empty( $assoc_args['dry-run'] );
+
+		if ( ! empty( $assoc_args['file'] ) ) {
+			$this->auth_file = $assoc_args['file'];
+		}
+
 	}
 
 	/**
@@ -25,7 +44,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
 	 *
 	 * @subcommand import-all
-	 * @synopsis   [--dry-run] [--file=<file>] [--sleep=<second>] [--max-iteration=<number>] [--log-file=<file>]
+	 * @synopsis   [--dry-run] [--file=<file>]
 	 *
 	 *
 	 * Example usage :
@@ -39,8 +58,8 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 		$this->_extract_common_args( $assoc_args );
 
 		$has_credentials = $this->_get_credentials_from_db();
-		if ( ! $has_credentials && ! empty( $assoc_args['file'] ) ) {
-			$has_credentials = $this->_validate_credentials( $assoc_args['file'] );
+		if ( ! $has_credentials && ! empty( $this->auth_file ) ) {
+			$has_credentials = $this->_validate_credentials( $this->auth_file );
 		}
 
 		if ( ! $has_credentials ) {
@@ -64,7 +83,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends PMC_WP_CLI {
 	 * @version 2015-09-01 Archana Mandhare PPT-5366
 	 *
 	 * @subcommand import-routes
-	 * @synopsis   [--dry-run] [--file=<file>] [--routes=<routes>]  [--post-type=<post-type>]  [--xmlrpc=<xmlrpc>] [--sleep=<second>] [--max-iteration=<number>] [--log-file=<file>]
+	 * @synopsis   [--dry-run] [--file=<file>] [--routes=<routes>]  [--post-type=<post-type>]  [--xmlrpc=<xmlrpc>]
 	 *
 	 *
 	 * Example usage :

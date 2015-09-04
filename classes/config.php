@@ -24,27 +24,23 @@ class Config {
 	public static $all_routes = array(
 		0 => array(
 			'users' => array(
-				'access_token' => true,
 				'query_params' => array(
-					'authors_only' => false,
+					'authors_only' => true,
 				),
 			),
 		),
 		1 => array(
 			'menus' => array(
-				'access_token' => true,
 				'query_params' => array(),
 			),
 		),
 		2 => array(
 			'tags' => array(
-				'access_token' => false,
 				'query_params' => array(),
 			),
 		),
 		3 => array(
 			'categories' => array(
-				'access_token' => false,
 				'query_params' => array(),
 			),
 		),
