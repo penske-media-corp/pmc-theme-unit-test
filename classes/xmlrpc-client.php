@@ -236,7 +236,20 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 		$options   = get_transient( $cache_key );
 		if ( empty( $options ) ) {
 
-			$options = $this->send_request( 'wp.getOptions', $args );
+			$pmc_method = $this->method_exists( 'pmc.getOptions' );
+
+			if ( $pmc_method ) {
+
+				$options_json = $this->send_request( 'pmc.getOptions', $args );
+				$options_data = json_decode( $options_json, true );
+				return $options_data;
+
+			} else {
+
+				$options = $this->send_request( 'wp.getOptions', $args );
+				$options_data['options'] = $options;
+
+			}
 
 			if ( empty( $this->error ) ) {
 
@@ -282,6 +295,27 @@ class XMLRPC_Client extends \WP_HTTP_IXR_Client {
 			// using cache
 		}
 		return $post_meta;
+	}
+
+	/**
+	 * Check we have the method listed in the xmlrpc
+	 *
+	 * @since 2015-09-03
+	 * @version 2015-09-03 Archana Mandhare - PPT-
+	 *
+	 */
+	public function method_exists( $method_name ) {
+
+		$args   = array();
+		$status = $this->send_request( 'system.listMethods', $args );
+
+		if ( is_array( $status ) ) {
+			$key = array_search( $method_name, $status );
+			if ( $key ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

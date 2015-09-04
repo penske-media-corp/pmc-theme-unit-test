@@ -129,6 +129,8 @@ class REST_API_oAuth extends PMC_Singleton {
 
 	/**
 	 * Access the API end point to pull data based on the route being passed
+	 * Always access the endpoint with request header
+	 * containing Authorization Bearer access token
 	 *
 	 * @since 2015-07-14
 	 *
@@ -140,7 +142,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @return array The json data returned from the API end point
 	 *
 	 */
-	public function access_endpoint( $route, $query_params = array(), $route_name = '', $token_required = false ) {
+	public function access_endpoint( $route, $query_params = array(), $route_name = '' ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
@@ -157,7 +159,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		$saved_access_token = get_option( Config::access_token_key );
 
-		if ( $token_required && empty( $saved_access_token ) ) {
+		if ( empty( $saved_access_token ) ) {
 
 			error_log( $time . ' ERROR --  No saved access token. Access denied . -- ' . $route_name . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
@@ -167,7 +169,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		try {
 
-			$headers = $this->_get_required_header( $token_required );
+			$headers = $this->_get_required_header();
 
 			$query_params = $this->_get_query_params( $query_params );
 
@@ -224,24 +226,21 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @return array The header data that needs to be passed to the API
 	 *
 	 */
-	private function _get_required_header( $token_required ) {
+	private function _get_required_header() {
 
 		$args = array(
 			'timeout' => 500,
 		);
 
-		if ( $token_required ) {
+		$saved_access_token = get_option( Config::access_token_key );
 
-			$saved_access_token = get_option( Config::access_token_key );
-
-			if ( ! empty( $saved_access_token ) ) {
-				$args = array(
-					'timeout' => 500,
-					'headers' => array(
-						'authorization' => 'Bearer ' . $saved_access_token,
-					),
-				);
-			}
+		if ( ! empty( $saved_access_token ) ) {
+			$args = array(
+				'timeout' => 500,
+				'headers' => array(
+					'authorization' => 'Bearer ' . $saved_access_token,
+				),
+			);
 		}
 
 		return $args;

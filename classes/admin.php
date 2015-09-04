@@ -211,21 +211,9 @@ class Admin extends PMC_Singleton {
 		$is_valid_token     = REST_API_oAuth::get_instance()->is_valid_token();
 
 		if ( 1 === intval( $show_form ) || ( empty( $saved_access_token ) || ! $is_valid_token ) ) {
-			if ( file_exists( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' ) ) {
-				$creds_details = $this->read_credentials_from_json_file( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
 
-				// the array values are already sanitized
-				if ( is_array( $creds_details ) ) {
-					$file_args = array(
-						'domain'          => ! empty( $creds_details['domain'] ) ? $creds_details['domain'] : '',
-						'client_id'       => ! empty( $creds_details['client_id'] ) ? $creds_details['client_id'] : '',
-						'client_secret'   => ! empty( $creds_details['client_secret'] ) ? $creds_details['client_secret'] : '',
-						'redirect_uri'    => ! empty( $creds_details['redirect_uri'] ) ? $creds_details['redirect_uri'] : '',
-						'xmlrpc_username' => ! empty( $creds_details['xmlrpc_username'] ) ? $creds_details['xmlrpc_username'] : '',
-						'xmlrpc_password' => ! empty( $creds_details['xmlrpc_password'] ) ? $creds_details['xmlrpc_password'] : '',
-					);
-				}
-			}
+			// get the credential details
+			$creds_details = $this->_get_auth_details();
 
 			if ( is_array( $creds_details ) && ! empty( $creds_details['client_id'] ) && ! empty( $creds_details['redirect_uri'] ) ) {
 				$auth_args = array(
@@ -254,8 +242,8 @@ class Admin extends PMC_Singleton {
 			'authorize_url'    => esc_url( $authorize_url ),
 		);
 
-		if ( ! empty( $file_args ) ) {
-			$args = array_merge( $args, $file_args );
+		if ( ! empty( $creds_details ) && is_array( $creds_details ) ) {
+			$args = array_merge( $args, $creds_details );
 		}
 
 		/*
@@ -267,6 +255,57 @@ class Admin extends PMC_Singleton {
 		// @codingStandardsIgnoreStart
 		echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/admin-ui.php', $args );
 		// @codingStandardsIgnoreEnd
+
+	}
+
+	private function _get_auth_details() {
+
+		$details_in_DB = true;
+		//fetch details from DB
+
+		$creds_details = array(
+			'domain'          => get_option( Config::api_domain ),
+			'client_id'       => get_option( Config::api_client_id ),
+			'client_secret'   => get_option( Config::api_client_secret ),
+			'redirect_uri'    => get_option( Config::api_redirect_uri ),
+			'xmlrpc_username' => get_option( Config::api_xmlrpc_username ),
+			'xmlrpc_password' => get_option( Config::api_xmlrpc_password ),
+		);
+
+		foreach ( $creds_details as $key => $value ) {
+			if ( empty( $value ) ) {
+				$details_in_DB = false;
+				break;
+			}
+		}
+
+		if ( $details_in_DB ) {
+			return $creds_details;
+		} else {
+			// If details not in DB fetch from file.
+			if ( file_exists( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' ) ) {
+
+				$creds_details = $this->read_credentials_from_json_file( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
+
+				// the array values are already sanitized
+				if ( is_array( $creds_details ) ) {
+					$file_args = array(
+						'domain'          => ! empty( $creds_details['domain'] ) ? $creds_details['domain'] : '',
+						'client_id'       => ! empty( $creds_details['client_id'] ) ? $creds_details['client_id'] : '',
+						'client_secret'   => ! empty( $creds_details['client_secret'] ) ? $creds_details['client_secret'] : '',
+						'redirect_uri'    => ! empty( $creds_details['redirect_uri'] ) ? $creds_details['redirect_uri'] : '',
+						'xmlrpc_username' => ! empty( $creds_details['xmlrpc_username'] ) ? $creds_details['xmlrpc_username'] : '',
+						'xmlrpc_password' => ! empty( $creds_details['xmlrpc_password'] ) ? $creds_details['xmlrpc_password'] : '',
+					);
+					return $creds_details;
+				} else {
+					return false;
+				}
+			} else {
+				// not file present
+				return false;
+			}
+		}
 
 	}
 
@@ -404,9 +443,10 @@ class Admin extends PMC_Singleton {
 		if ( ! empty( $route ) ) {
 			$return_info[] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
 		}
-
+		ob_clean();
 		wp_send_json( $return_info );
-		exit();
+		unset( $return_info );
+		wp_die();
 
 	}
 
@@ -431,9 +471,10 @@ class Admin extends PMC_Singleton {
 		if ( ! empty( $route ) ) {
 			$return_info[] = REST_API_Router::get_instance()->call_rest_api_posts_route( $route );
 		}
-
+		ob_clean();
 		wp_send_json( $return_info );
-		exit();
+		unset( $return_info );
+		wp_die();
 	}
 
 
@@ -458,9 +499,10 @@ class Admin extends PMC_Singleton {
 		if ( ! empty( $route ) ) {
 			$return_info[] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
 		}
-
+		ob_clean();
 		wp_send_json( $return_info );
-		exit();
+		unset( $return_info );
+		wp_die();
 
 	}
 
@@ -483,8 +525,10 @@ class Admin extends PMC_Singleton {
 
 		$client_details['post_routes'] = Config_Helper::get_posts_routes();
 
+		ob_clean();
 		wp_send_json( $client_details );
-		exit();
+		unset( $client_details );
+		wp_die();
 
 	}
 
@@ -503,8 +547,9 @@ class Admin extends PMC_Singleton {
 
 		update_option( Config::show_form, 1, false );
 
+		ob_clean();
 		wp_send_json( array( 'success' => 1 ) );
-		exit();
+		wp_die();
 
 	}
 }    //end class

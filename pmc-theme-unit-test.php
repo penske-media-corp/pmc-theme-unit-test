@@ -27,8 +27,6 @@ function pmc_theme_unit_test_loader() {
 
 	// add WP-CLI command support
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/wpcli/class-pmc-wp-cli-base.php';
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/wpcli/class-pmc-wp-cli.php';
 		require_once PMC_THEME_UNIT_TEST_ROOT . '/wpcli/pmc-theme-unit-test-wp-cli.php';
 	}
 }

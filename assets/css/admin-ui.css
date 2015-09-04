@@ -39,7 +39,7 @@
 }
 
 .route-label {
-    text-transform: capitalize;
+    text-transform: lowercase;
     font-size: 14px;
     font-weight: bold;
     display: table-row;

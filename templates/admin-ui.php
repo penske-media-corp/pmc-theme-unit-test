@@ -31,35 +31,35 @@
 										<table id="domain-creds-layout" class="widefat">
 											<tr>
 												<td><span>Production Domain Name: e.g  http://exampledomain.com/ Just enter <strong>exampledomain.com</strong> </span></td>
-												<td><input type="text" id="domain" name="domain" value="<?php echo $domain;?>"/></td>
+												<td><input type="text" id="domain" name="domain" value="<?php echo ! empty( $domain ) ? esc_attr( $domain ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Client ID : </span></td>
-												<td><input type="text" id="client_id" name="client_id" value="<?php echo $client_id;?>"/></td>
+												<td><input type="text" id="client_id" name="client_id" value="<?php echo ! empty( $client_id ) ? esc_attr( $client_id ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Client Secret : </span></td>
 												<td><input type="text"
 												           name="client_secret"
-												           value="<?php echo $client_secret;?>"/></td>
+												           value="<?php echo ! empty( $client_secret ) ? esc_attr( $client_secret ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td><span>REST API Redirect URI : </span></td>
 												<td><input type="text" id="redirect_uri"
 												           name="redirect_uri"
-												           value="<?php echo $redirect_uri;?>"/></td>
+												           value="<?php echo ! empty( $redirect_uri ) ? esc_attr( $redirect_uri ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td><span>XMLRPC Username : </span></td>
 												<td><input type="text"
 												           name="xmlrpc_username"
-												           value="<?php echo $xmlrpc_username;?>"/></td>
+												           value="<?php echo ! empty( $xmlrpc_username ) ? esc_attr( $xmlrpc_username ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td><span>XMLRPC Password : </span></td>
 												<td><input type="text"
 												           name="xmlrpc_password"
-												           value="<?php echo $xmlrpc_password;?>"/></td>
+												           value="<?php echo ! empty( $xmlrpc_password ) ? esc_attr( $xmlrpc_password ) : '';?>"/></td>
 											</tr>
 											<tr>
 												<td>
@@ -83,8 +83,8 @@
 												</td>
 											</tr>
 											<tr>
-												<td><?php submit_button( 'Save All' ); ?>
-												<td>
+												<td><?php submit_button( 'Save All' ); ?> <a id="cancel-form-button" href="javascript:window.location.reload();"> Cancel </a><td>
+												<td><td>
 											</tr>
 										</table>
 
