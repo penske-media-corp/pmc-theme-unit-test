@@ -75,8 +75,6 @@ class Options_Importer extends PMC_Singleton {
 
 		}
 
-		return true;
-
 	}
 
 
@@ -84,11 +82,15 @@ class Options_Importer extends PMC_Singleton {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
+		//replace all the live domains with the local domain path
+		$domain   = get_option( Config::api_domain );
+		$home_url = get_home_url();
+		$option_value = maybe_unserialize( $option_value );
+		$option_value = $this->_recursive_array_replace( 'http://' . $domain, $home_url, $option_value );
+
 		if ( in_array( $option_name, $no_autoload ) ) {
 
 			delete_option( $option_name );
-
-			$option_value = maybe_unserialize( $option_value );
 
 			$option_added = add_option( $option_name, $option_value, '', 'no' );
 
@@ -96,13 +98,24 @@ class Options_Importer extends PMC_Singleton {
 
 		} else {
 
-			$option_value = maybe_unserialize( $option_value );
-
 			$option_added = update_option( $option_name, $option_value, true );
 
 			error_log( $time . $option_name . ' - IMPORTED with value ' . json_encode( $option_value ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 		}
+
 		return $option_added;
+	}
+
+	private function _recursive_array_replace( $find, $replace, $array ) {
+		if ( ! is_array( $array ) ) {
+			return str_replace( $find, $replace, $array );
+		}
+		$newArray = array();
+		foreach ( $array as $key => $value ) {
+			$newArray[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
+		}
+
+		return $newArray;
 	}
 }
