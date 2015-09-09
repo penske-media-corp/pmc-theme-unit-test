@@ -74,10 +74,19 @@ class Options_Importer extends PMC_Singleton {
 			}
 
 		}
-
 	}
 
-
+	/**
+	 * Function to add or update option
+	 *
+	 * @since 2015-09-09
+	 *
+	 * @version 2015-09-09 Archana Mandhare - PPT-5077
+	 *
+	 * @param string $option_name, string $option_value and $array $no_autoload
+	 *
+	 * @return bool status if option was added
+	 */
 	private function _save_option( $option_name, $option_value, $no_autoload ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
@@ -107,6 +116,17 @@ class Options_Importer extends PMC_Singleton {
 		return $option_added;
 	}
 
+	/**
+	 * Function to find and replace value in a array recursively
+	 *
+	 * @since 2015-09-09
+	 *
+	 * @version 2015-09-09 Archana Mandhare - PPT-5077
+	 *
+	 * @param string $find, string $replace and array $array
+	 *
+	 * @return string/array
+	 */
 	private function _recursive_array_replace( $find, $replace, $array ) {
 		if ( ! is_array( $array ) ) {
 			return str_replace( $find, $replace, $array );
