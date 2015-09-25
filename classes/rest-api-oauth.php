@@ -105,7 +105,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 			$query_param = http_build_query( $args );
 
-			$authorize_url = Config::AUTHORIZE_URL . "?" . $query_param;
+			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_param;
 
 			wp_redirect( esc_url_raw( $authorize_url ) );
 

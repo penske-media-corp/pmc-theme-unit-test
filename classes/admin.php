@@ -40,12 +40,7 @@ class Admin extends PMC_Singleton {
 
 		add_action( 'wp_ajax_change_credentials', array( $this, 'change_credentials' ) );
 
-		add_action(
-			'wp_ajax_import_xmlrpc_data_from_production', array(
-				$this,
-				'import_xmlrpc_data_from_production',
-			)
-		);
+		add_action( 'wp_ajax_import_xmlrpc_data_from_production', array( $this, 'import_xmlrpc_data_from_production' ) );
 
 		add_action( 'wp_ajax_get_client_configuration_details', array( $this, 'get_client_configuration_details' ) );
 
@@ -73,7 +68,9 @@ class Admin extends PMC_Singleton {
 		wp_register_script( 'pmc_theme_unit_test_admin_js', plugins_url( 'pmc-theme-unit-test/assets/js/admin-ui.js', PMC_THEME_UNIT_TEST_ROOT ), array( 'jquery' ), PMC_THEME_UNIT_TEST_VERSION );
 
 		wp_localize_script(
-			'pmc_theme_unit_test_admin_js', 'pmc_unit_test_ajax', array(
+			'pmc_theme_unit_test_admin_js',
+			'pmc_unit_test_ajax',
+			array(
 				'admin_url'           => admin_url( 'admin-ajax.php' ),
 				'import_nOnce'        => wp_create_nonce( 'import-from-production' ),
 				'import_xmlrpc_nOnce' => wp_create_nonce( 'import-xmlrpc-from-production' ),
@@ -81,7 +78,6 @@ class Admin extends PMC_Singleton {
 				'client_nOnce'        => wp_create_nonce( 'get-client-config-details' ),
 				'change_nOnce'        => wp_create_nonce( 'change-credentials' ),
 				'AUTHORIZE_URL'       => Config::AUTHORIZE_URL,
-
 			)
 		);
 
@@ -99,7 +95,7 @@ class Admin extends PMC_Singleton {
 	public function on_wp_init() {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
-		setcookie( 'oauth_redirect', get_admin_url().'tools.php?page=data-import', time()+60*60*24*30, '/', Config::COOKIE_DOMAIN );
+		setcookie( 'oauth_redirect', get_admin_url() . 'tools.php?page=data-import', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
 	}
 
 	/**
@@ -171,11 +167,7 @@ class Admin extends PMC_Singleton {
 	 */
 	function add_admin_menu() {
 
-		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array(
-				$this,
-				'data_import_options',
-			)
-		);
+		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array( $this, 'data_import_options', ) );
 
 	}
 
@@ -213,7 +205,7 @@ class Admin extends PMC_Singleton {
 
 		$token_created = false;
 		$code         = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
-		if ( ! empty ( $code ) ) {
+		if ( ! empty( $code ) ) {
 			$token_created = REST_API_oAuth::get_instance()->fetch_access_token( $code );
 		}
 
@@ -453,7 +445,7 @@ class Admin extends PMC_Singleton {
 		}
 
 		$access_token = get_option( Config::access_token_key );
-		if ( empty ( $access_token ) ) {
+		if ( empty( $access_token ) ) {
 			$fetch_token = true;
 		}
 

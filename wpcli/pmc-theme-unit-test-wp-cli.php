@@ -206,7 +206,6 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 			update_option( PMC\Theme_Unit_Test\Config::api_redirect_uri, $creds_details['redirect_uri'] );
 
-
 			if ( ! is_array( $creds_details ) || empty( $creds_details['client_id'] ) || empty( $creds_details['redirect_uri'] ) ) {
 				WP_CLI::error( 'Authentication Failed. Some entries were missing. Please add all authentication details to the file ' . sanitize_title_with_dashes( $credentials_file ) );
 
