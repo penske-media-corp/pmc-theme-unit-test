@@ -157,6 +157,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		// if both are saved return true
 		if ( $rest_auth && $xlmrpc_auth ) {
 			WP_CLI::line( 'Authentication SUCCESSFUL with saved access token in DB !!' );
+
 			return true;
 		}
 
@@ -193,8 +194,22 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		try {
 			$creds_details = PMC\Theme_Unit_Test\Admin::get_instance()->read_credentials_from_json_file( $credentials_file );
 
+			update_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_username, $creds_details['xmlrpc_username'] );
+
+			update_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_password, $creds_details['xmlrpc_password'] );
+
+			update_option( PMC\Theme_Unit_Test\Config::api_domain, $creds_details['domain'] );
+
+			update_option( PMC\Theme_Unit_Test\Config::api_client_id, $creds_details['client_id'] );
+
+			update_option( PMC\Theme_Unit_Test\Config::api_client_secret, $creds_details['client_secret'] );
+
+			update_option( PMC\Theme_Unit_Test\Config::api_redirect_uri, $creds_details['redirect_uri'] );
+
+
 			if ( ! is_array( $creds_details ) || empty( $creds_details['client_id'] ) || empty( $creds_details['redirect_uri'] ) ) {
 				WP_CLI::error( 'Authentication Failed. Some entries were missing. Please add all authentication details to the file ' . sanitize_title_with_dashes( $credentials_file ) );
+
 				return false;
 			}
 
@@ -210,9 +225,9 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 			WP_CLI::line( sprintf( 'Open in your browser: %s', $authorize_url ) );
 			echo 'Enter the verification code: ';
-			$creds_details['code'] = sanitize_text_field( wp_unslash( trim( fgets( STDIN ) ) ) );
+			$code = sanitize_text_field( wp_unslash( trim( fgets( STDIN ) ) ) );
 
-			$authenticated = PMC\Theme_Unit_Test\Admin::get_instance()->save_credentials_to_db( $creds_details );
+			$authenticated = PMC\Theme_Unit_Test\REST_API_oAuth::get_instance()->fetch_access_token( $code );
 
 			if ( $authenticated ) {
 				WP_CLI::line( 'Authentication SUCCESSFUL !!' );
