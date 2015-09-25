@@ -167,7 +167,7 @@ class Admin extends PMC_Singleton {
 	 */
 	function add_admin_menu() {
 
-		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array( $this, 'data_import_options', ) );
+		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array( $this, 'data_import_options' ) );
 
 	}
 
