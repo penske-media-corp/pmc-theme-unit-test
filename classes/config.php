@@ -12,6 +12,10 @@ class Config {
 
 	const VALIDATE_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token-info';
 
+	const REST_URL_HOST = 'public-api.wordpress.com';
+
+	const COOKIE_DOMAIN = '.vip.local';
+
 	const access_token_key = 'rest_api_access_token';
 	const api_domain = 'rest_api_domain';
 	const api_client_id = 'rest_api_client_id';

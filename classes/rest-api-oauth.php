@@ -103,20 +103,13 @@ class REST_API_oAuth extends PMC_Singleton {
 				'redirect_uri'  => $redirect_uri,
 			);
 
-			$params = array(
-				'timeout' => 500,
-				'body'    => $args,
-			);
+			$query_param = http_build_query( $args );
 
-			$response = wp_remote_get( esc_url_raw( Config::AUTHORIZE_URL ), $params );
+			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_param;
 
-			if ( is_wp_error( $response ) ) {
-				error_log( $time . ' get_authorization_code() Failed -- ' . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			wp_redirect( esc_url_raw( $authorize_url ) );
 
-				return false;
-			}
-
-			return true;
+			exit;
 
 		} catch ( \Exception $ex ) {
 

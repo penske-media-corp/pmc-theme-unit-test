@@ -62,27 +62,6 @@
 												           value="<?php echo ! empty( $xmlrpc_password ) ? esc_attr( $xmlrpc_password ) : '';?>"/></td>
 											</tr>
 											<tr>
-												<td>
-													<div class="domain-code">
-
-														<p>Please authenticate yourself using below link and copy the
-															<strong>code</strong>
-															query
-															string to enter in textbox below.</p>
-
-														<div id="authorize-text"><a id="authorize-url"
-														                            href="<?php echo esc_url( $authorize_url ); ?>"
-														                            target="_blank">Authorize URL</a>
-														</div>
-
-														<span>Code : </span>
-
-														<input type="text" id="wp-auth-code" name="code" value=""/>
-
-													</div>
-												</td>
-											</tr>
-											<tr>
 												<td><?php submit_button( 'Save All' ); ?> <a id="cancel-form-button" href="javascript:window.location.reload();"> Cancel </a><td>
 												<td><td>
 											</tr>

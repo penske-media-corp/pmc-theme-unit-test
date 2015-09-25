@@ -40,12 +40,7 @@ class Admin extends PMC_Singleton {
 
 		add_action( 'wp_ajax_change_credentials', array( $this, 'change_credentials' ) );
 
-		add_action(
-			'wp_ajax_import_xmlrpc_data_from_production', array(
-				$this,
-				'import_xmlrpc_data_from_production',
-			)
-		);
+		add_action( 'wp_ajax_import_xmlrpc_data_from_production', array( $this, 'import_xmlrpc_data_from_production' ) );
 
 		add_action( 'wp_ajax_get_client_configuration_details', array( $this, 'get_client_configuration_details' ) );
 
@@ -73,7 +68,9 @@ class Admin extends PMC_Singleton {
 		wp_register_script( 'pmc_theme_unit_test_admin_js', plugins_url( 'pmc-theme-unit-test/assets/js/admin-ui.js', PMC_THEME_UNIT_TEST_ROOT ), array( 'jquery' ), PMC_THEME_UNIT_TEST_VERSION );
 
 		wp_localize_script(
-			'pmc_theme_unit_test_admin_js', 'pmc_unit_test_ajax', array(
+			'pmc_theme_unit_test_admin_js',
+			'pmc_unit_test_ajax',
+			array(
 				'admin_url'           => admin_url( 'admin-ajax.php' ),
 				'import_nOnce'        => wp_create_nonce( 'import-from-production' ),
 				'import_xmlrpc_nOnce' => wp_create_nonce( 'import-xmlrpc-from-production' ),
@@ -81,7 +78,6 @@ class Admin extends PMC_Singleton {
 				'client_nOnce'        => wp_create_nonce( 'get-client-config-details' ),
 				'change_nOnce'        => wp_create_nonce( 'change-credentials' ),
 				'AUTHORIZE_URL'       => Config::AUTHORIZE_URL,
-
 			)
 		);
 
@@ -99,6 +95,7 @@ class Admin extends PMC_Singleton {
 	public function on_wp_init() {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
+		setcookie( 'oauth_redirect', get_admin_url() . 'tools.php?page=data-import', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
 	}
 
 	/**
@@ -170,15 +167,17 @@ class Admin extends PMC_Singleton {
 	 */
 	function add_admin_menu() {
 
-		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array(
-				$this,
-				'data_import_options',
-			)
-		);
+		add_submenu_page( 'tools.php', 'Sync from Production', 'Sync from Production', 'manage_options', 'data-import', array( $this, 'data_import_options' ) );
 
 	}
 
-
+	/**
+	 * Settings page for registering credentials
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 */
 	public function action_admin_init() {
 
 		register_setting( 'pmc_domain_creds', 'pmc_domain_creds', array(
@@ -204,9 +203,16 @@ class Admin extends PMC_Singleton {
 
 		}
 
-		$show_cred_form     = false;
-		$authorize_url      = '';
-		$show_form          = get_option( Config::show_form );
+		$token_created = false;
+		$code         = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
+		if ( ! empty( $code ) ) {
+			$token_created = REST_API_oAuth::get_instance()->fetch_access_token( $code );
+		}
+
+		$show_cred_form = false;
+		$authorize_url  = '';
+		$show_form      = get_option( Config::show_form );
+
 		$saved_access_token = get_option( Config::access_token_key );
 		$is_valid_token     = REST_API_oAuth::get_instance()->is_valid_token();
 
@@ -297,6 +303,7 @@ class Admin extends PMC_Singleton {
 						'xmlrpc_username' => ! empty( $creds_details['xmlrpc_username'] ) ? $creds_details['xmlrpc_username'] : '',
 						'xmlrpc_password' => ! empty( $creds_details['xmlrpc_password'] ) ? $creds_details['xmlrpc_password'] : '',
 					);
+
 					return $creds_details;
 				} else {
 					return false;
@@ -307,27 +314,6 @@ class Admin extends PMC_Singleton {
 			}
 		}
 
-	}
-
-	/**
-	 * Admin UI credentials form post function
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare - PPT-5077
-	 * @version 2015-09-01 Archana Mandhare - PPT-5366
-	 */
-	public function pmc_domain_creds_sanitize_callback() {
-
-		$creds_details['domain']          = filter_input( INPUT_POST, 'domain' );
-		$creds_details['client_id']       = filter_input( INPUT_POST, 'client_id' );
-		$creds_details['client_secret']   = filter_input( INPUT_POST, 'client_secret' );
-		$creds_details['redirect_uri']    = filter_input( INPUT_POST, 'redirect_uri' );
-		$creds_details['xmlrpc_username'] = filter_input( INPUT_POST, 'xmlrpc_username' );
-		$creds_details['xmlrpc_password'] = filter_input( INPUT_POST, 'xmlrpc_password' );
-		$creds_details['code']            = filter_input( INPUT_POST, 'code' );
-
-		$this->save_credentials_to_db( $creds_details );
 	}
 
 
@@ -385,22 +371,46 @@ class Admin extends PMC_Singleton {
 	}
 
 	/**
+	 * Admin UI credentials form post function
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 * @version 2015-09-01 Archana Mandhare - PPT-5366
+	 */
+	public function pmc_domain_creds_sanitize_callback() {
+
+		$creds_details['domain']          = filter_input( INPUT_POST, 'domain' );
+		$creds_details['client_id']       = filter_input( INPUT_POST, 'client_id' );
+		$creds_details['client_secret']   = filter_input( INPUT_POST, 'client_secret' );
+		$creds_details['redirect_uri']    = filter_input( INPUT_POST, 'redirect_uri' );
+		$creds_details['xmlrpc_username'] = filter_input( INPUT_POST, 'xmlrpc_username' );
+		$creds_details['xmlrpc_password'] = filter_input( INPUT_POST, 'xmlrpc_password' );
+		//$creds_details['code']            = filter_input( INPUT_POST, 'code' );
+
+		$this->save_credentials_to_db( $creds_details );
+	}
+
+
+	/**
 	 * Save the credentials to the database
 	 *
 	 * @since 2015-09-01
 	 *
 	 * @version 2015-09-01 Archana Mandhare - PPT-5366
 	 */
-	public function save_credentials_to_db( $creds_details = array() ) {
+	public function save_credentials_to_db( $creds_details = array(), $doing_cli = false ) {
 
 		$creds_details = array_map( 'wp_unslash', $creds_details );
 		$creds_details = array_map( 'sanitize_text_field', $creds_details );
 
-		if ( ! empty( $creds_details['xmlrpc_username'] ) ) {
+		$saved_xmlrpc_username = get_option( Config::api_xmlrpc_username );
+		if ( ! empty( $creds_details['xmlrpc_username'] ) && $saved_xmlrpc_username !== $creds_details['xmlrpc_username'] ) {
 			update_option( Config::api_xmlrpc_username, $creds_details['xmlrpc_username'] );
 		}
 
-		if ( ! empty( $creds_details['xmlrpc_password'] ) ) {
+		$saved_xmlrpc_password = get_option( Config::api_xmlrpc_password );
+		if ( ! empty( $creds_details['xmlrpc_password'] ) && $saved_xmlrpc_password !== $creds_details['xmlrpc_password'] ) {
 			update_option( Config::api_xmlrpc_password, $creds_details['xmlrpc_password'] );
 		}
 
@@ -408,18 +418,42 @@ class Admin extends PMC_Singleton {
 		     || empty( $creds_details['client_id'] )
 		     || empty( $creds_details['client_secret'] )
 		     || empty( $creds_details['redirect_uri'] )
-		     || empty( $creds_details['code'] )
 		) {
 			return false;
 		}
 
-		update_option( Config::api_domain, $creds_details['domain'] );
-		update_option( Config::api_client_id, $creds_details['client_id'] );
-		update_option( Config::api_client_secret, $creds_details['client_secret'] );
-		update_option( Config::api_redirect_uri, $creds_details['redirect_uri'] );
+		$fetch_token  = false;
+		$saved_domain = get_option( Config::api_domain );
+		if ( $saved_domain !== $creds_details['domain'] ) {
+			update_option( Config::api_domain, $creds_details['domain'] );
+			$fetch_token = true;
+		}
+		$saved_client_id = get_option( Config::api_client_id );
+		if ( $saved_client_id !== $creds_details['client_id'] ) {
+			update_option( Config::api_client_id, $creds_details['client_id'] );
+			$fetch_token = true;
+		}
+		$saved_client_secret = get_option( Config::api_client_secret );
+		if ( $saved_client_secret !== $creds_details['client_secret'] ) {
+			update_option( Config::api_client_secret, $creds_details['client_secret'] );
+			$fetch_token = true;
+		}
+		$saved_redirect_uri = get_option( Config::api_redirect_uri );
+		if ( $saved_redirect_uri !== $creds_details['redirect_uri'] ) {
+			update_option( Config::api_redirect_uri, $creds_details['redirect_uri'] );
+			$fetch_token = true;
+		}
 
-		return REST_API_oAuth::get_instance()->fetch_access_token( $creds_details['code'] );
+		$access_token = get_option( Config::access_token_key );
+		if ( empty( $access_token ) ) {
+			$fetch_token = true;
+		}
 
+		if ( $fetch_token && ! $doing_cli ) {
+			return REST_API_oAuth::get_instance()->get_authorization_code();
+		} else {
+			return true;
+		}
 	}
 
 	/**
