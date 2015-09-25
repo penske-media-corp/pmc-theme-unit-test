@@ -24,7 +24,7 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 3. In wp-admin look for Management Menu Option :  Tools => Sync from Production
 			OR
 	Navigate to http://YOURSITEDOMAIN.com/wp-admin/tools.php?page=data-import
-4. You will see a form which you have to input domain name , credentials for the first time and will be saved in the database. Please Authorize yourself by clicking on the Authorize URL. You will be redirected to redirect_uri of the site. Get the "code" query parameter and enter in the textbox provided.
+4. You will see a form which you have to input domain name , credentials for the first time and will be saved in the database. The `redirect_uri` should be the plugin url `http://YOURSITEDOMAIN.com/wp-admin/tools.php?page=data-import` or `http://YOURSITEDOMAIN.com/redirectme endpoint` (if this endpoint can send the code querystring back to the plugin url)
 5. Hit Save All and you will get Import Button replcing the form.
 6. Hit `Import Data from Production` and wait patiently as the data gets imported in the background.
 7. Voila! Your theme is setup and you can start to unit test you theme.
