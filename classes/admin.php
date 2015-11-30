@@ -264,6 +264,13 @@ class Admin extends PMC_Singleton {
 
 	}
 
+	/**
+	 * Get the authentication details for the current theme
+	 *
+	 * @since 2015-07-06
+	 *
+	 * @version 2015-07-06 Archana Mandhare - PPT-5077
+	 */
 	private function _get_auth_details() {
 
 		$details_in_DB = true;
@@ -475,7 +482,7 @@ class Admin extends PMC_Singleton {
 		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
-			$return_info[] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
+			$return_info[$route] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
 		}
 		ob_clean();
 		wp_send_json( $return_info );
@@ -503,8 +510,10 @@ class Admin extends PMC_Singleton {
 		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
-			$return_info[] = REST_API_Router::get_instance()->call_rest_api_posts_route( $route );
+			$return_info[ $route ] = REST_API_Router::get_instance()->call_rest_api_posts_route( $route );
+			$return_info[ $route ] = $this->import_theme_specific_posts($route, $return_info );
 		}
+
 		ob_clean();
 		wp_send_json( $return_info );
 		unset( $return_info );
@@ -531,7 +540,7 @@ class Admin extends PMC_Singleton {
 		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
-			$return_info[] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
+			$return_info[$route] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
 		}
 		ob_clean();
 		wp_send_json( $return_info );
@@ -586,6 +595,37 @@ class Admin extends PMC_Singleton {
 		wp_die();
 
 	}
+
+	/**
+	 * Import data specified by the theme that should be pulled on every load
+	 * For example things that are required to setup the home page
+	 *
+	 * @since 2015-11-28
+	 *
+	 * @version 2015-11-28 Archana Mandhare - PMCVIP-177
+	 *
+	 * @param array $import_data the ids imported previously
+	 * @param array $route post_type for which meta data posts should be imported
+	 *
+	 */
+	public function import_theme_specific_posts( $route, $import_data ) {
+
+		// The theme should implement this filter to tell this plugin
+		// what it needs to pull from live to set itself up. This filter should return the list of post ids that needs to be pulled
+		$post_ids = apply_filters( 'import_post_ids_for_post_types', array(), $route );
+
+		if ( empty( $post_ids ) ) {
+			return $import_data;
+		}
+
+		$imported_data[] = REST_API_Router::get_instance()->call_rest_api_single_posts( $post_ids );
+
+		$import_data = array_merge( $import_data, $imported_data );
+
+		return $import_data;
+
+	}
+
 }    //end class
 
 //EOF

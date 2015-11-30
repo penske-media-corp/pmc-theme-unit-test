@@ -141,6 +141,32 @@ class REST_API_Router extends PMC_Singleton {
 		return $this->_access_endpoint( 'posts', array( 'type' => $route ), 'posts' );
 
 	}
+
+
+	/**
+	 * Access posts endpoints to make call to REST API for specific posts
+	 *
+	 * This method will make a call to the public REST API
+	 * and fetch posts based on their ID from live site and save to the current site DB.
+	 *
+	 * @since 2015-11-30
+	 *
+	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
+	 *
+	 * @params string $post_ids the array of post_ids to pull data for
+	 *
+	 * @return array of entity IDs that got saved.
+	 *
+	 */
+	public function call_rest_api_single_posts( $post_ids ) {
+
+		foreach( $post_ids as $post_id ) {
+			$api_data[] = $this->_access_endpoint( 'posts', array( 'post_id' => $post_id ), 'posts' );
+		}
+
+		return $api_data;
+
+	}
 }
 
 

@@ -128,6 +128,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	 * @since 2015-07-14
 	 *
 	 * @version 2015-07-14 Archana Mandhare - PPT-5077
+	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
 	 *
 	 * @param string $route - the endpoint name that needs to be called
 	 * array $query_params array of query arguments that needs to be passed
@@ -164,9 +165,17 @@ class REST_API_oAuth extends PMC_Singleton {
 
 			$headers = $this->_get_required_header();
 
+			if ( ! empty( $query_params['post_id'] ) ) {
+
+				$post_id = $query_params['post_id'];
+
+				unset( $query_params['post_id'] );
+
+			}
+
 			$query_params = $this->_get_query_params( $query_params );
 
-			$api_url = trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
+			$api_url = $this->_get_api_url($domain, $route, $query_params, $post_id );
 
 			/**
 			 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
@@ -207,6 +216,29 @@ class REST_API_oAuth extends PMC_Singleton {
 
 		return false;
 
+	}
+
+	/**
+	 * get the URL of the API based on the query params
+	 *
+	 * @since 2015-11-30
+	 *
+	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
+	 *
+	 * @param $domain string
+	 * @param $route string
+	 * @param $query_params string
+	 * @param $post_id string
+	 *
+	 * @return string
+	 */
+	private function _get_api_url( $domain, $route, $query_params, $post_id = '' ) {
+
+		if ( ! empty( $post_id ) && 'posts' === $route ) {
+			return trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/' . $post_id. '/?' . $query_params;
+		} else {
+			return trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
+		}
 	}
 
 	/**
