@@ -175,7 +175,7 @@ class REST_API_oAuth extends PMC_Singleton {
 
 			$query_params = $this->_get_query_params( $query_params );
 
-			$api_url = $this->_get_api_url($domain, $route, $query_params, $post_id );
+			$api_url = $this->_get_api_url( $domain, $route, $query_params, $post_id );
 
 			/**
 			 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
@@ -235,7 +235,7 @@ class REST_API_oAuth extends PMC_Singleton {
 	private function _get_api_url( $domain, $route, $query_params, $post_id = '' ) {
 
 		if ( ! empty( $post_id ) && 'posts' === $route ) {
-			return trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/' . $post_id. '/?' . $query_params;
+			return trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/' . $post_id . '/?' . $query_params;
 		} else {
 			return trim( Config::REST_BASE_URL, '/' ) . '/' . $domain . '/' . trim( $route, '/' ) . '/?' . $query_params;
 		}

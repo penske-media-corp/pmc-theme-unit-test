@@ -38,7 +38,7 @@ class Terms_Importer extends PMC_Singleton {
 				return false;
 			}
 
-			$term_id = term_exists( $term_json['name'], $term_json['taxonomy'] );
+			$term_id = wpcom_vip_term_exists( $term_json['name'], $term_json['taxonomy'] );
 
 			if ( empty( $term_id ) && false !== $taxonomy_id ) {
 

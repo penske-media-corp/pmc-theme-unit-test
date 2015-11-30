@@ -27,7 +27,7 @@ class Categories_Importer extends PMC_Singleton {
 
 				return false;
 			}
-			$category_info = term_exists( $category_json['name'], 'category' );
+			$category_info = wpcom_vip_term_exists( $category_json['name'], 'category' );
 
 			if ( empty( $category_info ) ) {
 

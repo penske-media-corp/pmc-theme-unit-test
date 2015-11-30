@@ -160,7 +160,7 @@ class REST_API_Router extends PMC_Singleton {
 	 */
 	public function call_rest_api_single_posts( $post_ids ) {
 
-		foreach( $post_ids as $post_id ) {
+		foreach ( $post_ids as $post_id ) {
 			$api_data[] = $this->_access_endpoint( 'posts', array( 'post_id' => $post_id ), 'posts' );
 		}
 

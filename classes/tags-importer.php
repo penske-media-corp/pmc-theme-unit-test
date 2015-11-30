@@ -28,7 +28,7 @@ class Tags_Importer extends PMC_Singleton {
 				return false;
 			}
 
-			$term_id = term_exists( $tag_json['name'], 'post_tag' );
+			$term_id = wpcom_vip_term_exists( $tag_json['name'], 'post_tag' );
 
 			if ( empty( $term_id ) ) {
 

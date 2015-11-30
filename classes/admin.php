@@ -482,7 +482,7 @@ class Admin extends PMC_Singleton {
 		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
-			$return_info[$route] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
+			$return_info[ $route ] = REST_API_Router::get_instance()->call_rest_api_all_route( $route );
 		}
 		ob_clean();
 		wp_send_json( $return_info );
@@ -511,7 +511,7 @@ class Admin extends PMC_Singleton {
 
 		if ( ! empty( $route ) ) {
 			$return_info[ $route ] = REST_API_Router::get_instance()->call_rest_api_posts_route( $route );
-			$return_info[ $route ] = $this->import_theme_specific_posts($route, $return_info );
+			$return_info[ $route ] = $this->import_theme_specific_posts( $route, $return_info );
 		}
 
 		ob_clean();
@@ -540,7 +540,7 @@ class Admin extends PMC_Singleton {
 		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
 
 		if ( ! empty( $route ) ) {
-			$return_info[$route] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
+			$return_info[ $route ] = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $route );
 		}
 		ob_clean();
 		wp_send_json( $return_info );
@@ -625,7 +625,6 @@ class Admin extends PMC_Singleton {
 		return $import_data;
 
 	}
-
 }    //end class
 
 //EOF

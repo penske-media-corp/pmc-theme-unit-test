@@ -20,8 +20,13 @@ class Posts_Importer extends PMC_Singleton {
 		try {
 
 			$meta_data_ID = add_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], true );
-			if( ! $meta_data_ID ) {
-				$meta_data_ID = update_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], '');
+
+			if ( ! $meta_data_ID ) {
+
+				$previous_value = get_post_meta( $post_ID, $meta_data['key'], true );
+
+				update_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], $previous_value );
+
 			}
 
 		} catch ( \Exception $e ) {
