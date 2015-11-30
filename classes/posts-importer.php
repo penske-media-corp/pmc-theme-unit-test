@@ -26,9 +26,7 @@ class Posts_Importer extends PMC_Singleton {
 				$previous_value = get_post_meta( $post_ID, $meta_data['key'], true );
 
 				update_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], $previous_value );
-
 			}
-
 		} catch ( \Exception $e ) {
 
 			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
