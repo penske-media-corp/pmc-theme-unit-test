@@ -612,7 +612,7 @@ class Admin extends PMC_Singleton {
 
 		// The theme should implement this filter to tell this plugin
 		// what it needs to pull from live to set itself up. This filter should return the list of post ids that needs to be pulled
-		$post_ids = apply_filters( 'import_post_ids_for_post_types', array(), $route );
+		$post_ids = apply_filters( 'pmc_theme_unit_test_get_required_post_ids_for_post_types', array(), $route );
 
 		if ( empty( $post_ids ) ) {
 			return $import_data;
