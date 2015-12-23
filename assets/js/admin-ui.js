@@ -293,7 +293,6 @@ window.PMC_Theme_Unit_Test = {
 
             jQuery.ajax({
 
-                timeout: 5000000, /* 5000 secs timeout */
                 type: "post",
                 url: self.options.admin_url,
                 data: ajax_data,
