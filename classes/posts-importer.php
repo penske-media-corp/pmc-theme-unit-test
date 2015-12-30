@@ -199,9 +199,12 @@ class Posts_Importer extends PMC_Singleton {
 
 					$post_meta_data = XMLRPC_Router::get_instance()->call_xmlrpc_api_route( 'posts', $params );
 
-					// Save the custom taxonomy terms for this post.
-					if ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
+					if ( is_wp_error( $post_meta_data ) ) {
 
+						error_log( $time . ' -- ' . esc_html( $post_meta_data->get_error_message() ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+
+					} elseif ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
+						// Save the custom taxonomy terms for this post.
 						// Expecting only one value in $post_meta_data with 0 index since this is only for one post
 						// Save all the terms
 						foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
