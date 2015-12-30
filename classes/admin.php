@@ -273,7 +273,7 @@ class Admin extends PMC_Singleton {
 	 */
 	private function _get_auth_details() {
 
-		$details_in_DB = true;
+		$details_in_db = true;
 		//fetch details from DB
 
 		$creds_details = array(
@@ -287,12 +287,12 @@ class Admin extends PMC_Singleton {
 
 		foreach ( $creds_details as $key => $value ) {
 			if ( empty( $value ) ) {
-				$details_in_DB = false;
+				$details_in_db = false;
 				break;
 			}
 		}
 
-		if ( $details_in_DB ) {
+		if ( $details_in_db ) {
 			return $creds_details;
 		} else {
 			// If details not in DB fetch from file.

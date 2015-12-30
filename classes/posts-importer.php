@@ -15,17 +15,17 @@ class Posts_Importer extends PMC_Singleton {
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	private function _save_post_meta( $post_ID, $meta_data ) {
+	private function _save_post_meta( $post_id, $meta_data ) {
 
 		try {
 
-			$meta_data_ID = add_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], true );
+			$meta_data_id = add_post_meta( $post_id, $meta_data['key'], $meta_data['value'], true );
 
-			if ( ! $meta_data_ID ) {
+			if ( ! $meta_data_id ) {
 
-				$previous_value = get_post_meta( $post_ID, $meta_data['key'], true );
+				$previous_value = get_post_meta( $post_id, $meta_data['key'], true );
 
-				update_post_meta( $post_ID, $meta_data['key'], $meta_data['value'], $previous_value );
+				update_post_meta( $post_id, $meta_data['key'], $meta_data['value'], $previous_value );
 			}
 		} catch ( \Exception $e ) {
 
@@ -33,7 +33,7 @@ class Posts_Importer extends PMC_Singleton {
 
 		}
 
-		return $meta_data_ID;
+		return $meta_data_id;
 
 	}
 
@@ -85,25 +85,25 @@ class Posts_Importer extends PMC_Singleton {
 					'post_category' => $cat_ids_arr,
 				);
 
-				$post_ID = wp_insert_post( $post_data );
+				$post_id = wp_insert_post( $post_data );
 
 				if ( false !== $post_json['sticky'] ) {
 
-					stick_post( $post_ID );
+					stick_post( $post_id );
 
 				}
 
-				if ( is_wp_error( $post_ID ) ) {
+				if ( is_wp_error( $post_id ) ) {
 
-					error_log( $time . ' -- ' . $post_ID->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+					error_log( $time . ' -- ' . $post_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-					return $post_ID;
+					return $post_id;
 
 				} else {
 
-					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_ID}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+					error_log( "{$time} -- {$post_json['type']} **-- {$post_json['title']} --** added with ID = {$post_id}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
-					return $post_ID;
+					return $post_id;
 				}
 			}
 		} catch ( \Exception $e ) {
@@ -147,15 +147,15 @@ class Posts_Importer extends PMC_Singleton {
 				if ( ! empty( $post_json['author'] ) ) {
 					$author = get_user_by( 'login', $post_json['author']['login'] );
 					if ( $author ) {
-						$author_ID = $author->ID;
+						$author_id = $author->ID;
 					} else {
 						// Save Author to DB and attach its ID to the post object
-						$author_ID = Users_Importer::get_instance()->save_user( $post_json['author'] );
+						$author_id = Users_Importer::get_instance()->save_user( $post_json['author'] );
 					}
 				}
 
-				if ( empty( $post_json['author'] ) || empty( $author_ID ) || is_wp_error( $author_ID ) ) {
-					$author_ID = get_current_user_id();
+				if ( empty( $post_json['author'] ) || empty( $author_id ) || is_wp_error( $author_id ) ) {
+					$author_id = get_current_user_id();
 				}
 
 				// save Categories associated with the post.
@@ -167,18 +167,18 @@ class Posts_Importer extends PMC_Singleton {
 				}
 
 				// Save post and get its ID in order to save other meta data related to it.
-				$post_ID = $this->save_post( $post_json, $author_ID, $cat_ids, $post_json['type'] );
+				$post_id = $this->save_post( $post_json, $author_id, $cat_ids, $post_json['type'] );
 
-				if ( $post_ID ) {
+				if ( $post_id ) {
 
-					$post_ids[ $post_json['ID'] ] = $post_ID;
+					$post_ids[ $post_json['ID'] ] = $post_id;
 
 					// save tags associated with the post.
 					if ( ! empty( $post_json['tags'] ) ) {
 
 						foreach ( $post_json['tags'] as $key => $terms ) {
 
-							wp_set_post_terms( $post_ID, $terms['name'], 'post_tag' );
+							wp_set_post_terms( $post_id, $terms['name'], 'post_tag' );
 
 						}
 					}
@@ -189,7 +189,7 @@ class Posts_Importer extends PMC_Singleton {
 						foreach ( $post_json['metadata'] as $post_metadata ) {
 
 							$old_meta_ids[] = $post_metadata['id'];
-							$meta_ids[]     = $this->_save_post_meta( $post_ID, $post_metadata );
+							$meta_ids[]     = $this->_save_post_meta( $post_id, $post_metadata );
 
 						}
 					}
@@ -210,7 +210,7 @@ class Posts_Importer extends PMC_Singleton {
 							if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
 
 								$term_id = Terms_Importer::get_instance()->save_taxonomy_terms( $custom_term );
-								wp_set_object_terms( $post_ID, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
+								wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
 
 							}
 						}
@@ -218,7 +218,7 @@ class Posts_Importer extends PMC_Singleton {
 						foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
 
 							if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
-								$meta_ids[] = $this->_save_post_meta( $post_ID, $custom_field );
+								$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
 							}
 						}
 					}
@@ -226,19 +226,19 @@ class Posts_Importer extends PMC_Singleton {
 					// Save the featured image of the post
 					if ( ! empty( $post_json['featured_image'] ) ) {
 
-						Attachments_Importer::get_instance()->save_featured_image( $post_json['featured_image'], $post_ID );
+						Attachments_Importer::get_instance()->save_featured_image( $post_json['featured_image'], $post_id );
 
 					}
 
 					if ( ! empty( $post_json['attachments'] ) ) {
 						// save attachments associated with the post.
-						$attachment_ids[] = Attachments_Importer::get_instance()->call_import_route( $post_json['attachments'], $post_ID );
+						$attachment_ids[] = Attachments_Importer::get_instance()->call_import_route( $post_json['attachments'], $post_id );
 
 					}
 
 					if ( ! empty( $post_json['comment_count'] ) ) {
 
-						$comments_ids[] = Comments_Importer::get_instance()->call_rest_api_route( $post_json['ID'], $post_ID );
+						$comments_ids[] = Comments_Importer::get_instance()->call_rest_api_route( $post_json['ID'], $post_id );
 
 					}
 				}

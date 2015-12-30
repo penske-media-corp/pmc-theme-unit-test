@@ -332,16 +332,16 @@ class Menus_Importer extends PMC_Singleton {
 
 			}
 
-			$author_ID = get_current_user_id();
+			$author_id = get_current_user_id();
 
-			$page_ID = Posts_Importer::get_instance()->save_post( $pages[0], $author_ID, array(), $type );
+			$page_id = Posts_Importer::get_instance()->save_post( $pages[0], $author_id, array(), $type );
 
-			error_log( $time . ' -- ' . $type . ' -- Fetched for Menu with ID ' . $page_ID . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+			error_log( $time . ' -- ' . $type . ' -- Fetched for Menu with ID ' . $page_id . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
 
 		} catch ( \Exception $e ) {
 			error_log( $time . ' -- ' . $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 		}
 
-		return $page_ID;
+		return $page_id;
 	}
 }

@@ -131,11 +131,11 @@ class Options_Importer extends PMC_Singleton {
 		if ( ! is_array( $array ) ) {
 			return str_replace( $find, $replace, $array );
 		}
-		$newArray = array();
+		$new_array = array();
 		foreach ( $array as $key => $value ) {
-			$newArray[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
+			$new_array[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
 		}
 
-		return $newArray;
+		return $new_array;
 	}
 }

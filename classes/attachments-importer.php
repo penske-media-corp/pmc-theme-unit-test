@@ -17,12 +17,12 @@ class Attachments_Importer extends PMC_Singleton {
 	 * @return int|WP_Error The attachment Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	private function _save_attachment( $image_url, $post_ID ) {
+	private function _save_attachment( $image_url, $post_id ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 		try {
 
-			$attachment_id = media_sideload_image( $image_url, $post_ID );
+			$attachment_id = media_sideload_image( $image_url, $post_id );
 
 			if ( is_wp_error( $attachment_id ) ) {
 
@@ -58,13 +58,13 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 */
 
-	public function save_featured_image( $image_url, $post_ID ) {
+	public function save_featured_image( $image_url, $post_id ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
 		try {
 
-			if ( empty( $image_url ) || empty( $post_ID ) ) {
+			if ( empty( $image_url ) || empty( $post_id ) ) {
 
 				error_log( $time . ' No Image URL and Post ID passed to save attachment' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
@@ -72,7 +72,7 @@ class Attachments_Importer extends PMC_Singleton {
 			}
 
 			// @todo - add title, caption, description to the attachment
-			$attachment_html = $this->_save_attachment( $image_url, $post_ID );
+			$attachment_html = $this->_save_attachment( $image_url, $post_id );
 
 			if ( is_wp_error( $attachment_html ) || empty( $attachment_html ) ) {
 
@@ -84,7 +84,7 @@ class Attachments_Importer extends PMC_Singleton {
 			// then find the last image added to the post attachments
 			$attachments = get_posts( array(
 				'numberposts'    => '1',
-				'post_parent'    => $post_ID,
+				'post_parent'    => $post_id,
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'image',
 				'order'          => 'ASC',
@@ -92,7 +92,7 @@ class Attachments_Importer extends PMC_Singleton {
 
 			if ( sizeof( $attachments ) > 0 ) {
 				// set image as the post thumbnail
-				return set_post_thumbnail( $post_ID, $attachments[0]->ID );
+				return set_post_thumbnail( $post_id, $attachments[0]->ID );
 			} else {
 				return false;
 			}
@@ -116,7 +116,7 @@ class Attachments_Importer extends PMC_Singleton {
 	 *
 	 * @return array of Attachments ids on success.
 	 */
-	public function instant_attachments_import( $attachments_json, $post_ID ) {
+	public function instant_attachments_import( $attachments_json, $post_id ) {
 
 		$attachments_info = array();
 
@@ -133,7 +133,7 @@ class Attachments_Importer extends PMC_Singleton {
 				break;
 			}
 
-			$attachments_id = $this->_save_attachment( $attachment_json['URL'], $post_ID );
+			$attachments_id = $this->_save_attachment( $attachment_json['URL'], $post_id );
 
 			if ( ! empty( $attachments_id ) ) {
 
@@ -157,9 +157,9 @@ class Attachments_Importer extends PMC_Singleton {
 	 * @params array $api_data data returned from the REST API that needs to be imported
 	 *
 	 */
-	public function call_import_route( $api_data, $post_ID ) {
+	public function call_import_route( $api_data, $post_id ) {
 
-		return $this->instant_attachments_import( $api_data, $post_ID );
+		return $this->instant_attachments_import( $api_data, $post_id );
 
 	}
 }
