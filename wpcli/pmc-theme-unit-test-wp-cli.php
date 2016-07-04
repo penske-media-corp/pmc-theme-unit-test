@@ -141,15 +141,15 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 		// Check the saved values from DB for REST API and XMLRPC
 		$rest_auth    = false;
-		$access_token = get_option( PMC\Theme_Unit_Test\Config::access_token_key );
-		$domain       = get_option( PMC\Theme_Unit_Test\Config::api_domain );
-		if ( ! empty( $access_token ) && ! empty( $domain ) && PMC\Theme_Unit_Test\REST_API_oAuth::get_instance()->is_valid_token() ) {
+		$access_token = get_option( PMC\Theme_Unit_Test\Settings\Config::access_token_key );
+		$domain       = get_option( PMC\Theme_Unit_Test\Settings\Config::api_domain );
+		if ( ! empty( $access_token ) && ! empty( $domain ) && PMC\Theme_Unit_Test\REST_API\O_Auth::get_instance()->is_valid_token() ) {
 			$rest_auth = true;
 		}
 
 		$xlmrpc_auth     = false;
-		$xmlrpc_username = get_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_username );
-		$xmlrpc_password = get_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_username );
+		$xmlrpc_username = get_option( PMC\Theme_Unit_Test\Settings\Config::api_xmlrpc_username );
+		$xmlrpc_password = get_option( PMC\Theme_Unit_Test\Settings\Config::api_xmlrpc_username );
 		if ( ! empty( $xmlrpc_username ) && ! empty( $xmlrpc_password ) ) {
 			$xlmrpc_auth = true;
 		}
@@ -348,7 +348,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
-						$saved_data[] = PMC\Theme_Unit_Test\XMLRPC_Router::get_instance()->call_xmlrpc_api_route( $entity );
+						$saved_data[] = PMC\Theme_Unit_Test\XML_RPC\Service::get_instance()->call_xmlrpc_api_route( $entity );
 						if ( is_wp_error( $saved_data ) ) {
 							$bad_endpoint = true;
 						}

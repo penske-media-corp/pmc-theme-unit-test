@@ -4,7 +4,7 @@ window.PMC_Theme_Unit_Test = {
      * Register settings for JS object
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     options: 0,
     routes: {},
@@ -20,7 +20,7 @@ window.PMC_Theme_Unit_Test = {
      * Get the details from the server to setup the page and what data to import
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     getClientDetails: function () {
 
@@ -64,7 +64,7 @@ window.PMC_Theme_Unit_Test = {
      * Setup the admin page HTML
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     setupAdminPage: function (data) {
 
@@ -104,7 +104,7 @@ window.PMC_Theme_Unit_Test = {
      * Create HTML for the endpoint to show in Admin UI
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     setupIndividualImport: function (end_route) {
 
@@ -125,7 +125,7 @@ window.PMC_Theme_Unit_Test = {
      * Create HTML for the most endpoints to show in Admin UI
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     setupIndividualImportForAll: function (end_route) {
 
@@ -143,7 +143,7 @@ window.PMC_Theme_Unit_Test = {
      * Create HTML for the posts endpoints to show in Admin UI
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     setupIndividualImportForPosts: function (end_route) {
 
@@ -161,7 +161,7 @@ window.PMC_Theme_Unit_Test = {
      * Create HTML for the xmlrpc endpoints to show in Admin UI
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     setupIndividualImportForxmlrpc: function (end_route) {
 
@@ -179,7 +179,7 @@ window.PMC_Theme_Unit_Test = {
      * Start the actual data import by making an ajax call for each endpoint
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     importData: function () {
 
@@ -213,7 +213,7 @@ window.PMC_Theme_Unit_Test = {
      * Call the ajax method for each endpoint
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     callRestAllEndpoints: function (end_route) {
 
@@ -234,7 +234,7 @@ window.PMC_Theme_Unit_Test = {
      * Call the ajax method for post endpoint
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     callRestPostEndpoints: function (end_route) {
 
@@ -255,7 +255,7 @@ window.PMC_Theme_Unit_Test = {
      * Call the ajax method for xmlrpc endpoint
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     callXmlrpcEndpoints: function (end_route) {
 
@@ -277,7 +277,7 @@ window.PMC_Theme_Unit_Test = {
      * Ajax method to fetch data from server
      *
      * @since 2015-07-15
-     * @version 2015-07-15 Archana Mandhare - PPT-5077
+     * @version 2015-07-15 Archana Mandhare PPT-5077
      */
     makeAjaxRequest: function (ajax_data, route_name) {
 
