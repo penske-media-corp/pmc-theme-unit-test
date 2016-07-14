@@ -214,7 +214,7 @@ class Posts_Importer extends PMC_Singleton {
 						} elseif ( ! empty( $post_meta_data[0] ) && is_array( $post_meta_data[0] ) ) {
 
 							// Save all the terms
-							if ( ! is_empty( $post_meta_data[0]['terms'] ) && is_array( $post_meta_data[0]['terms'] ) ) {
+							if ( ! empty( $post_meta_data[0]['terms'] ) && is_array( $post_meta_data[0]['terms'] ) ) {
 								foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
 
 									// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
@@ -228,7 +228,7 @@ class Posts_Importer extends PMC_Singleton {
 							}
 
 							// Save all the custom fields
-							if ( ! is_empty( $post_meta_data[0]['custom_fields'] ) && is_array( $post_meta_data[0]['custom_fields'] ) ) {
+							if ( ! empty( $post_meta_data[0]['custom_fields'] ) && is_array( $post_meta_data[0]['custom_fields'] ) ) {
 								foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
 
 									if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
