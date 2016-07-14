@@ -204,24 +204,37 @@ class Posts_Importer extends PMC_Singleton {
 						error_log( $time . ' -- ' . esc_html( $post_meta_data->get_error_message() ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
 					} elseif ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
+
 						// Save the custom taxonomy terms for this post.
 						// Expecting only one value in $post_meta_data with 0 index since this is only for one post
-						// Save all the terms
-						foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
+						if ( is_wp_error( $post_meta_data[0] ) ) {
 
-							// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
-							if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
+							error_log( $time . ' -- ' . esc_html( $post_meta_data[0]->get_error_message() ) . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-								$term_id = Terms_Importer::get_instance()->save_taxonomy_terms( $custom_term );
-								wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
+						} elseif ( ! empty( $post_meta_data[0] ) && is_array( $post_meta_data[0] ) ) {
 
+							// Save all the terms
+							if ( ! is_empty( $post_meta_data[0]['terms'] ) && is_array( $post_meta_data[0]['terms'] ) ) {
+								foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
+
+									// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
+									if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
+
+										$term_id = Terms_Importer::get_instance()->save_taxonomy_terms( $custom_term );
+										wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
+
+									}
+								}
 							}
-						}
-						// Save all the custom fields
-						foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
 
-							if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
-								$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
+							// Save all the custom fields
+							if ( ! is_empty( $post_meta_data[0]['custom_fields'] ) && is_array( $post_meta_data[0]['custom_fields'] ) ) {
+								foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
+
+									if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
+										$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
+									}
+								}
 							}
 						}
 					}
