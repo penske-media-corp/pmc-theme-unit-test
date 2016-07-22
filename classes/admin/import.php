@@ -1,14 +1,12 @@
 <?php
 namespace PMC\Theme_Unit_Test\Admin;
 
-use \PMC\Theme_Unit_Test\PMC_Singleton as PMC_Singleton;
-use \PMC\Theme_Unit_Test\Settings\Config as Config;
-use \PMC\Theme_Unit_Test\Settings\Config_Helper as Config_Helper;
-
-use \PMC\Theme_Unit_Test\Importer\Posts as Posts;
-use \PMC\Theme_Unit_Test\Importer\Taxonomies as Taxonomies;
-use \PMC\Theme_Unit_Test\REST_API\Router as Router;
-use \PMC\Theme_Unit_Test\XML_RPC\Service as Service;
+use PMC\Theme_Unit_Test\PMC_Singleton as PMC_Singleton;
+use PMC\Theme_Unit_Test\Settings\Config as Config;
+use PMC\Theme_Unit_Test\Importer\Posts as Posts;
+use PMC\Theme_Unit_Test\Importer\Taxonomies as Taxonomies;
+use PMC\Theme_Unit_Test\REST_API\Router as Router;
+use PMC\Theme_Unit_Test\XML_RPC\Service as Service;
 
 class Import extends PMC_Singleton {
 
@@ -20,9 +18,7 @@ class Import extends PMC_Singleton {
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	protected function _init() {
-
 		$this->_setup_hooks();
-
 	}
 
 	/**
@@ -34,21 +30,9 @@ class Import extends PMC_Singleton {
 	 * @version 2015-07-30 Amit Gupta PPT-5077 - consolidated multiple 'init' listeners into one
 	 */
 	protected function _setup_hooks() {
-
-		add_action( 'init', array( $this, 'on_wp_init' ) );
-
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_assets' ) );
-
-		add_action( 'wp_ajax_import_all_data_from_production', array( $this, 'import_all_data_from_production' ) );
-
-		add_action( 'wp_ajax_import_posts_data_from_production', array( $this, 'import_posts_data_from_production' ) );
-
-		add_action( 'wp_ajax_change_credentials', array( $this, 'change_credentials' ) );
-
-		add_action( 'wp_ajax_import_xmlrpc_data_from_production', array( $this, 'import_xmlrpc_data_from_production' ) );
-
-		add_action( 'wp_ajax_get_client_configuration_details', array( $this, 'get_client_configuration_details' ) );
-
+		add_action( 'init', array( $this, 'on_wp_init' ) );
+		add_action( 'wp_ajax_get_custom_post_types', array( $this, 'get_custom_post_types' ) );
 	}
 
 	/**
@@ -62,7 +46,7 @@ class Import extends PMC_Singleton {
 	 */
 	public function load_assets( $hook ) {
 
-		if ( 'tools_page_data-import' !== $hook ) {
+		if ( 'toplevel_page_pmc_theme_unit_test' !== $hook ) {
 			return;
 		}
 
@@ -70,19 +54,14 @@ class Import extends PMC_Singleton {
 
 		wp_enqueue_style( 'pmc_theme_unit_test_admin_css' );
 
-		wp_register_script( 'pmc_theme_unit_test_admin_js', plugins_url( 'pmc-theme-unit-test/assets/js/admin-ui.js', PMC_THEME_UNIT_TEST_ROOT ), array( 'jquery' ), PMC_THEME_UNIT_TEST_VERSION );
+		wp_register_script( 'pmc_theme_unit_test_admin_js', plugins_url( 'pmc-theme-unit-test/assets/js/import.js', PMC_THEME_UNIT_TEST_ROOT ), array( 'jquery' ), PMC_THEME_UNIT_TEST_VERSION );
 
 		wp_localize_script(
 			'pmc_theme_unit_test_admin_js',
 			'pmc_unit_test_ajax',
 			array(
 				'admin_url'           => admin_url( 'admin-ajax.php' ),
-				'import_nOnce'        => wp_create_nonce( 'import-from-production' ),
-				'import_xmlrpc_nOnce' => wp_create_nonce( 'import-xmlrpc-from-production' ),
-				'import_posts_nOnce'  => wp_create_nonce( 'import-posts-from-production' ),
-				'client_nOnce'        => wp_create_nonce( 'get-client-config-details' ),
-				'change_nOnce'        => wp_create_nonce( 'change-credentials' ),
-				'AUTHORIZE_URL'       => Config::AUTHORIZE_URL,
+				'post_types_nOnce'    => wp_create_nonce( 'custom-post-types' ),
 			)
 		);
 
@@ -100,7 +79,7 @@ class Import extends PMC_Singleton {
 	public function on_wp_init() {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
-		setcookie( 'oauth_redirect', get_admin_url() . 'tools.php?page=data-import', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
+		setcookie( 'oauth_redirect', get_admin_url() . 'admin.php?page=pmc_theme_unit_test', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
 	}
 
 	/**
@@ -117,21 +96,16 @@ class Import extends PMC_Singleton {
 		if ( ! current_user_can( 'manage_options' ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 			return;
 		}
+
 		$custom_post_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
-
 		$custom_post_types = apply_filters( 'rest_api_allowed_post_types', $custom_post_types );
-
 		$custom_post_types = array_unique( $custom_post_types );
 
 		if ( ! empty( $custom_post_types ) ) {
-
 			foreach ( $custom_post_types as $post_type ) {
-
 				Posts::get_instance()->save_post_type( $post_type );
-
 			}
 		}
-
 	}
 
 	/**
@@ -150,154 +124,89 @@ class Import extends PMC_Singleton {
 		}
 
 		$custom_taxonomies = apply_filters( 'pmc_custom_taxonomies_to_import', array() );
-
 		if ( ! empty( $custom_taxonomies ) ) {
-
 			foreach ( $custom_taxonomies as $key => $taxonomy ) {
-
 				Taxonomies::get_instance()->save_taxonomy( $taxonomy );
+			}
+		}
+	}
 
+	public function form_submit(){
+		$types = empty( $_GET['types'] ) ? 0 :  (int) $_GET['types'] ;
+		switch ( $types ) {
+			case 1:
+				$this->import_default_items();
+				break;
+			case 2:
+				$this->import_custom_items();
+				break;
+			default:
+				break;
+		}
+	}
+
+	public function import_default_items(){
+
+		check_admin_referer( 'import-content' );
+
+		$routes = $_POST['content'];
+
+		foreach( $routes as $route ){
+			$route = sanitize_text_field( $route );
+			if ( ! empty( $route ) ) {
+				if( 'post' === $route ) {
+					$this->import_posts( $route );
+				} else {
+					$return_info[ $route ] = Router::get_instance()->call_rest_api_all_route( $route );
+				}
 			}
 		}
 
 	}
 
-	/**
-	 * Ajax call made from the Admin UI button to fetch data and save to current site DB
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare PPT-5077
-	 *
-	 */
-	public function import_all_data_from_production() {
+	public function import_custom_items(){
 
-		// check to see if the submitted nonce matches with the
-		// generated nonce we created earlier
+		check_admin_referer( 'import-custom-content' );
 
-		check_ajax_referer( 'import-from-production', 'import_nOnce' );
+		$routes = $_POST['custom-content'];
 
-		$route = filter_input( INPUT_POST, 'route' );
+		foreach( $routes as $route ) {
+			$route = sanitize_text_field( $route );
 
-		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
+			switch ( $route ) {
+				case 'post-types':
+					$routes = $_POST['custom-post-types'];
 
-		if ( ! empty( $route ) ) {
-			$return_info[ $route ] = Router::get_instance()->call_rest_api_all_route( $route );
+					if ( ! empty( $routes ) ) {
+						foreach( $routes as $route ){
+							$route = sanitize_text_field( $route );
+							$this->import_posts($route);
+						}
+					}
+					break;
+				case 'taxonomies':
+					$this->import_custom_taxonomies();
+					break;
+				case 'options':
+					$this->import_options();
+					break;
+				default:
+					break;
+			}
 		}
-		ob_clean();
-		wp_send_json( $return_info );
-		unset( $return_info );
-		wp_die();
-
 	}
 
-	/**
-	 * Ajax call made from the Admin UI button to fetch data and save to current site DB
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare PPT-5077
-	 *
-	 */
-	public function import_posts_data_from_production() {
-
-		// check to see if the submitted nonce matches with the
-		// generated nonce we created earlier
-
-		check_ajax_referer( 'import-posts-from-production', 'import_posts_nOnce' );
-
-		$route = filter_input( INPUT_POST, 'route' );
-
-		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
-
-		if ( ! empty( $route ) ) {
-			$return_info[ $route ] = Router::get_instance()->call_rest_api_posts_route( $route );
-			$return_info[ $route ] = $this->import_theme_specific_posts( $route, $return_info );
-		}
-
-		ob_clean();
-		wp_send_json( $return_info );
-		unset( $return_info );
-		wp_die();
+	public function import_posts( $route ) {
+		$return_info[ $route ] = Router::get_instance()->call_rest_api_posts_route( $route );
+		$return_info[ $route ] = $this->import_theme_specific_posts( $route, $return_info );
 	}
 
-
-	/**
-	 * Ajax call made from the Admin UI button to fetch data and save to current site DB
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare PPT-5077
-	 *
-	 */
-	public function import_xmlrpc_data_from_production() {
-
-		// check to see if the submitted nonce matches with the
-		// generated nonce we created earlier
-
-		check_ajax_referer( 'import-xmlrpc-from-production', 'import_xmlrpc_nOnce' );
-
-		$route = filter_input( INPUT_POST, 'route' );
-
-		$route = isset( $route ) ? sanitize_text_field( wp_unslash( $route ) ) : '';
-
-		if ( ! empty( $route ) ) {
-			$return_info[ $route ] = Service::get_instance()->call_xmlrpc_api_route( $route );
-		}
-		ob_clean();
-		wp_send_json( $return_info );
-		unset( $return_info );
-		wp_die();
-
+	public function import_custom_taxonomies() {
+		$return_info[ 'taxonomies' ] = Service::get_instance()->call_xmlrpc_api_route( 'taxonomies' );
 	}
 
-	/**
-	 * Ajax call made from the Admin UI button to fetch data and save to current site DB
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare PPT-5077
-	 *
-	 */
-	public function get_client_configuration_details() {
-
-		// check to see if the submitted nonce matches with the
-		// generated nonce we created earlier
-		check_ajax_referer( 'get-client-config-details', 'client_nOnce' );
-
-		$client_details['xmlrpc_routes'] = Config_Helper::get_xmlrpc_routes();
-
-		$client_details['all_routes'] = Config_Helper::get_all_routes();
-
-		$client_details['post_routes'] = Config_Helper::get_posts_routes();
-
-		ob_clean();
-		wp_send_json( $client_details );
-		unset( $client_details );
-		wp_die();
-
-	}
-
-	/**
-	 * Ajax call made from the Admin UI to indicate change of credentials
-	 *
-	 * @since 2015-07-06
-	 *
-	 * @version 2015-07-06 Archana Mandhare PPT-5077
-	 *
-	 */
-	public function change_credentials() {
-
-		// check to see if the submitted nonce matches with the
-		// generated nonce we created earlier
-		check_ajax_referer( 'change-credentials', 'change_nOnce' );
-
-		update_option( Config::show_form, 1, false );
-
-		ob_clean();
-		wp_send_json( array( 'success' => 1 ) );
-		wp_die();
-
+	public function import_options() {
+		$return_info[ 'options' ] = Service::get_instance()->call_xmlrpc_api_route( 'options' );
 	}
 
 	/**
@@ -305,10 +214,9 @@ class Import extends PMC_Singleton {
 	 * For example things that are required to setup the home page
 	 *
 	 * @since 2015-11-28
-	 *
 	 * @version 2015-11-28 Archana Mandhare - PMCVIP-177
 	 *
-	 * @param array $import_data the ids imported previously
+	 * @param array $import_data the ids of posts content imported previously
 	 * @param array $route post_type for which meta data posts should be imported
 	 *
 	 * @return array
@@ -316,8 +224,8 @@ class Import extends PMC_Singleton {
 	 */
 	public function import_theme_specific_posts( $route, $import_data ) {
 
-		// The theme should implement this filter to tell this plugin
-		// what it needs to pull from live to set itself up. This filter should return the list of post ids that needs to be pulled
+		// The theme should implement this filter to tell this plugin what it needs to pull from live to set itself up.
+		// This filter should return the list of post ids that needs to be pulled
 		$post_ids = apply_filters( 'pmc_theme_unit_test_get_required_post_ids_for_post_types', array(), $route );
 
 		if ( empty( $post_ids ) ) {
@@ -331,6 +239,37 @@ class Import extends PMC_Singleton {
 		return $import_data;
 
 	}
+
+	/**
+	 * Return all the custom post types that are allowed by the REST API for importing content
+	 * @since 2016-07-22
+	 * @version 2016-07-22 Archana Mandhare - PMCVIP-1950
+	 *
+	 * @return array
+	 */
+	public function get_custom_post_types() {
+
+		// check to see if the submitted nonce matches with the
+		// generated nonce we created earlier
+		check_ajax_referer( 'custom-post-types', 'post_types_nOnce' );
+
+		$all_post_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
+
+		$all_post_types = apply_filters( 'rest_api_allowed_post_types', $all_post_types );
+
+		$all_post_types = array_unique( $all_post_types );
+
+		foreach( $all_post_types as $key => $value ){
+			if ( ! in_array( $value, array( 'post', 'page', 'attachment' ) ) ) {
+				$custom_post_types[$value] = $value;
+			}
+		}
+
+		if ( ! empty( $custom_post_types ) ) {
+			wp_send_json( $custom_post_types );
+		}
+	}
+
 }    //end class
 
 //EOF

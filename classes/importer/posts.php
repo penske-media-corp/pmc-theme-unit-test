@@ -269,7 +269,9 @@ class Posts extends PMC_Singleton {
 	 *
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
-	 * @params array $api_data data returned from the REST API that needs to be imported
+	 * @param array $api_data data returned from the REST API that needs to be imported
+	 *
+	 * @return array
 	 *
 	 */
 	public function call_import_route( $api_data ) {
@@ -295,7 +297,7 @@ class Posts extends PMC_Singleton {
 	 *
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
-	 * @params string $post_type post type name to register
+	 * @param string $post_type post type name to register
 	 *
 	 */
 	public function save_post_type( $post_type ) {

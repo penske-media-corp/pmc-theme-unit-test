@@ -14,13 +14,14 @@ class Custom_Posts extends PMC_Singleton {
 	}
 
 	public function pmc_process_post_content_for_ads( $content, $post_type ){
-		if('pmc-ad' === $post_type) {
+		if( 'pmc-ad' === $post_type ) {
 			$content = json_decode( $content, true);
 			if ( empty( $content['status'] ) ) {
 				$content['status'] = 'Active';
 			}
 			return $content;
 		}
+		return $content;
 	}
 }
 

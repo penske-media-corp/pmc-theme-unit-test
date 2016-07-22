@@ -41,6 +41,8 @@ class Service extends PMC_Singleton {
 	 *
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
+	 * @param $xmlrpc_args array
+	 *
 	 * @return array containing the credentials
 	 *
 	 */
@@ -69,7 +71,8 @@ class Service extends PMC_Singleton {
 	 *
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
-	 * @param string - the name of the endpoint route that we need to fetch data for
+	 * @param $route string - the name of the endpoint route that we need to fetch data for
+	 * @param $params array
 	 *
 	 * @return array
 	 *
@@ -174,7 +177,7 @@ class Service extends PMC_Singleton {
 	 * @since 2015-07-22
 	 *
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
-	 * @return struct
+	 * @return mixed|WP_Error
 	 *
 	 */
 	private function _call_options_route() {
@@ -201,7 +204,7 @@ class Service extends PMC_Singleton {
 	 *
 	 * @param int $post_id - the post ID we want to fetch data for.
 	 *
-	 * @return struct
+	 * @return mixed
 	 *
 	 */
 	private function _call_posts_route( $post_id ) {

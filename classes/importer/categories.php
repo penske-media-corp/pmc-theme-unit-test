@@ -109,7 +109,9 @@ class Categories extends PMC_Singleton {
 	 *
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
-	 * @params array $api_data data returned from the REST API that needs to be imported
+	 * @param $api_data array data returned from the REST API that needs to be imported
+	 *
+	 * @return array
 	 *
 	 */
 	public function call_import_route( $api_data ) {

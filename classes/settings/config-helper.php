@@ -41,9 +41,9 @@ class Config_Helper extends PMC_Singleton {
 	 *
 	 * @version 2015-07-30 Archana Mandhare PPT-5077
 	 *
-	 * @params
+	 * @param $post_types array
 	 *
-	 * @return array $post_types
+	 * @return array
 	 *
 	 */
 	public function filter_pmc_custom_post_types_to_import( $post_types ) {
@@ -65,9 +65,9 @@ class Config_Helper extends PMC_Singleton {
 	 *
 	 * @version 2015-07-30 Archana Mandhare PPT-5077
 	 *
-	 * @params array $taxonomies array containing the details required to register taxonomy
+	 * @param $taxonomies array containing the details required to register taxonomy
 	 *
-	 * @return array $taxonomies
+	 * @return array
 	 *
 	 */
 	public function filter_pmc_custom_taxonomies_to_import( $taxonomies ) {
@@ -91,6 +91,8 @@ class Config_Helper extends PMC_Singleton {
 	 * @since 2015-07-14
 	 *
 	 * @version 2015-07-14 Archana Mandhare PPT-5077
+	 *
+	 * @return array
 	 *
 	 */
 	public static function get_all_routes() {
@@ -116,6 +118,8 @@ class Config_Helper extends PMC_Singleton {
 	 *
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
+	 * @return array
+	 *
 	 */
 	public static function get_xmlrpc_routes() {
 
@@ -137,6 +141,7 @@ class Config_Helper extends PMC_Singleton {
 	 *
 	 * @version 2015-07-14 Archana Mandhare PPT-5077
 	 *
+	 * @return array
 	 *
 	 */
 	public static function get_posts_routes() {

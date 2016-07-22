@@ -12,6 +12,17 @@ class Client extends \WP_HTTP_IXR_Client {
 	public $cache_key = '';
 	public $error;
 
+	/**
+	 * @since UNKNOWN Corey Gilmore
+	 * @param $server string
+	 * @param $username string
+	 * @param $password string
+	 * @param $blog_id int
+	 * @param $path string|bool
+	 * @param $port string|bool
+	 * @param $timeout int
+	 *
+	 */
 	function __construct( $server = '', $username = '', $password = '', $blog_id = 0, $path = false, $port = false, $timeout = 30 ) {
 		$xmlrpc_args = array(
 			'server'   => $server,
@@ -46,10 +57,11 @@ class Client extends \WP_HTTP_IXR_Client {
 	}
 
 	/**
-	 *
-	 *
 	 * @since UNKNOWN Corey Gilmore
+	 * @param $method string
+	 * @param $args array
 	 *
+	 * @return mixed
 	 */
 	public function send_request( $method, $args ) {
 		if ( $response = $this->query( $method, $args ) ) {
@@ -60,10 +72,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	}
 
 	/**
-	 *
-	 *
 	 * @since UNKNOWN Corey Gilmore
-	 *
 	 */
 	public function query() {
 		$args   = func_get_args();
@@ -80,6 +89,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * Get the last XMLRPC error
 	 *
 	 * @since UNKNOWN Corey Gilmore
+	 * @return string|bool
 	 *
 	 */
 	public function get_last_error() {
@@ -95,6 +105,9 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
+	 *
+	 * @param $filter array
+	 * @return array
 	 *
 	 */
 	public function get_taxonomies( $filter = array() ) {
@@ -122,6 +135,9 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
+	 * @param $taxonomy string
+	 * @return object
+	 *
 	 */
 	public function get_taxonomy( $taxonomy ) {
 
@@ -146,6 +162,11 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
+	 *
+	 * @param $taxonomies array
+	 * @param $filter array
+	 *
+	 * @return array
 	 *
 	 */
 	public function get_terms( $taxonomies, $filter = array() ) {
@@ -174,6 +195,11 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
+	 *
+	 * @param $taxonomy string
+	 * @param $term string
+	 *
+	 * @return object
 	 *
 	 */
 	public function get_term( $taxonomy, $term ) {
@@ -204,6 +230,8 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
+	 * @return array
+	 *
 	 */
 	public function get_all_options() {
 		return $this->get_options( array(), false );
@@ -216,8 +244,8 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @since 2015-07-22
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
-	 * @params array $args the arguments containing credentials and filter to get option
-	 *         string|bool $default default value to return if no data found
+	 * @param $filter array $args the arguments containing credentials and filter to get option
+	 * @param $default string|bool default value to return if no data found
 	 *
 	 * @return array $options array of option_name and values
 	 *
@@ -276,6 +304,11 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @since 2015-08-10
 	 * @version 2015-08-10 Archana Mandhare PPT-5077
 	 *
+	 * @param $post_id int
+	 * @param $fields array
+	 *
+	 * @return object
+	 *
 	 */
 	public function get_post_custom_data( $post_id, $fields ) {
 
@@ -301,7 +334,11 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * Check we have the method listed in the xmlrpc
 	 *
 	 * @since 2015-09-03
-	 * @version 2015-09-03 Archana Mandhare - PPT-
+	 * @version 2015-09-03 Archana Mandhare - PPT-5077
+	 *
+	 * @param $method_name string
+	 *
+	 * @return bool
 	 *
 	 */
 	public function method_exists( $method_name ) {

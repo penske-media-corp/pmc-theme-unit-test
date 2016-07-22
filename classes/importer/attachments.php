@@ -54,8 +54,8 @@ class Attachments extends PMC_Singleton {
 	 *
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
-	 * @params @type int $author_id Author Id
-	 * @type string $image_url URL of the image
+	 * @param @type int $author_id Author Id
+	 * @param @type string $image_url URL of the image
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */

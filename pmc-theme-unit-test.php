@@ -18,10 +18,10 @@ define( 'PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/d
 function pmc_theme_unit_test_loader() {
 
 	if ( is_admin() ) {
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/unit-test-autoloader.php';
+		require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/plugin-autoloader.php';
 
 		\PMC\Theme_Unit_Test\Admin\Import::get_instance();
-		\PMC\Theme_Unit_Test\Admin\Credentials::get_instance();
+		\PMC\Theme_Unit_Test\Admin\Login::get_instance();
 		\PMC\Theme_Unit_Test\Settings\Config_Helper::get_instance();
 
 	}

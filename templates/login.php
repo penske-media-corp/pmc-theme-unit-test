@@ -2,7 +2,8 @@
 /*
  * Template to render Admin UI to setup and save the credentials for this plugin
  *
- * @since 2015-07-17 Archana Mandhare
+ * @since 2016-07-21
+ * @version 2016-07-21 Archana Mandhare PMCVIP-1950
  */
 
 ?>
@@ -16,7 +17,7 @@
 
 					<div class="handlediv" title="Click to toggle"><br></div>
 
-					<h3 class="hndle ui-sortable-handle"><span>Sync data from Production</span></h3>
+					<h3 class="hndle ui-sortable-handle"><span>Login Credentials for Content Import</span></h3>
 
 					<div class="inside">
 
@@ -71,18 +72,14 @@
 											</td>
 										</tr>
 										<tr>
-											<td><?php submit_button( 'Save All' ); ?> <a id="cancel-form-button"
-											                                             href="javascript:window.location.reload();">
-													Cancel </a>
-											<td>
-											<td>
-											<td>
+											<td><?php submit_button( 'Save All' ); ?></td>
 										</tr>
 									</table>
 
 								</div>
 
 							</form>
+
 						</div>
 
 					</div>
