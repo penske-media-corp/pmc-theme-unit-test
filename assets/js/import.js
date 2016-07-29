@@ -1,5 +1,19 @@
 var custom_post_types_loaded = false;
+var import_started = false;
+
 jQuery(document).ready(function () {
+
+    if (null === sessionStorage.getItem('clicked')) {
+        sessionStorage.setItem('clicked', false);
+    }
+
+    import_started = sessionStorage.getItem('clicked');
+    if( '1' === import_started ) {
+        var intervalID = setInterval(function() {
+            get_import_status();
+        }, 3000);
+        setTimeout( function(){ clearInterval(intervalID); jQuery('#error_log').show(); }, 18000 );
+    }
 
     jQuery('#main-select-all-1').on("click", function () {
         var checkBoxes = jQuery("input[name='content[]']");
@@ -22,6 +36,10 @@ jQuery(document).ready(function () {
         }
     });
 
+    jQuery('input[type="submit"][name="submit"]').click( function() {
+        sessionStorage.setItem('clicked', 1);
+    });
+
     function get_custom_post_types() {
 
         if (typeof pmc_unit_test_ajax === 'undefined') {
@@ -37,7 +55,7 @@ jQuery(document).ready(function () {
                 action: "get_custom_post_types",
                 post_types_nOnce: pmc_unit_test_ajax.post_types_nOnce
             },
-            timeout: 3000,
+            timeout: 6000,
             success: function (data, textStatus, jqXHR) {
                 for( var key in data ) {
                     var template = jQuery('.custom-template')[0].outerHTML;
@@ -45,7 +63,9 @@ jQuery(document).ready(function () {
                     jQuery(post_type).find('th').text(key);
                     jQuery(post_type).find('input').prop('name', 'custom-post-types[]');
                     jQuery(post_type).find('input').prop('value', key);
+                    jQuery(post_type).find('div').prop('id', 'progressbar-'+key);
                     jQuery(post_type).removeClass('custom-template');
+                    jQuery(post_type).attr('id', key);
                 }
                 jQuery('.spin-loader').hide();
                 custom_post_types_loaded = true;
@@ -59,4 +79,50 @@ jQuery(document).ready(function () {
             }
         });
     }
+
+    function get_import_status() {
+        if( '1' === import_started ) {
+
+            jQuery.ajax({
+                type: 'post',
+                url: pmc_unit_test_ajax.admin_url,
+                data: {
+                    action: 'import_report',
+                    import_nOnce: pmc_unit_test_ajax.import_nOnce
+                },
+                timeout: 10000,
+                success: function( response, textStatus, jqXHR ) {
+
+                    var csv_files = response.files;
+                    var file_names = Object.keys(csv_files);
+                    for ( var i = 0; i < file_names.length; i++ ) {
+                        var filename = file_names[i];
+                        var div_id = filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf("."));
+                        if (true === response.success) {
+                            var a = document.getElementById(filename);
+                            if (null === a) {
+                                a = document.createElement('a');
+                                a.id = filename;
+                            }
+                            a.download = filename;
+                            a.href = encodeURI("data:text/csv;charset=utf-8," + csv_files[filename]);
+                            a.text = filename;
+                            jQuery('#' + div_id).append(a);
+                        } else {
+                            var div = document.createElement('div');
+                            div.text = response.message;
+                            jQuery('#' + div_id).append(div);
+                        }
+                    }
+                },
+                error: function( data, textStatus, jqXHR ) {
+                    sessionStorage.removeItem('clicked');
+                },
+                complete: function() {
+                    sessionStorage.removeItem('clicked');
+                }
+            });
+        }
+    }
+
 });

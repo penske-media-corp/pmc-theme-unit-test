@@ -2,9 +2,10 @@
 namespace PMC\Theme_Unit_Test\XML_RPC;
 
 use PMC\Theme_Unit_Test\PMC_Singleton;
-use PMC\Theme_Unit_Test\Settings\Config as Config;
-use PMC\Theme_Unit_Test\Importer\Terms as Terms;
-use PMC\Theme_Unit_Test\Importer\Options as Options;
+use PMC\Theme_Unit_Test\Settings\Config;
+use PMC\Theme_Unit_Test\Importer\Terms;
+use PMC\Theme_Unit_Test\Importer\Options;
+use PMC\Theme_Unit_Test\Logger\Status;
 
 class Service extends PMC_Singleton {
 
@@ -79,12 +80,13 @@ class Service extends PMC_Singleton {
 	 */
 	public function call_xmlrpc_api_route( $route, $params = array() ) {
 
+		$status = Status::get_instance();
+
 		try {
 
 			$this->xmlrpc_client = new Client();
 			if ( empty( $this->xmlrpc_client ) ) {
-				error_log( 'XMLRPC Client not initialized because of missing credentials' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+				$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
 				return false;
 			}
 
@@ -112,8 +114,7 @@ class Service extends PMC_Singleton {
 
 			}
 		} catch ( \Exception $e ) {
-			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( 'XMLRPC error -- ' . $e->getMessage() );
 			return new \WP_Error( 'unknown_error', $e->getMessage() );
 		}
 
@@ -131,13 +132,14 @@ class Service extends PMC_Singleton {
 	 */
 	private function _call_taxonomies_route() {
 
+		$status = Status::get_instance();
+
 		$result = $this->xmlrpc_client->get_taxonomies();
 
 		if ( ! $result ) {
 
 			$error = $this->xmlrpc_client->error->message;
-			error_log( '_call_taxonomies_route Failed ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( '_call_taxonomies_route Failed ' . $error );
 			return new \WP_Error( 'unknown_error', ' - Taxonomy import failed with Exception ' . $error );
 
 		} else {
@@ -182,13 +184,16 @@ class Service extends PMC_Singleton {
 	 */
 	private function _call_options_route() {
 
+		$status = Status::get_instance();
+
 		$result = $this->xmlrpc_client->get_all_options();
 
 		if ( ! $result ) {
-			$error = $this->xmlrpc_client->error->message;
-			error_log( '_call_options_route Failed ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
-			return new \WP_Error( 'unauthorized_access', $error . ' Failed with Exception - ' );
+			$error = $this->xmlrpc_client->error->message;
+			$status->log_to_file( '_call_options_route Failed ' . $error );
+			return new \WP_Error( 'unauthorized_access', 'Failed with Exception - ' . $error );
+
 		} else {
 			return Options::get_instance()->call_import_route( $result );
 		}
@@ -209,13 +214,14 @@ class Service extends PMC_Singleton {
 	 */
 	private function _call_posts_route( $post_id ) {
 
+		$status = Status::get_instance();
+
 		$fields = array( 'post', 'terms', 'custom_fields' );
 		$result = $this->xmlrpc_client->get_post_custom_data( $post_id, $fields );
 
 		if ( ! $result ) {
 			$error = $this->xmlrpc_client->error->message;
-			error_log( '_call_posts_route Failed ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( '_call_posts_route Failed ' . $error );
 			return new \WP_Error( 'unauthorized_access', $error . ' Failed with Exception - ' );
 		} else {
 			return $result;
@@ -239,21 +245,20 @@ class Service extends PMC_Singleton {
 	 */
 	public function get_taxonomy_term_by_id( $taxonomy, $term_id ) {
 
+		$status = Status::get_instance();
+
 		// Check taxonomy
 		$taxonomy_id = taxonomy_exists( $taxonomy );
 
 		if ( false === $taxonomy_id ) {
-
-			error_log( 'Taxonomy does not exits hence Menu Import failed  - ' . $taxonomy . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( 'Taxonomy does not exits hence Menu Import failed  - ' . $taxonomy );
 			return new \WP_Error( 'taxonomy_error', 'Taxonomy does not exits hence Menu Import failed - ' . $taxonomy );
 		}
 
 		$this->xmlrpc_client = new Client();
 
 		if ( empty( $this->xmlrpc_client ) ) {
-			error_log( 'XMLRPC Client not initialized because of missing credentials' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
 			return false;
 		}
 
@@ -263,10 +268,11 @@ class Service extends PMC_Singleton {
 		$result = $this->xmlrpc_client->get_term( $taxonomy, $term_id );
 
 		if ( empty( $result ) ) {
-			$error = $this->xmlrpc_client->error->message;
-			error_log( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
 
+			$error = $this->xmlrpc_client->error->message;
+			$status->log_to_file( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
 			return new \WP_Error( 'taxonomy_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
+
 		} else {
 			// Save Taxonomy Term if not exists in the current site.
 			return Terms::get_instance()->save_taxonomy_terms( $result );

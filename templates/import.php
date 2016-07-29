@@ -29,14 +29,14 @@
 
 						<div class="handlediv" title="Click to toggle"><br></div>
 
-						<h3 class="hndle ui-sortable-handle"><span>Import from Production </span></h3>
+						<h3 class="hndle ui-sortable-handle"><span>Import from Production </span><a id="error_log" download="error.csv" href="<?php echo esc_url( plugins_url('/pmc-theme-unit-test/error.csv' ) ); ?>" style="display:none;color:red;">Error Log</a></h3>
 
 						<div class="inside">
 
 							<div class="import-block">
 
 								<form action="<?php echo admin_url( 'admin.php?page=pmc_theme_unit_test&amp;types=1' ); ?>" method="post">
-								<?php wp_nonce_field( 'import-content' ); ?>
+									<?php wp_nonce_field( 'import-content' ); ?>
 									<fieldset>
 										<table class="wp-list-table widefat fixed striped posts">
 											<thead>
@@ -50,36 +50,42 @@
 											</tr>
 											</thead>
 											<tbody>
-											<tr class="custom-template">
+											<tr class="custom-template" id="users">
 												<td><input type="checkbox" name="content[]" value="users"></td>
 												<th> Users</th>
+												<td><div id="progressbar-users"></div></td>
 											</tr>
-											<tr>
+											<tr id="menus">
 												<td><input type="checkbox" name="content[]" value="menus"></td>
 												<th> Menu</th>
+												<td><div id="progressbar-menus"></div></td>
 											</tr>
-											<tr>
+											<tr id="tags">
 												<td><input type="checkbox" name="content[]" value="tags"></td>
 												<th> Tags</th>
+												<td><div id="progressbar-tags"></div></td>
 											</tr>
-											<tr>
+											<tr id="categories">
 												<td><input type="checkbox" name="content[]" value="categories"></td>
 												<th> Categories</th>
+												<td><div id="progressbar-categories"></div></td>
 											</tr>
-											<tr>
+											<tr id="post">
 												<td><input type="checkbox" name="content[]" value="post"></td>
 												<th> Posts</th>
+												<td><div id="progressbar-post"></div></td>
 											</tr>
-											<tr>
+											<tr id="page">
 												<td><input type="checkbox" name="content[]" value="page"></td>
 												<th> Pages</th>
+												<td><div id="progressbar-page"></div></td>
 											</tr>
 											</tbody>
 										</table>
 
 									</fieldset>
 
-									<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Import Selected"></p>
+									<p class="submit"><input type="submit" name="submit" id="submit1" class="button button-primary" value="Import Selected"></p>
 								</form>
 
 							</div>
@@ -138,20 +144,22 @@
 													</ul>
 												</th>
 											</tr>
-											<tr>
+											<tr id="taxonomies">
 												<td><input type="radio" name="custom-content[]" value="taxonomies"></td>
 												<th> Custom Taxonomies</th>
+												<td><div id="progressbar-taxonomies"></div></td>
 											</tr>
-											<tr>
+											<tr id="options">
 												<td><input type="radio" name="custom-content[]" value="options"></td>
 												<th> Options</th>
+												<td><div id="progressbar-options"></div></td>
 											</tr>
 											</tbody>
 										</table>
 
 									</fieldset>
 
-									<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Import Selected"></p>
+									<p class="submit"><input type="submit" name="submit" id="submit2" class="button button-primary" value="Import Selected"></p>
 								</form>
 
 							</div>

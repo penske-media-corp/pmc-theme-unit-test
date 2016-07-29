@@ -2,14 +2,16 @@
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Logger\Status;
 
 class Terms extends PMC_Singleton {
+
+	const LOG_NAME = 'tags';
 
 	/**
 	 * Insert a new Taxonomy Term to the DB.
 	 *
 	 * @since 2015-07-21
-	 *
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing Taxonomy Term data
@@ -19,23 +21,29 @@ class Terms extends PMC_Singleton {
 	 */
 	public function save_taxonomy_terms( $term_json ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
+		$status = Status::get_instance();
+
+		$term_id = 0;
+
+		$term_array = array(
+			'term_id'       => 0,
+			'name'          => '',
+			'description'   => '',
+			'error_message' => '',
+		);
 
 		try {
-
 			if ( empty( $term_json ) ) {
-
-				error_log( $time . ' No Term data Passed. '  . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+				$tag_array['error_message'] = 'NO TERM DETAILS PASSED BY API';
+				$status->save_current_log( self::LOG_NAME, array( 0 => $term_array ) );
 				return false;
-
 			}
 
 			$taxonomy_id = taxonomy_exists( $term_json['taxonomy'] );
 
 			if ( false === $taxonomy_id ) {
-
-				error_log( $time . 'Taxonomy -- ' . $term_json['taxonomy'] . ' --  does not exists' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				$tag_array['error_message'] = 'Taxonomy -- ' . $term_json['taxonomy'] . ' --  does not exists';
+				$status->save_current_log( self::LOG_NAME, array( 0 => $term_array ) );
 
 				return false;
 			}
@@ -44,9 +52,10 @@ class Terms extends PMC_Singleton {
 
 			if ( empty( $term_id ) && false !== $taxonomy_id ) {
 
-				error_log( "{$time} -- Term **-- {$term_json['name']} --** WILL BE ADDED." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+				$term_array['name']        = $term_json['name'];
+				$term_array['description'] = $term_json['description'];
 
-				$term_id = wp_insert_term(
+				$term = wp_insert_term(
 					$term_json['name'],
 					$term_json['taxonomy'],
 					array(
@@ -55,32 +64,29 @@ class Terms extends PMC_Singleton {
 					)
 				);
 
-				if ( is_wp_error( $term_id ) ) {
-
-					error_log( $time . ' -- ' . $term_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
-					return $term_id;
-
+				if ( is_wp_error( $term ) ) {
+					$term_array['error_message'] = $term->get_error_message();
 				} else {
-
-					error_log( "{$time} -- Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **-- added with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
-
-					return $term_id['term_id'];
+					$term_id               = $term['term_id'];
+					$term_array['term_id'] = $term_id;
 				}
+
 			} else {
-
-				error_log( "{$time} -- Exists Term **-- {$term_json['name']} --** for Taxonomy **-- {$term_json['taxonomy']} **--  with ID = {$term_id["term_id"]}" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
-
-				return $term_id['term_id'];
-
+				$term_array['error_message'] = 'Term Already Exists. Skipped Inserting';
+				$term_id                     = $term_id['term_id'];
 			}
+
+			$status->save_current_log( self::LOG_NAME, array( $term_id => $term_array ) );
+
+			return $term_id;
+
 		} catch ( \Exception $e ) {
 
-			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$term_array['error_message'] = $e->getMessage();
+			$status->save_current_log( self::LOG_NAME, array( $term_id => $term_array ) );
 			return false;
 
 		}
-
 	}
 
 
@@ -88,7 +94,6 @@ class Terms extends PMC_Singleton {
 	 * Assemble Taxonomies Term data from XMLRPC and inserts new Taxonomy.
 	 *
 	 * @since 2015-07-13
-	 *
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of Taxonomy Term object
@@ -99,15 +104,11 @@ class Terms extends PMC_Singleton {
 	public function instant_terms_import( $terms_json ) {
 
 		$terms_info = array();
-
 		if ( empty( $terms_json ) || ! is_array( $terms_json ) ) {
 			return $terms_info;
 		}
-
 		foreach ( $terms_json as $term_json ) {
-
 			$terms_info[] = $this->save_taxonomy_terms( $term_json );
-
 		}
 
 		return $terms_info;
@@ -117,15 +118,12 @@ class Terms extends PMC_Singleton {
 	 * Route the call to the import function for this class
 	 *
 	 * @since 2015-07-15
-	 *
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
-	 *
 	 */
 	public function call_import_route( $api_data ) {
-
 		return $this->instant_terms_import( $api_data );
-
 	}
+
 }

@@ -24,6 +24,8 @@ class Config {
 	const api_xmlrpc_username = 'xmlrpc_username';
 	const api_xmlrpc_password = 'xmlrpc_password';
 	const show_form = 'show_data_import_form';
+	const import_log = 'import_log_post_id';
+	const post_count = 5;
 
 	public static $all_routes = array(
 		0 => array(

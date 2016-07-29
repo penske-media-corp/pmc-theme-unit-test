@@ -4,6 +4,8 @@ namespace PMC\Theme_Unit_Test\XML_RPC;
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
 require_once( ABSPATH . WPINC . '/class-wp-http-ixr-client.php' );
 
+use PMC\Theme_Unit_Test\Logger\Status;
+
 class Client extends \WP_HTTP_IXR_Client {
 
 	protected $username = '';
@@ -24,6 +26,9 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 */
 	function __construct( $server = '', $username = '', $password = '', $blog_id = 0, $path = false, $port = false, $timeout = 30 ) {
+
+		$status = Status::get_instance();
+
 		$xmlrpc_args = array(
 			'server'   => $server,
 			'username' => $username,
@@ -36,10 +41,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		$xmlrpc_args = apply_filters( 'pmc_xmlrpc_client_credentials', $xmlrpc_args );
 
 		if ( empty( $xmlrpc_args['server'] ) || empty( $xmlrpc_args['username'] ) || empty( $xmlrpc_args['password'] ) ) {
-
-			$time = date( '[d/M/Y:H:i:s]' );
-			error_log( $time . ' -- ' . get_called_class() . ': Missing credentials.' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( get_called_class() . ': Missing credentials.' );
 			return new \WP_Error( 'unknown_exception', get_called_class() . ': Missing credentials.' );
 		}
 
@@ -108,12 +110,10 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $filter array
 	 * @return array
-	 *
 	 */
 	public function get_taxonomies( $filter = array() ) {
 
 		$args = array();
-
 		$cache_key  = md5( $this->cache_key . serialize( $args ) );
 		$taxonomies = get_transient( $cache_key );
 		if ( empty( $taxonomies ) ) {
@@ -125,7 +125,6 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
-
 		return $taxonomies;
 	}
 
@@ -137,7 +136,6 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $taxonomy string
 	 * @return object
-	 *
 	 */
 	public function get_taxonomy( $taxonomy ) {
 
@@ -153,7 +151,6 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
-
 		return $taxonomy;
 	}
 
@@ -165,9 +162,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $taxonomies array
 	 * @param $filter array
-	 *
 	 * @return array
-	 *
 	 */
 	public function get_terms( $taxonomies, $filter = array() ) {
 
@@ -186,7 +181,6 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
-
 		return $terms;
 	}
 
@@ -198,9 +192,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $taxonomy string
 	 * @param $term string
-	 *
 	 * @return object
-	 *
 	 */
 	public function get_term( $taxonomy, $term ) {
 
@@ -208,7 +200,6 @@ class Client extends \WP_HTTP_IXR_Client {
 			$taxonomy,
 			$term,
 		);
-
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
 		$term      = get_transient( $cache_key );
 		if ( empty( $term ) ) {
@@ -220,7 +211,6 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
-
 		return $term;
 	}
 
@@ -246,46 +236,31 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $filter array $args the arguments containing credentials and filter to get option
 	 * @param $default string|bool default value to return if no data found
-	 *
 	 * @return array $options array of option_name and values
-	 *
 	 */
 	public function get_options( $filter, $default = false ) {
 
 		$default_filter = array();
-
 		$filter = wp_parse_args( $filter, $default_filter );
-
 		$args = array(
 			$filter,
 		);
-
 		$cache_key = md5( $this->cache_key . serialize( $args ) );
 		$options   = get_transient( $cache_key );
 		if ( empty( $options ) ) {
-
 			$pmc_method = $this->method_exists( 'pmc.getOptions' );
-
 			if ( $pmc_method ) {
-
 				$options_json = $this->send_request( 'pmc.getOptions', $args );
 				$options_data = json_decode( $options_json, true );
 				return $options_data;
-
 			} else {
-
 				$options = $this->send_request( 'wp.getOptions', $args );
 				$options_data['options'] = $options;
-
 			}
-
 			if ( empty( $this->error ) ) {
-
 				// If nothing set then return the default value
 				if ( empty( $options ) ) {
-
 					$options = $default;
-
 				} else {
 					// not using cache
 					set_transient( $cache_key, $options, 300 );
@@ -294,7 +269,6 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
-
 		return $options;
 	}
 
@@ -306,7 +280,6 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $post_id int
 	 * @param $fields array
-	 *
 	 * @return object
 	 *
 	 */
@@ -337,7 +310,6 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @version 2015-09-03 Archana Mandhare - PPT-5077
 	 *
 	 * @param $method_name string
-	 *
 	 * @return bool
 	 *
 	 */

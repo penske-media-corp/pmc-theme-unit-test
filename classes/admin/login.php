@@ -10,9 +10,7 @@ class Login extends PMC_Singleton {
 
 	/**
 	 * Add methods that need to run on class initialization
-	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	protected function _init() {
@@ -21,9 +19,7 @@ class Login extends PMC_Singleton {
 
 	/**
 	 * Setup Hooks required to create admin page
-	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 * @version 2015-07-30 Amit Gupta PPT-5077 - consolidated multiple 'init' listeners into one
 	 */
@@ -34,16 +30,25 @@ class Login extends PMC_Singleton {
 
 	/**
 	 * Add Admin page to Menu in Dashboard
-	 *
 	 * @since 2016-07-21
-	 *
 	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
 	 */
 	function add_admin_menu() {
-		add_menu_page( 'Import Production Content', 'Import Production Content', 'publish_posts', 'pmc_theme_unit_test', array( $this, 'data_import_options' ) );
-		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', array( $this, 'data_login_options' ) );
+		add_menu_page( 'Import Production Content', 'Import Production Content', 'publish_posts', 'pmc_theme_unit_test', array(
+			$this,
+			'data_import_options'
+		) );
+		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', array(
+			$this,
+			'data_login_options'
+		) );
 	}
 
+	/**
+	 * Callback function for the Menu Page
+	 * @since 2016-07-21
+	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
+	 */
 	public function data_import_options() {
 		$saved_access_token = get_option( Config::access_token_key );
 		if ( ! empty( $saved_access_token ) ) {
@@ -58,7 +63,6 @@ class Login extends PMC_Singleton {
 	 * Callback function to setup the Admin UI
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	function data_login_options() {
@@ -66,7 +70,7 @@ class Login extends PMC_Singleton {
 		if ( ! current_user_can( 'publish_posts' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.' ) );
 		}
-		$args = array();
+		$args               = array();
 		$change_credentials = filter_input( INPUT_GET, 'change' );
 		$saved_access_token = get_option( Config::access_token_key );
 		$is_valid_token     = O_Auth::get_instance()->is_valid_token();
@@ -113,7 +117,6 @@ class Login extends PMC_Singleton {
 	 * Get the authentication details for the current theme
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	private function _get_auth_details() {
@@ -172,18 +175,19 @@ class Login extends PMC_Singleton {
 	 * Settings page for registering credentials
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	public function action_admin_init() {
-		register_setting( 'pmc_domain_creds', 'pmc_domain_creds', array( $this, 'pmc_domain_creds_sanitize_callback' ) );
+		register_setting( 'pmc_domain_creds', 'pmc_domain_creds', array(
+			$this,
+			'pmc_domain_creds_sanitize_callback'
+		) );
 	}
 
 	/**
 	 * Admin UI credentials form post function
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 * @version 2015-09-01 Archana Mandhare - PPT-5366
 	 */
@@ -208,7 +212,6 @@ class Login extends PMC_Singleton {
 	 * Save the credentials to the database
 	 *
 	 * @since 2015-09-01
-	 *
 	 * @version 2015-09-01 Archana Mandhare - PPT-5366
 	 */
 	public function save_credentials_to_db( $creds_details = array(), $doing_cli = false ) {
@@ -234,7 +237,7 @@ class Login extends PMC_Singleton {
 			return false;
 		}
 
-		$call_api  = false;
+		$call_api     = false;
 		$saved_domain = get_option( Config::api_domain );
 		if ( $saved_domain !== $creds_details['domain'] ) {
 			update_option( Config::api_domain, $creds_details['domain'] );
@@ -272,11 +275,9 @@ class Login extends PMC_Singleton {
 	 * Read credentials form file and return array
 	 *
 	 * @since 2015-09-02
-	 *
 	 * @version 2015-09-02 Archana Mandhare - PPT-5366
 	 *
 	 * @param string File that has credentials
-	 *
 	 * @return array $creds_details that has all the required credentials to fetch access token
 	 */
 	public function read_credentials_from_json_file( $credentials_file ) {
@@ -321,6 +322,6 @@ class Login extends PMC_Singleton {
 		}
 	}
 
-}//end class
+} //end class
 
 //EOF

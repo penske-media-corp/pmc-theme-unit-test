@@ -2,32 +2,40 @@
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Logger\Status;
 
 class Taxonomies extends PMC_Singleton {
+
+	const LOG_NAME = 'taxonomies';
 
 	/**
 	 * Insert a new Taxonomy to the DB.
 	 *
 	 * @since 2015-07-21
-	 *
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing Taxonomy data
-	 *
 	 * @return int|WP_Error The taxonomy Id on success. The value 0 or WP_Error on failure.
-	 *
 	 */
 	public function save_taxonomy( $taxonomy_json ) {
 
 		global $wp_taxonomies;
-		$time               = date( '[d/M/Y:H:i:s]' );
+
+		$status = Status::get_instance();
+
+		$taxonomy_id = 0;
+
+		$taxonomy_log_data = array(
+			'taxonomy_id'       => 0,
+			'name'          => '',
+			'error_message' => '',
+		);
+
 		$built_in_posttypes = array( 'post', 'page', 'attachment', 'revision', 'nav_menu_item' );
 		try {
-
 			if ( empty( $taxonomy_json ) ) {
-
-				error_log( $time . ' No Taxonomy data Passed. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+				$taxonomy_log_data['error_message'] = 'NO TAXONOMY DETAILS PASSED BY API';
+				$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
 				return false;
 			}
 
@@ -55,34 +63,40 @@ class Taxonomies extends PMC_Singleton {
 					register_taxonomy( $taxonomy_json['name'], $taxonomy_json['object_type'], $args );
 
 				} else {
-
 					register_taxonomy_for_object_type( $taxonomy_json['name'], $taxonomy_json['object_type'] );
-
 				}
 
 				$taxonomy_id = taxonomy_exists( $taxonomy_json['name'] );
 
 				if ( is_wp_error( $taxonomy_id ) ) {
 
-					error_log( $time . ' -- ' . $taxonomy_id->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
-					return false;
+					$taxonomy_log_data['error_message'] = $taxonomy_id->get_error_message();
+					$taxonomy_details = '';
+					$taxonomy_id = 0;
 
 				} else if ( false !== $taxonomy_id ) {
 
-					error_log( "{$time} -- Taxonomy **-- {$taxonomy_json['name']} --** added." . PHP_EOL, 3, PMC_THEME_UNIT_TEST_IMPORT_LOG_FILE );
+					$taxonomy_details = $wp_taxonomies[ $taxonomy_json['name'] ];
 
-					return $wp_taxonomies[ $taxonomy_json['name'] ];
 				}
 			} else {
 
-				error_log( "{$time} -- Exists Taxonomy **-- {$taxonomy_json['name']} --**" . PHP_EOL, 3, PMC_THEME_UNIT_TEST_DUPLICATE_LOG_FILE );
+				$taxonomy_log_data['error_message'] = 'Taxonomy ' . $taxonomy_json['name'] . 'Already Exists. Skipped Inserting';
+				$taxonomy_details = $wp_taxonomies[ $taxonomy_json['name'] ];
 
-				return $wp_taxonomies[ $taxonomy_json['name'] ];
 			}
+
+			$taxonomy_log_data['name'] =  $taxonomy_json['name'];
+			$taxonomy_log_data['taxonomy_id'] =  $taxonomy_id;
+			$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
+
+			return $taxonomy_details;
+
 		} catch ( \Exception $e ) {
 
-			error_log( $e->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$taxonomy_log_data['error_message'] = $e->getMessage();
+			$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
+			return false;
 
 		}
 	}
@@ -92,34 +106,25 @@ class Taxonomies extends PMC_Singleton {
 	 * Assemble Taxonomies data from XMLRPC and inserts new Taxonomy.
 	 *
 	 * @since 2015-07-13
-	 *
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of Taxonomy object
-	 *
 	 * @return array of Taxonomies ids on success.
-	 *
 	 */
 	public function instant_taxonomies_import( $taxonomies_json ) {
 
 		$taxonomies_info = array();
-
 		if ( empty( $taxonomies_json ) || ! is_array( $taxonomies_json ) ) {
 			return $taxonomies_info;
 		}
-
 		foreach ( $taxonomies_json as $taxonomy_json ) {
-
-			// Don't save taxonomy category or post_tag since its built-in.
+ 		    // Don't save taxonomy category or post_tag since its built-in.
 			if ( in_array( $taxonomy_json['name'], Config::$default_taxonomies ) ) {
 				continue;
 			}
 			$taxonomies_info[] = $this->save_taxonomy( $taxonomy_json );
-
 		}
-
 		return $taxonomies_info;
-
 	}
 
 
@@ -127,14 +132,11 @@ class Taxonomies extends PMC_Singleton {
 	 * Route the call to the import function for this class
 	 *
 	 * @since 2015-07-15
-	 *
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
 	 * @params array $api_data data returned from XMLRPC call that needs to be imported
-	 *
 	 */
 	public function call_import_route( $api_data ) {
-
 		return $this->instant_taxonomies_import( $api_data );
 	}
 }

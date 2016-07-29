@@ -2,8 +2,8 @@
 namespace PMC\Theme_Unit_Test\Rest_API;
 
 use PMC\Theme_Unit_Test\PMC_Singleton;
-use PMC\Theme_Unit_Test\Settings\Config as Config;
-
+use PMC\Theme_Unit_Test\Settings\Config;
+use PMC\Theme_Unit_Test\Logger\Status;
 
 class O_Auth extends PMC_Singleton {
 
@@ -11,121 +11,94 @@ class O_Auth extends PMC_Singleton {
 	 * Authorise the request using the secret key and save the access token
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 *
 	 * @param $code string
 	 *
 	 * @return bool
-	 *
 	 */
 	public function fetch_access_token( $code ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
+		$status = Status::get_instance();
 
 		$client_id     = get_option( Config::api_client_id );
 		$client_secret = get_option( Config::api_client_secret );
 		$redirect_uri  = get_option( Config::api_redirect_uri );
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
-
-			error_log( $time . ' Admin Settings form input date not saved. Please try saving the credentials again. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$status->log_to_file( 'Admin Settings form input date not saved. Please try saving the credentials again.' );
 
 			return false;
 		}
 		try {
-
-			$params = array(
+			$params   = array(
 				'client_id'     => $client_id,
 				'client_secret' => $client_secret,
 				'grant_type'    => 'authorization_code',
 				'code'          => $code,
 				'redirect_uri'  => $redirect_uri,
 			);
-
-			$args = array(
+			$args     = array(
 				'timeout' => 500,
 				'body'    => $params,
 			);
-
 			$response = wp_remote_post( esc_url_raw( Config::REQUEST_TOKEN_URL ), $args );
-
 			if ( is_wp_error( $response ) ) {
-
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				$status->log_to_file( ' fetch_access_token() Failed -- ' . $response->get_error_message() );
 
 				return false;
 			}
-
 			$response_body = wp_remote_retrieve_body( $response );
-
-			$auth = json_decode( $response_body );
-
+			$auth          = json_decode( $response_body );
 			if ( empty( $auth->access_token ) ) {
-
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response_body . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+				$status->log_to_file( ' fetch_access_token() Failed -- ' . $response_body );
 
 				return false;
 			}
-
 			update_option( Config::access_token_key, $auth->access_token );
 
 			return true;
-
 		} catch ( \Exception $ex ) {
-
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$status->log_to_file( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 
 			return false;
 		}
-
 	}
 
 	/**
 	 * Authorise the request using the secret key and save the access token
 	 *
 	 * @since 2015-07-06
-	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 *
 	 */
 	public function get_authorization_code() {
 
-		$time = date( '[d/M/Y:H:i:s]' );
-
+		$status       = Status::get_instance();
 		$client_id    = get_option( Config::api_client_id );
 		$redirect_uri = get_option( Config::api_redirect_uri );
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
-
-			error_log( $time . ' Admin Settings Form values not saved. Please try saving the credentials again. ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$status->log_to_file( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
 
 			return false;
 		}
 		try {
-
-			$args = array(
+			$args          = array(
 				'response_type' => 'code',
 				'scope'         => 'global',
 				'client_id'     => $client_id,
 				'redirect_uri'  => $redirect_uri,
 			);
-
-			$query_param = http_build_query( $args );
-
+			$query_param   = http_build_query( $args );
 			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_param;
-
 			wp_redirect( esc_url_raw( $authorize_url ) );
-
 			exit;
-
 		} catch ( \Exception $ex ) {
-
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$status->log_to_file( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 
 			return false;
 		}
-
 	}
 
 	/**
@@ -134,7 +107,6 @@ class O_Auth extends PMC_Singleton {
 	 * containing Authorization Bearer access token
 	 *
 	 * @since 2015-07-14
-	 *
 	 * @version 2015-07-14 Archana Mandhare PPT-5077
 	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
 	 *
@@ -143,31 +115,23 @@ class O_Auth extends PMC_Singleton {
 	 * @param string $route_name
 	 *
 	 * @return array The json data returned from the API end point
-	 *
 	 */
 	public function access_endpoint( $route, $query_params = array(), $route_name = '' ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
-
+		$status = Status::get_instance();
 		$domain = get_option( Config::api_domain );
 
 		if ( empty( $domain ) ) {
-
-			error_log( $time . ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name );
 			return new \WP_Error( 'unauthorized_access', 'No Domain set. Please Try again. --' );
 		}
 
-		$route_name = ! empty( $route_name ) ? $route_name : $route;
-
+		$route_name         = ! empty( $route_name ) ? $route_name : $route;
 		$saved_access_token = get_option( Config::access_token_key );
 
 		if ( empty( $saved_access_token ) ) {
-
-			error_log( $time . ' ERROR --  No saved access token. Access denied . -- ' . $route_name . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			$status->log_to_file( ' ERROR --  No saved access token. Access denied . -- ' . $route_name );
 			return new \WP_Error( 'unauthorized_access', '  No access token. Please get access token. ' );
-
 		}
 
 		try {
@@ -175,16 +139,12 @@ class O_Auth extends PMC_Singleton {
 			$headers = $this->_get_required_header();
 
 			if ( ! empty( $query_params['post_id'] ) ) {
-
 				$post_id = $query_params['post_id'];
-
 				unset( $query_params['post_id'] );
-
 			}
 
 			$query_params = $this->_get_query_params( $query_params );
-
-			$api_url = $this->_get_api_url( $domain, $route, $query_params, $post_id );
+			$api_url      = $this->_get_api_url( $domain, $route, $query_params, $post_id );
 
 			/**
 			 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
@@ -197,18 +157,18 @@ class O_Auth extends PMC_Singleton {
 			// @codingStandardsIgnoreEnd
 
 			if ( empty( $response ) ) {
-				error_log( $time . $api_url . ' $$$$  No Data returned. Please Try again. -- ' . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+				$status->log_to_file( $api_url . ' $$$$  No Data returned. Please Try again. -- ' );
 				return new \WP_Error( 'unauthorized_access', $api_url . '$$$$  No Data returned. Please Try again. --' );
 			}
 
 			$response = wp_remote_retrieve_body( $response );
+			$data     = json_decode( $response, true );
 
-			$data = json_decode( $response, true );
-
-			if ( 200 !== $data['code'] ) {
-				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-
+			if ( empty( $data ) ){
+				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . ' and api url = ' . $api_url );
+				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
+			} else if ( 200 !== $data['code'] ) {
+				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url );
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
 
@@ -216,22 +176,20 @@ class O_Auth extends PMC_Singleton {
 				return $data['body'][ $route_name ];
 			} else {
 				$return_val = array( 0 => $data['body'] );
-
 				return $return_val;
 			}
+
 		} catch ( \Exception $ex ) {
-			error_log( $time . 'API route Failed -- ' . $ex->getMessage() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			$status->log_to_file( 'API route Failed -- ' . $ex->getMessage() );
 		}
 
 		return false;
-
 	}
 
 	/**
 	 * get the URL of the API based on the query params
 	 *
 	 * @since 2015-11-30
-	 *
 	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
 	 *
 	 * @param $domain string
@@ -254,20 +212,16 @@ class O_Auth extends PMC_Singleton {
 	 * Return the header information that needs to be passed to the API endpoint
 	 *
 	 * @since 2015-07-14
-	 *
 	 * @version 2015-07-14 Archana Mandhare PPT-5077
 	 *
 	 * @return array The header data that needs to be passed to the API
-	 *
 	 */
 	private function _get_required_header() {
 
-		$args = array(
+		$args               = array(
 			'timeout' => 500,
 		);
-
 		$saved_access_token = get_option( Config::access_token_key );
-
 		if ( ! empty( $saved_access_token ) ) {
 			$args = array(
 				'timeout' => 500,
@@ -284,7 +238,6 @@ class O_Auth extends PMC_Singleton {
 	 * Returns the query params the need to be passed to the API endpoint
 	 *
 	 * @since 2015-07-14
-	 *
 	 * @version 2015-07-14 Archana Mandhare PPT-5077
 	 *
 	 * @param array $params array of query arguments that needs to be passed
@@ -293,46 +246,36 @@ class O_Auth extends PMC_Singleton {
 	 *
 	 */
 	private function _get_query_params( $params = array() ) {
-
-		$defaults = array( 'http_envelope' => 'true' );
-
+		$defaults     = array( 'http_envelope' => 'true' );
 		$query_params = wp_parse_args( $params, $defaults );
 
 		return http_build_query( $query_params );
-
 	}
 
 	/**
 	 * Returns if the saved token is valid or not
 	 *
 	 * @since 2015-08-14
-	 *
 	 * @version 2015-08-14 Archana Mandhare PPT-5077
 	 *
 	 * @param $count int
 	 *
 	 * @return bool - true if token is valid else false
-	 *
 	 */
 	public function is_valid_token( $count = 1 ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
-
+		$status = Status::get_instance();
 		$client_id    = get_option( Config::api_client_id );
 		$access_token = get_option( Config::access_token_key );
-
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
 		}
-
-		$query = array(
+		$query  = array(
 			'client_id' => (string) $client_id,
 			'token'     => $access_token,
 		);
-
 		$params = http_build_query( $query );
-
-		$args = array(
+		$args   = array(
 			'timeout' => 500,
 		);
 
@@ -347,9 +290,8 @@ class O_Auth extends PMC_Singleton {
 		// @codingStandardsIgnoreEnd
 
 		if ( is_wp_error( $response ) ) {
-
-			error_log( $time . 'Failed to validate token giving error ' . $response->get_error_message() . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
-			$count++;
+			$status->log_to_file( 'Failed to validate token giving error ' . $response->get_error_message() );
+			$count ++;
 			if ( $count <= 3 ) {
 				$this->is_valid_token( $count );
 			}
@@ -358,16 +300,13 @@ class O_Auth extends PMC_Singleton {
 		}
 
 		$response_body = wp_remote_retrieve_body( $response );
-
 		if ( ! empty( $response_body ) ) {
 			$token_info = json_decode( $response_body, true );
-
 			if ( ! empty( $token_info['client_id'] ) && $client_id === $token_info['client_id'] ) {
 				return true;
 			}
 		}
 
 		return false;
-
 	}
 }
