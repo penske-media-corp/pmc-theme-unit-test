@@ -95,7 +95,6 @@ class Admin extends PMC_Singleton {
 	public function on_wp_init() {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
-		setcookie( 'oauth_redirect', get_admin_url() . 'tools.php?page=data-import', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
 	}
 
 	/**

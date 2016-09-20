@@ -96,6 +96,18 @@ class REST_API_oAuth extends PMC_Singleton {
 		}
 		try {
 
+			// to workaround wp security where cookie is useless due to wp oauth redirect trigger browser not passing cookie
+			$url_parts = parse_url( $redirect_uri );
+			if ( !empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
+				if ( !empty( $url_parts['query'] ) ) {
+					$url_parts['query'] = $url_parts['query'] . '&';
+				} else {
+					$url_parts['query'] = '';
+				}
+				$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'tools.php?page=data-import' );
+				$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
+			}
+
 			$args = array(
 				'response_type' => 'code',
 				'scope'         => 'global',
