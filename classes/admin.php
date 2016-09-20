@@ -217,8 +217,14 @@ class Admin extends PMC_Singleton {
 
 		if ( 1 === intval( $show_form ) || ( empty( $saved_access_token ) || ! $is_valid_token ) ) {
 
+			$default_creds = [
+					'redirect_uri' => 'http://vip.local/redirectme',
+				];
+
+			$default_creds = apply_filters('pmc-theme-unit-test-default-credentials', $default_creds );
+
 			// get the credential details
-			$creds_details = $this->_get_auth_details();
+			$creds_details = array_merge( $default_creds, (array)$this->_get_auth_details() );
 
 			if ( is_array( $creds_details ) && ! empty( $creds_details['client_id'] ) && ! empty( $creds_details['redirect_uri'] ) ) {
 				$auth_args = array(
