@@ -1,12 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test\Admin;
 
-use \PMC\Theme_Unit_Test\PMC_Singleton as PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use \PMC\Theme_Unit_Test\Settings\Config as Config;
 use \PMC\Theme_Unit_Test\Settings\Config_Helper as Config_Helper;
 use \PMC\Theme_Unit_Test\REST_API\O_Auth as O_Auth;
 
-class Login extends PMC_Singleton {
+class Login {
+
+	use Singleton;
 
 	/**
 	 * Add methods that need to run on class initialization

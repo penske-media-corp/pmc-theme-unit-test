@@ -1,10 +1,12 @@
 <?php
 namespace PMC\Theme_Unit_Test\Importer;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Logger\Status;
 
-class Categories extends PMC_Singleton {
+class Categories {
+
+	use Singleton;
 
 	const LOG_NAME = 'categories';
 

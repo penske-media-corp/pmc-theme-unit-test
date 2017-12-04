@@ -1,13 +1,15 @@
 <?php
 namespace PMC\Theme_Unit_Test\XML_RPC;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Settings\Config;
 use PMC\Theme_Unit_Test\Importer\Terms;
 use PMC\Theme_Unit_Test\Importer\Options;
 use PMC\Theme_Unit_Test\Logger\Status;
 
-class Service extends PMC_Singleton {
+class Service {
+
+	use Singleton;
 
 	public $xmlrpc_client;
 

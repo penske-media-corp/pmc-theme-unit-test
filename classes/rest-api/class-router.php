@@ -1,7 +1,7 @@
 <?php
 namespace PMC\Theme_Unit_Test\Rest_API;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Importer\Users;
 use PMC\Theme_Unit_Test\Importer\Menus;
 use PMC\Theme_Unit_Test\Importer\Tags;
@@ -9,7 +9,9 @@ use PMC\Theme_Unit_Test\Importer\Categories;
 use PMC\Theme_Unit_Test\Importer\Posts;
 use PMC\Theme_Unit_Test\Settings\Config;
 
-class Router extends PMC_Singleton {
+class Router {
+
+	use Singleton;
 
 	/**
 	 * Just to make sure that if no class to save data

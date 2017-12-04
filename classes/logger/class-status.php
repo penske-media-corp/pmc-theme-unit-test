@@ -1,10 +1,12 @@
 <?php
 namespace PMC\Theme_Unit_Test\Logger;
 
-use PMC\Theme_Unit_Test\PMC_Singleton as PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Settings\Config;
 
-class Status extends PMC_Singleton {
+class Status {
+
+	use Singleton;
 
 	/**
 	 * Add methods that need to run on class initialization

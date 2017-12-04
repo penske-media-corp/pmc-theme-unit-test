@@ -1,12 +1,14 @@
 <?php
 namespace PMC\Theme_Unit_Test\Importer;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Rest_API\O_Auth;
 use PMC\Theme_Unit_Test\Logger\Status;
 
 
-class Comments extends PMC_Singleton {
+class Comments {
+
+	use Singleton;
 
 	const LOG_NAME = 'comments';
 	/**

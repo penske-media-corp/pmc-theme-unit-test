@@ -1,11 +1,13 @@
 <?php
 namespace PMC\Theme_Unit_Test\Importer;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Settings\Config as Config;
 use PMC\Theme_Unit_Test\Logger\Status;
 
-class Options extends PMC_Singleton {
+class Options {
+
+	use Singleton;
 
 	const LOG_NAME = 'options';
 

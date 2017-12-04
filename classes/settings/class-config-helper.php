@@ -1,9 +1,11 @@
 <?php
 namespace PMC\Theme_Unit_Test\Settings;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 
-class Config_Helper extends PMC_Singleton {
+class Config_Helper {
+
+	use Singleton;
 
 	/**
 	 * Hook in the methods during initialization.

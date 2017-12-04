@@ -1,16 +1,18 @@
 <?php
 namespace PMC\Theme_Unit_Test\Admin;
 
-use PMC\Theme_Unit_Test\PMC_Singleton as PMC_Singleton;
-use PMC\Theme_Unit_Test\Settings\Config as Config;
-use PMC\Theme_Unit_Test\Importer\Posts as Posts;
-use PMC\Theme_Unit_Test\Importer\Taxonomies as Taxonomies;
-use PMC\Theme_Unit_Test\REST_API\Router as Router;
+use PMC\Theme_Unit_Test\Traits\Singleton;
+use PMC\Theme_Unit_Test\Settings\Config;
+use PMC\Theme_Unit_Test\Importer\Posts;
+use PMC\Theme_Unit_Test\Importer\Taxonomies;
+use PMC\Theme_Unit_Test\REST_API\Router;
 use PMC\Theme_Unit_Test\Settings\Config_Helper;
-use PMC\Theme_Unit_Test\XML_RPC\Service as Service;
-use PMC\Theme_Unit_Test\Logger\Status as Status;
+use PMC\Theme_Unit_Test\XML_RPC\Service;
+use PMC\Theme_Unit_Test\Logger\Status;
 
-class Import extends PMC_Singleton {
+class Import {
+
+	use Singleton;
 
 	const IMPORT_REPORT = 'import_report';
 
@@ -394,6 +396,8 @@ class Import extends PMC_Singleton {
 		}
 		if ( ! empty( $custom_post_types ) ) {
 			wp_send_json( $custom_post_types );
+		} else {
+			wp_send_json( [] );
 		}
 	}
 

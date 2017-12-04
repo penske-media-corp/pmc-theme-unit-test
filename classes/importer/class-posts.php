@@ -1,11 +1,13 @@
 <?php
 namespace PMC\Theme_Unit_Test\Importer;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\XML_RPC\Service as Service;
 use PMC\Theme_Unit_Test\Logger\Status;
 
-class Posts extends PMC_Singleton {
+class Posts {
+
+	use Singleton;
 
 	const LOG_NAME = 'post';
 
@@ -290,7 +292,7 @@ class Posts extends PMC_Singleton {
 	 * @param array $args post type arguments
 	 *
 	 */
-	public function save_post_type( $post_type, $args ) {
+	public function save_post_type( $post_type, $args=[] ) {
 
 		if ( post_type_exists( $post_type ) ) {
 			return;

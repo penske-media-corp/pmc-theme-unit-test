@@ -1,9 +1,11 @@
 <?php
 namespace PMC\Theme_Unit_Test\Importer;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 
-class Custom_Posts extends PMC_Singleton {
+class Custom_Posts {
+
+	use Singleton;
 
 	protected function _init(){
 		$this->_setup_hooks();

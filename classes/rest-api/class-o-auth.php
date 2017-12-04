@@ -1,11 +1,13 @@
 <?php
 namespace PMC\Theme_Unit_Test\Rest_API;
 
-use PMC\Theme_Unit_Test\PMC_Singleton;
+use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Settings\Config;
 use PMC\Theme_Unit_Test\Logger\Status;
 
-class O_Auth extends PMC_Singleton {
+class O_Auth {
+
+	use Singleton;
 
 	/**
 	 * Authorise the request using the secret key and save the access token

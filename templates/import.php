@@ -29,7 +29,7 @@
 
 						<div class="handlediv" title="Click to toggle"><br></div>
 
-						<h3 class="hndle ui-sortable-handle"><span>Import from Production </span><a id="error_log" download="error.csv" href="<?php echo esc_url( plugins_url('/pmc-theme-unit-test/error.csv' ) ); ?>" style="display:none;color:red;">Error Log</a></h3>
+						<h3 class="hndle ui-sortable-handle"><span>Import from Production </span><a id="error_log" download="error.csv" href="<?php echo esc_url( plugins_url('/pmc-theme-unit-test/logs/error.csv' ) ); ?>" style="display:none;color:red;">Error Log</a></h3>
 
 						<div class="inside">
 
