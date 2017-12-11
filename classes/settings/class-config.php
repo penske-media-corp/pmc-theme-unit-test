@@ -17,14 +17,15 @@ class Config {
 	const COOKIE_DOMAIN = '.vip.local';
 
 	const access_token_key = 'rest_api_access_token';
-	const api_domain = 'rest_api_domain';
-	const api_client_id = 'rest_api_client_id';
-	const api_client_secret = 'rest_api_client_secret';
-	const api_redirect_uri = 'rest_api_redirect_uri';
-	const api_xmlrpc_username = 'xmlrpc_username';
-	const api_xmlrpc_password = 'xmlrpc_password';
+	const api_domain = 'api_domain';
+	const api_client_id = 'api_client_id';
+	const api_client_secret = 'api_client_secret';
+	const api_redirect_uri = 'api_redirect_uri';
+	const xmlrpc_username = 'xmlrpc_username';
+	const xmlrpc_password = 'xmlrpc_password';
 	const show_form = 'show_data_import_form';
 	const import_log = 'import_log_post_id';
+	const api_credentials = 'api_credentials';
 	const post_count = 5;
 
 	public static $all_routes = array(

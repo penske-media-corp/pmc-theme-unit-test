@@ -33,28 +33,28 @@
 										<tr>
 											<td><span>Production Domain Name: e.g  http://exampledomain.com/ Just enter <strong>exampledomain.com</strong> </span>
 											</td>
-											<td><input type="text" id="domain" name="domain"
-											           value="<?php echo ! empty( $domain ) ? esc_attr( $domain ) : ''; ?>"/>
+											<td><input type="text" id="api_domain" name="api_domain"
+											           value="<?php echo ! empty( $api_domain ) ? esc_attr( $api_domain ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Client ID : </span></td>
-											<td><input type="text" id="client_id" name="client_id"
-											           value="<?php echo ! empty( $client_id ) ? esc_attr( $client_id ) : ''; ?>"/>
+											<td><input type="text" id="api_client_id" name="api_client_id"
+											           value="<?php echo ! empty( $api_client_id ) ? esc_attr( $api_client_id ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Client Secret : </span></td>
 											<td><input type="text"
-											           name="client_secret"
-											           value="<?php echo ! empty( $client_secret ) ? esc_attr( $client_secret ) : ''; ?>"/>
+											           name="api_client_secret"
+											           value="<?php echo ! empty( $api_client_secret ) ? esc_attr( $api_client_secret ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Redirect URI : </span></td>
-											<td><input type="text" id="redirect_uri"
-											           name="redirect_uri"
-											           value="<?php echo ! empty( $redirect_uri ) ? esc_attr( $redirect_uri ) : ''; ?>"/>
+											<td><input type="text" id="api_redirect_uri"
+											           name="api_redirect_uri"
+											           value="<?php echo ! empty( $api_redirect_uri ) ? esc_attr( $api_redirect_uri ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>

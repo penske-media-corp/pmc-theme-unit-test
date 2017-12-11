@@ -23,15 +23,17 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$client_id     = get_option( Config::api_client_id );
-		$client_secret = get_option( Config::api_client_secret );
-		$redirect_uri  = get_option( Config::api_redirect_uri );
+		$api_credentials     = get_option( Config::api_credentials );
+		$client_id = $api_credentials[Config::api_client_id ];
+		$client_secret = $api_credentials[Config::api_client_secret ];
+		$redirect_uri = $api_credentials[Config::api_redirect_uri ];
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
 			$status->log_to_file( 'Admin Settings form input date not saved. Please try saving the credentials again.' );
 
 			return false;
 		}
+
 		try {
 			$params   = array(
 				'client_id'     => $client_id,
@@ -40,26 +42,35 @@ class O_Auth {
 				'code'          => $code,
 				'redirect_uri'  => $redirect_uri,
 			);
+
 			$args     = array(
 				'timeout' => 500,
 				'body'    => $params,
 			);
+
 			$response = wp_remote_post( esc_url_raw( Config::REQUEST_TOKEN_URL ), $args );
+
 			if ( is_wp_error( $response ) ) {
 				$status->log_to_file( ' fetch_access_token() Failed -- ' . $response->get_error_message() );
 
 				return false;
 			}
+
 			$response_body = wp_remote_retrieve_body( $response );
+
 			$auth          = json_decode( $response_body );
+
 			if ( empty( $auth->access_token ) ) {
+
 				$status->log_to_file( ' fetch_access_token() Failed -- ' . $response_body );
 
 				return false;
 			}
+
 			update_option( Config::access_token_key, $auth->access_token );
 
 			return true;
+
 		} catch ( \Exception $ex ) {
 			$status->log_to_file( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 
@@ -77,8 +88,10 @@ class O_Auth {
 	public function get_authorization_code() {
 
 		$status       = Status::get_instance();
-		$client_id    = get_option( Config::api_client_id );
-		$redirect_uri = get_option( Config::api_redirect_uri );
+
+		$api_credentials = get_option( Config::api_credentials );
+		$client_id       = $api_credentials[ Config::api_client_id ];
+		$redirect_uri    = $api_credentials[ Config::api_redirect_uri ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 			$status->log_to_file( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
@@ -267,16 +280,22 @@ class O_Auth {
 	public function is_valid_token( $count = 1 ) {
 
 		$status = Status::get_instance();
-		$client_id    = get_option( Config::api_client_id );
-		$access_token = get_option( Config::access_token_key );
+
+		$api_credentials =  get_option( Config::api_credentials );
+		$client_id    = $api_credentials[ Config::api_client_id ];
+		$access_token = $api_credentials[ Config::access_token_key ];
+
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
 		}
+
 		$query  = array(
 			'client_id' => (string) $client_id,
 			'token'     => $access_token,
 		);
+
 		$params = http_build_query( $query );
+
 		$args   = array(
 			'timeout' => 500,
 		);
