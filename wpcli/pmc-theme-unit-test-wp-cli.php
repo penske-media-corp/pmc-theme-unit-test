@@ -1,3 +1,4 @@
+
 <?php
 /**
  * PMC_Theme_Unit_Test_WP_Cli CLI script : Fetch data from wp-ci
@@ -5,7 +6,12 @@
  * @version 2015-09-01 Archana Mandhare PPT-5366
  */
 
-use PMC\Theme_Unit_Test;
+use PMC\Theme_Unit_Test\Settings\Config;
+use PMC\Theme_Unit_Test\Settings\Config_Helper;
+use PMC\Theme_Unit_Test\Admin\Login;
+use PMC\Theme_Unit_Test\REST_API\O_Auth;
+use PMC\Theme_Unit_Test\Rest_API\Router;
+use PMC\Theme_Unit_Test\XML_RPC\Service;
 
 WP_CLI::add_command( 'pmc-import-live', 'PMC_Theme_Unit_Test_WP_Cli' );
 
@@ -141,15 +147,15 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 		// Check the saved values from DB for REST API and XMLRPC
 		$rest_auth    = false;
-		$access_token = get_option( PMC\Theme_Unit_Test\Settings\Config::access_token_key );
-		$domain       = get_option( PMC\Theme_Unit_Test\Settings\Config::api_domain );
-		if ( ! empty( $access_token ) && ! empty( $domain ) && PMC\Theme_Unit_Test\REST_API\O_Auth::get_instance()->is_valid_token() ) {
+		$access_token = get_option( Config::access_token_key );
+		$domain       = get_option( Config::api_domain );
+		if ( ! empty( $access_token ) && ! empty( $domain ) && O_Auth::get_instance()->is_valid_token() ) {
 			$rest_auth = true;
 		}
 
 		$xlmrpc_auth     = false;
-		$xmlrpc_username = get_option( PMC\Theme_Unit_Test\Settings\Config::api_xmlrpc_username );
-		$xmlrpc_password = get_option( PMC\Theme_Unit_Test\Settings\Config::api_xmlrpc_username );
+		$xmlrpc_username = get_option( Config::api_xmlrpc_username );
+		$xmlrpc_password = get_option( Config::api_xmlrpc_username );
 		if ( ! empty( $xmlrpc_username ) && ! empty( $xmlrpc_password ) ) {
 			$xlmrpc_auth = true;
 		}
@@ -192,41 +198,31 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 		// Read the file and fetch the access token and save to DB.
 		try {
-			$creds_details = PMC\Theme_Unit_Test\Admin::get_instance()->read_credentials_from_json_file( $credentials_file );
+			$creds_details = Login::get_instance()->read_credentials_from_json_file( $credentials_file );
 
-			update_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_username, $creds_details['xmlrpc_username'] );
-
-			update_option( PMC\Theme_Unit_Test\Config::api_xmlrpc_password, $creds_details['xmlrpc_password'] );
-
-			update_option( PMC\Theme_Unit_Test\Config::api_domain, $creds_details['domain'] );
-
-			update_option( PMC\Theme_Unit_Test\Config::api_client_id, $creds_details['client_id'] );
-
-			update_option( PMC\Theme_Unit_Test\Config::api_client_secret, $creds_details['client_secret'] );
-
-			update_option( PMC\Theme_Unit_Test\Config::api_redirect_uri, $creds_details['redirect_uri'] );
-
-			if ( ! is_array( $creds_details ) || empty( $creds_details['client_id'] ) || empty( $creds_details['redirect_uri'] ) ) {
+			if ( ! is_array( $creds_details ) || empty( $creds_details[ Config::api_client_id ] ) || empty( $creds_details[ Config::api_redirect_uri ] ) ) {
 				WP_CLI::error( 'Authentication Failed. Some entries were missing. Please add all authentication details to the file ' . sanitize_title_with_dashes( $credentials_file ) );
 
 				return false;
 			}
 
+			update_option( Config::api_credentials, $creds_details );
+
 			$args = array(
 				'response_type' => 'code',
 				'scope'         => 'global',
-				'client_id'     => $creds_details['client_id'],
-				'redirect_uri'  => $creds_details['redirect_uri'],
+				'client_id'     => $creds_details[ Config::api_client_id ],
+				'redirect_uri'  => $creds_details[ Config::api_redirect_uri ],
 			);
 
 			$query_params  = http_build_query( $args );
-			$authorize_url = PMC\Theme_Unit_Test\Config::AUTHORIZE_URL . '?' . $query_params;
+			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_params;
 
 			WP_CLI::line( sprintf( 'Open in your browser: %s', $authorize_url ) );
 			echo 'Enter the verification code: ';
 			$code = sanitize_text_field( wp_unslash( trim( fgets( STDIN ) ) ) );
 
-			$authenticated = PMC\Theme_Unit_Test\REST_API_oAuth::get_instance()->fetch_access_token( $code );
+			$authenticated = O_Auth::get_instance()->fetch_access_token( $code );
 
 			if ( $authenticated ) {
 				WP_CLI::line( 'Authentication SUCCESSFUL !!' );
@@ -250,7 +246,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 	 */
 	private function _import_rest_routes( $endpoint = '' ) {
 
-		$supported_routes = PMC\Theme_Unit_Test\Config_Helper::get_all_routes();
+		$supported_routes = Config_Helper::get_all_routes();
 		$bad_endpoint     = false;
 
 		if ( empty( $endpoint ) || 'all' === $endpoint ) {
@@ -264,7 +260,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
-						$saved_data[] = PMC\Theme_Unit_Test\REST_API_Router::get_instance()->call_rest_api_all_route( $entity );
+						$saved_data[] = Router::get_instance()->call_rest_api_all_route( $entity );
 						if ( is_wp_error( $saved_data ) ) {
 							WP_CLI::warning( 'Tags Import failed with error: ' . sanitize_title_with_dashes( $saved_data ) );
 						}
@@ -292,7 +288,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 	 */
 	private function _import_post_routes( $post_endpoints = '' ) {
 
-		$supported_posts = PMC\Theme_Unit_Test\Config_Helper::get_posts_routes();
+		$supported_posts = Config_Helper::get_posts_routes();
 		$bad_endpoint    = false;
 
 		if ( empty( $post_endpoints ) || 'all' === $post_endpoints ) {
@@ -306,7 +302,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
-						$saved_data[] = PMC\Theme_Unit_Test\REST_API_Router::get_instance()->call_rest_api_posts_route( $entity );
+						$saved_data[] = Router::get_instance()->call_rest_api_posts_route( $entity );
 						if ( is_wp_error( $saved_data ) ) {
 							$bad_endpoint = true;
 						}
@@ -334,7 +330,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 	 */
 	private function _import_xmlrpc_routes( $xmlrpc_endpoints = '' ) {
 
-		$supported_xmlrpc_routes = PMC\Theme_Unit_Test\Config_Helper::get_xmlrpc_routes();
+		$supported_xmlrpc_routes = Config_Helper::get_xmlrpc_routes();
 		$bad_endpoint            = false;
 
 		if ( empty( $xmlrpc_endpoints ) || 'all' === $xmlrpc_endpoints ) {
@@ -348,7 +344,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
-						$saved_data[] = PMC\Theme_Unit_Test\XML_RPC\Service::get_instance()->call_xmlrpc_api_route( $entity );
+						$saved_data[] = Service::get_instance()->call_xmlrpc_api_route( $entity );
 						if ( is_wp_error( $saved_data ) ) {
 							$bad_endpoint = true;
 						}

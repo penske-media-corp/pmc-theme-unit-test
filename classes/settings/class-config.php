@@ -21,8 +21,8 @@ class Config {
 	const api_client_id = 'api_client_id';
 	const api_client_secret = 'api_client_secret';
 	const api_redirect_uri = 'api_redirect_uri';
-	const xmlrpc_username = 'xmlrpc_username';
-	const xmlrpc_password = 'xmlrpc_password';
+	const api_xmlrpc_username = 'api_xmlrpc_username';
+	const api_xmlrpc_password = 'api_xmlrpc_password';
 	const show_form = 'show_data_import_form';
 	const import_log = 'import_log_post_id';
 	const api_credentials = 'api_credentials';

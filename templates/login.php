@@ -60,15 +60,15 @@
 										<tr>
 											<td><span>XMLRPC Username : </span></td>
 											<td><input type="text"
-											           name="xmlrpc_username"
-											           value="<?php echo ! empty( $xmlrpc_username ) ? esc_attr( $xmlrpc_username ) : ''; ?>"/>
+											           name="api_xmlrpc_username"
+											           value="<?php echo ! empty( $api_xmlrpc_username ) ? esc_attr( $api_xmlrpc_username ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>XMLRPC Password : </span></td>
 											<td><input type="text"
-											           name="xmlrpc_password"
-											           value="<?php echo ! empty( $xmlrpc_password ) ? esc_attr( $xmlrpc_password ) : ''; ?>"/>
+											           name="api_xmlrpc_password"
+											           value="<?php echo ! empty( $api_xmlrpc_password ) ? esc_attr( $api_xmlrpc_password ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>

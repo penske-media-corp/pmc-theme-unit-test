@@ -128,22 +128,34 @@ class Config_Helper {
 	 *
 	 * @param string $path template path for include
 	 * @param array $variables Array containing variables and data for template
+	 * @param bool $echo - whether to echo or return the contents of the template file
 	 *
 	 * @return string
 	 * @throws \Exception
 	 *
 	 * @since 2013-01-24 mjohnson
 	 */
-	public static function render_template( $path, array $variables = array() ) {
+	public static function render_template( $path, array $variables = array(), $echo = false ) {
 		if ( ! file_exists( $path ) ) {
 			throw new \Exception( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
+			return;
 		}
+
 		if ( ! empty( $variables ) ) {
 			extract( $variables, EXTR_SKIP );
 		}
+
 		ob_start();
+
 		require $path;    //better to fail with an error than to continue with incorrect/wierd data
-		return ob_get_clean();
+
+		$output = ob_get_clean();
+
+		if ( true !== $echo ) {
+			return $output;
+		}
+
+		echo $output;	// Output escaped in template
 	}
 
 	/**

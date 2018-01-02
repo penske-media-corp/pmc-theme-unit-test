@@ -21,7 +21,9 @@ class Login {
 
 	/**
 	 * Add methods that need to run on class initialization
+	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	protected function _init() {
@@ -30,8 +32,11 @@ class Login {
 
 	/**
 	 * Setup Hooks required to create admin page
+	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
+	 *
 	 * @version 2015-07-30 Amit Gupta PPT-5077 - consolidated multiple 'init' listeners into one
 	 */
 	protected function _setup_hooks() {
@@ -41,7 +46,9 @@ class Login {
 
 	/**
 	 * Add Admin page to Menu in Dashboard
+	 *
 	 * @since 2016-07-21
+	 *
 	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
 	 */
 	function add_admin_menu() {
@@ -51,7 +58,9 @@ class Login {
 
 	/**
 	 * Callback function for the Menu Page
+	 *
 	 * @since 2016-07-21
+	 *
 	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
 	 */
 	public function import_options() {
@@ -61,7 +70,7 @@ class Login {
 		// If we have access token saved then show the import page else show the login form
 		if ( ! empty( $saved_access_token ) ) {
 
-			echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/import.php' );
+			Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/import.php', [], true );
 
 			Import::get_instance()->form_submit();
 
@@ -76,6 +85,7 @@ class Login {
 	 * Callback function to setup the Admin UI
 	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	function login_options() {
@@ -87,6 +97,13 @@ class Login {
 		}
 
 		$args = array();
+		$show_cred_form = false;
+		$show_form      = get_option( Config::show_form );
+
+		$code         = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
+		if ( ! empty( $code ) ) {
+			$token_created = O_Auth::get_instance()->fetch_access_token( $code );
+		}
 
 		$auth_args = array(
 			'response_type' => 'code',
@@ -99,10 +116,11 @@ class Login {
 
 		$is_valid_token = O_Auth::get_instance()->is_valid_token();
 
-		// get the credential details
-		$creds_details = $this->_get_auth_details();
 
-		if ( ( empty( $saved_access_token ) || ! $is_valid_token || ! empty( $change_credentials ) ) ) {
+		if ( 1 === intval( $show_form )  || ( empty( $saved_access_token ) || ! $is_valid_token || ! empty( $change_credentials ) ) ) {
+
+			// get the credential details
+			$creds_details = $this->_get_auth_details();
 
 			if ( is_array( $creds_details ) && ! empty( $creds_details[ Config::api_client_id ] ) && ! empty( $creds_details[ Config::api_redirect_uri ] ) ) {
 
@@ -119,23 +137,26 @@ class Login {
 
 			$args = array_merge( $args, array( 'authorize_url' => esc_url( $authorize_url ) ) );
 
+			if ( ! empty( $creds_details ) && is_array( $creds_details ) ) {
+
+				$args = array_merge( $args, $creds_details );
+
+			}
+
+			/*
+			 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
+			 * since in Travis build it fails giving error :
+			 *        Expected next thing to be an escaping function (see Codex for 'Data Validation'), not ')'
+			 * while I have already escaped the $args array above.
+			 */
+			// @codingStandardsIgnoreStart
+			Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/login.php', $args, true );
+			// @codingStandardsIgnoreEnd
+		} else {
+
+			Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/import.php', [], true );
+
 		}
-
-		if ( ! empty( $creds_details ) && is_array( $creds_details ) ) {
-
-			$args = array_merge( $args, $creds_details );
-
-		}
-
-		/*
-		 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
-		 * since in Travis build it fails giving error :
-		 *        Expected next thing to be an escaping function (see Codex for 'Data Validation'), not ')'
-		 * while I have already escaped the $args array above.
-		 */
-		// @codingStandardsIgnoreStart
-		echo Config_Helper::render_template( PMC_THEME_UNIT_TEST_ROOT . '/templates/login.php', $args );
-		// @codingStandardsIgnoreEnd
 
 	}
 
@@ -143,6 +164,7 @@ class Login {
 	 * Get the authentication details for the current theme
 	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	private function _get_auth_details() {
@@ -152,22 +174,22 @@ class Login {
 		//fetch details from DB
 		$creds_details = get_option( Config::api_credentials );
 
-		foreach ( $creds_details as $key => $value ) {
-
-			if ( empty( $value ) ) {
-				$details_in_db = false;
-				break;
+		if ( ! empty( $creds_details ) ) {
+			foreach ( $creds_details as $key => $value ) {
+				if ( empty( $value ) ) {
+					$details_in_db = false;
+					break;
+				}
 			}
 
-		}
-
-		if ( $details_in_db ) {
-			return $creds_details;
+			if ( $details_in_db ) {
+				return $creds_details;
+			}
 		}
 
 		$file_exists = file_exists( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
 
-		if( ! $file_exists ) {
+		if ( ! $file_exists ) {
 			// not file present
 			return false;
 		}
@@ -175,24 +197,22 @@ class Login {
 		$creds_details = $this->read_credentials_from_json_file( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
 
 		// the array values are already sanitized
-		if ( ! is_array( $creds_details ) ) {
+		if ( empty( $creds_details ) || ! is_array( $creds_details ) ) {
 			return false;
 		}
 
-		foreach( $this->_credentials_args as $key ) {
+		foreach ( $this->_credentials_args as $key ) {
 			if ( ! array_key_exists( $key, $creds_details ) || empty( $creds_details[ $key ] ) ) {
 				$invalid_credentials = true;
 				break;
 			}
 		}
 
-		if( $invalid_credentials ) {
+		if ( $invalid_credentials ) {
 			return false;
 		} else {
 			return $creds_details;
 		}
-
-		return false;
 
 	}
 
@@ -200,6 +220,7 @@ class Login {
 	 * Settings page for registering credentials
 	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
 	public function action_admin_init() {
@@ -211,7 +232,9 @@ class Login {
 	 * Admin UI credentials form post function
 	 *
 	 * @since 2015-07-06
+	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
+	 *
 	 * @version 2015-09-01 Archana Mandhare - PPT-5366
 	 */
 	public function pmc_domain_creds_sanitize_callback() {
@@ -226,7 +249,6 @@ class Login {
 		$is_saved = $this->save_credentials_to_db( $creds_details );
 
 		if ( $is_saved ) {
-
 			wp_redirect( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
 			exit;
 
@@ -237,6 +259,7 @@ class Login {
 	 * Save the credentials to the database
 	 *
 	 * @since 2015-09-01
+	 *
 	 * @version 2015-09-01 Archana Mandhare - PPT-5366
 	 */
 	public function save_credentials_to_db( $creds_details = array(), $doing_cli = false ) {
@@ -256,8 +279,13 @@ class Login {
 
 		if ( empty( $access_token ) ) {
 
-			update_option( Config::api_credentials, $creds_details );
+			if ( ! empty( $creds_details ) && is_array( $creds_details ) ) {
+				foreach ( $creds_details as $key => $value ) {
+					update_option( $key, $value );
+				}
+			}
 
+			update_option( Config::api_credentials, $creds_details );
 			$call_api = true;
 		}
 
@@ -272,9 +300,11 @@ class Login {
 	 * Read credentials form file and return array
 	 *
 	 * @since 2015-09-02
+	 *
 	 * @version 2015-09-02 Archana Mandhare - PPT-5366
 	 *
 	 * @param string File that has credentials
+	 *
 	 * @return array $creds_details that has all the required credentials to fetch access token
 	 */
 	public function read_credentials_from_json_file( $credentials_file ) {
