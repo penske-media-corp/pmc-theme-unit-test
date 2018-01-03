@@ -1,4 +1,3 @@
-
 <?php
 /**
  * PMC_Theme_Unit_Test_WP_Cli CLI script : Fetch data from wp-ci

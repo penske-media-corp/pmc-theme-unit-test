@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Admin;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -52,8 +53,14 @@ class Login {
 	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
 	 */
 	function add_admin_menu() {
-		add_menu_page( 'Import Production Content', 'Import Production Content', 'publish_posts', 'pmc_theme_unit_test', array( $this, 'import_options' ) );
-		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', array( $this, 'login_options' ) );
+		add_menu_page( 'Import Production Data', 'Import Production Data', 'publish_posts', 'pmc_theme_unit_test', array(
+			$this,
+			'import_options'
+		) );
+		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', array(
+			$this,
+			'login_options'
+		) );
 	}
 
 	/**
@@ -96,11 +103,11 @@ class Login {
 
 		}
 
-		$args = array();
+		$args           = array();
 		$show_cred_form = false;
 		$show_form      = get_option( Config::show_form );
 
-		$code         = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
+		$code = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
 		if ( ! empty( $code ) ) {
 			$token_created = O_Auth::get_instance()->fetch_access_token( $code );
 		}
@@ -117,7 +124,7 @@ class Login {
 		$is_valid_token = O_Auth::get_instance()->is_valid_token();
 
 
-		if ( 1 === intval( $show_form )  || ( empty( $saved_access_token ) || ! $is_valid_token || ! empty( $change_credentials ) ) ) {
+		if ( 1 === intval( $show_form ) || ( empty( $saved_access_token ) || ! $is_valid_token || ! empty( $change_credentials ) ) ) {
 
 			// get the credential details
 			$creds_details = $this->_get_auth_details();
@@ -225,7 +232,10 @@ class Login {
 	 */
 	public function action_admin_init() {
 
-		register_setting( 'pmc_domain_creds', 'pmc_domain_creds', array( $this, 'pmc_domain_creds_sanitize_callback' ) );
+		register_setting( 'pmc_domain_creds', 'pmc_domain_creds', array(
+			$this,
+			'pmc_domain_creds_sanitize_callback'
+		) );
 	}
 
 	/**

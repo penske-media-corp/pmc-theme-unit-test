@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -11,7 +12,7 @@ class Attachments {
 	const LOG_NAME = 'attachments';
 
 	private $_post_data = array(
-		'image_url'          => '',
+		'image_url'                => '',
 		'attachment_error_message' => '',
 	);
 
@@ -23,6 +24,7 @@ class Attachments {
 	 *
 	 * @param @type array   $attachment_json   containing attachment data
 	 * @param @type int $post_id Post Id this attachment is associated with
+	 *
 	 * @return int|WP_Error The attachment Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -32,7 +34,7 @@ class Attachments {
 		try {
 			$attachment_id = media_sideload_image( $image_url, $post_id );
 			if ( is_wp_error( $attachment_id ) ) {
-				$this->_post_data['attachment_error_message'] =  $this->_post_data['attachment_error_message'] . ' -- ' . $attachment_id->get_error_message();
+				$this->_post_data['attachment_error_message'] = $this->_post_data['attachment_error_message'] . ' -- ' . $attachment_id->get_error_message();
 			} else {
 				$this->_post_data['image_url'] = $attachment_id;
 			}
@@ -40,10 +42,12 @@ class Attachments {
 			$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_data ) );
 
 		} catch ( \Exception $e ) {
-			$this->_post_data['attachment_error_message'] =  $this->_post_data['attachment_error_message'] . ' -- ' . $e->getMessage();
+			$this->_post_data['attachment_error_message'] = $this->_post_data['attachment_error_message'] . ' -- ' . $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_data ) );
+
 			return false;
 		}
+
 		return $attachment_id;
 
 	}
@@ -58,6 +62,7 @@ class Attachments {
 	 *
 	 * @param @type int $author_id Author Id
 	 * @param @type string $image_url URL of the image
+	 *
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -72,6 +77,7 @@ class Attachments {
 
 				$this->_post_data['attachment_error_message'] = $this->_post_data['attachment_error_message'] . ' --  No Image URL and Post ID passed to save attachment';
 				$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_data ) );
+
 				return false;
 			}
 
@@ -82,6 +88,7 @@ class Attachments {
 
 				$this->_post_data['attachment_error_message'] = $this->_post_data['attachment_error_message'] . ' Image URL not uploaded ' . $image_url;
 				$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_data ) );
+
 				return false;
 
 			}
@@ -105,6 +112,7 @@ class Attachments {
 
 			$this->_post_data['attachment_error_message'] = $this->_post_data['attachment_error_message'] . ' -- ' . $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_data ) );
+
 			return false;
 
 		}
@@ -118,6 +126,7 @@ class Attachments {
 	 *
 	 * @param array json_decode() array of Attachment object
 	 * @param int $post_id
+	 *
 	 * @return array of Attachments ids on success.
 	 */
 	public function instant_attachments_import( $attachments_json, $post_id ) {
@@ -139,6 +148,7 @@ class Attachments {
 			}
 			$count ++;
 		}
+
 		return $attachments_info;
 	}
 

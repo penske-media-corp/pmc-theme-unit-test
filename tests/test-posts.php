@@ -79,7 +79,7 @@ class Test_Posts extends WP_UnitTestCase {
 			'parent'         => false,
 			'comment_count'  => '26',
 			'tags'           => array(
-				'AMC'                 => array(
+				'AMC'         => array(
 					'name'        => 'AMC',
 					'slug'        => 'amc',
 					'description' => '',
@@ -134,7 +134,7 @@ class Test_Posts extends WP_UnitTestCase {
 			'comment_count'  => '26',
 			'sticky'         => false,
 			'tags'           => array(
-				'AMC'                 => array(
+				'AMC'         => array(
 					'name'        => 'AMC',
 					'slug'        => 'amc',
 					'description' => '',

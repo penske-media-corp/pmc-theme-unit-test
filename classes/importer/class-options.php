@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -21,6 +22,7 @@ class Options {
 	 */
 	public function call_import_route( $api_data ) {
 		$saved_options = $this->instant_options_import( $api_data );
+
 		return $saved_options;
 	}
 
@@ -31,6 +33,7 @@ class Options {
 	 * @version 2015-07-20 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decoded array of Options object
+	 *
 	 * @return array of Options on success.
 	 */
 	public function instant_options_import( $options_data ) {
@@ -46,6 +49,7 @@ class Options {
 		if ( empty( $options_data ) || ! is_array( $options_data ) ) {
 			$options_log_data['error_message'] = 'NO OPTIONS TO IMPORT';
 			$status->save_current_log( self::LOG_NAME, array( 0 => $options_log_data ) );
+
 			return false;
 		}
 
@@ -94,7 +98,8 @@ class Options {
 	 * @since 2015-09-09
 	 * @version 2015-09-09 Archana Mandhare PPT-5077
 	 *
-	 * @param string $option_name, string $option_value and $array $no_autoload
+	 * @param string $option_name , string $option_value and $array $no_autoload
+	 *
 	 * @return bool status if option was added
 	 */
 	private function _save_option( $option_name, $option_value, $no_autoload ) {
@@ -102,8 +107,8 @@ class Options {
 		$status = Status::get_instance();
 
 		//replace all the live domains with the local domain path
-		$domain   = get_option( Config::api_domain );
-		$home_url = get_home_url();
+		$domain       = get_option( Config::api_domain );
+		$home_url     = get_home_url();
 		$option_value = maybe_unserialize( $option_value );
 		$option_value = $this->_recursive_array_replace( 'http://' . $domain, $home_url, $option_value );
 
@@ -131,7 +136,8 @@ class Options {
 	 * @since 2015-09-09
 	 * @version 2015-09-09 Archana Mandhare PPT-5077
 	 *
-	 * @param string $find, string $replace and array $array
+	 * @param string $find , string $replace and array $array
+	 *
 	 * @return string/array
 	 */
 	private function _recursive_array_replace( $find, $replace, $array ) {
@@ -142,6 +148,7 @@ class Options {
 		foreach ( $array as $key => $value ) {
 			$new_array[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
 		}
+
 		return $new_array;
 	}
 }

@@ -1,11 +1,8 @@
 <?php
-namespace PMC\Theme_Unit_Test\Admin;
 
-use PMC\Theme_Unit_Test\Traits\Singleton;
+namespace PMC\Theme_Unit_Test\Background;
 
-class Import_Processor extends PMC_Async_Request {
-
-	use Singleton;
+class Async_Import_Request extends PMC_Async_Request {
 
 	/**
 	 * @var string
@@ -14,6 +11,8 @@ class Import_Processor extends PMC_Async_Request {
 
 	/**
 	 * Handle
+	 *
+	 * @see https://github.com/A5hleyRich/wp-background-processing
 	 *
 	 * Override this method to perform any actions required
 	 * during the async request.

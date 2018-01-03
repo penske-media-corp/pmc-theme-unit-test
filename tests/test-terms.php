@@ -134,7 +134,7 @@ class Test_Terms extends WP_UnitTestCase {
 			'description' => 'Terms term desc',
 		);
 
-		$term_ids    = $terms_importer->instant_terms_import( $term_data );
+		$term_ids = $terms_importer->instant_terms_import( $term_data );
 		$this->assertTrue( is_array( $term_ids ), "instant_terms_import failed somewhere" );
 		$this->assertNull( term_exists( 'Test Term 5', '123' ), "Term inserted with name Test Term 5" );
 		$this->assertNotEmpty( term_exists( 'Test Term 6', 'category' ), "Term not inserted with name Test Term 6" );

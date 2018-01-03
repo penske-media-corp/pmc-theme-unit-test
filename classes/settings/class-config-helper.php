@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Settings;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -35,6 +36,7 @@ class Config_Helper {
 	 * @version 2015-07-30 Archana Mandhare PPT-5077
 	 *
 	 * @param $post_types array
+	 *
 	 * @return array
 	 */
 	public function filter_pmc_custom_post_types_to_import( $post_types ) {
@@ -44,6 +46,7 @@ class Config_Helper {
 				$post_types[] = $post_type;
 			}
 		}
+
 		return $post_types;
 	}
 
@@ -54,6 +57,7 @@ class Config_Helper {
 	 * @version 2015-07-30 Archana Mandhare PPT-5077
 	 *
 	 * @param $taxonomies array containing the details required to register taxonomy
+	 *
 	 * @return array
 	 */
 	public function filter_pmc_custom_taxonomies_to_import( $taxonomies ) {
@@ -63,6 +67,7 @@ class Config_Helper {
 				$taxonomies[] = $taxonomy;
 			}
 		}
+
 		return $taxonomies;
 	}
 
@@ -85,6 +90,7 @@ class Config_Helper {
 				$domain_routes[] = $route_name[0];
 			}
 		}
+
 		return $domain_routes;
 	}
 
@@ -101,6 +107,7 @@ class Config_Helper {
 		if ( ! empty( Config::$xmlrpc_routes ) ) {
 			$xmlrpc_routes = Config::$xmlrpc_routes;
 		}
+
 		return $xmlrpc_routes;
 	}
 
@@ -116,9 +123,10 @@ class Config_Helper {
 	 */
 	public static function get_posts_routes() {
 		// Fetch the posts and the custom post types.
-		$allowed_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
+		$allowed_types        = apply_filters( 'pmc_custom_post_types_to_import', array() );
 		$allowed_custom_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-		$route_post_types = array_unique( $allowed_custom_types );
+		$route_post_types     = array_unique( $allowed_custom_types );
+
 		return $route_post_types;
 	}
 
@@ -138,6 +146,7 @@ class Config_Helper {
 	public static function render_template( $path, array $variables = array(), $echo = false ) {
 		if ( ! file_exists( $path ) ) {
 			throw new \Exception( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
+
 			return;
 		}
 
@@ -155,7 +164,7 @@ class Config_Helper {
 			return $output;
 		}
 
-		echo $output;	// Output escaped in template
+		echo $output;    // Output escaped in template
 	}
 
 	/**
@@ -206,7 +215,7 @@ class Config_Helper {
 
 		$temp = array();
 		foreach ( $array as $elt ) {
-			$elt = str_replace('"', "", $elt);
+			$elt    = str_replace( '"', "", $elt );
 			$temp[] = '"' . addslashes( $elt ) . '"';
 		}
 		$string = implode( ',', $temp ) . "\n";

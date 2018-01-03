@@ -80,7 +80,7 @@ class Test_Service extends WP_UnitTestCase {
 		$xmlrpc_router = PMC\Theme_Unit_Test\XML_RPC\Service::get_instance();
 
 		// Import taxonomies
-		$term_ids      = $xmlrpc_router->call_xmlrpc_api_route( 'taxonomies' );
+		$term_ids = $xmlrpc_router->call_xmlrpc_api_route( 'taxonomies' );
 		$this->assertTrue( is_array( $term_ids ), 'Terms for taxonomies not imported with using xmlrpc' );
 
 		// Import Options

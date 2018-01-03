@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -38,6 +39,7 @@ class Posts {
 	 *
 	 * @param int $post_id
 	 * @param array containing Post Meta data
+	 *
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 */
 	private function _save_post_meta( $post_id, $meta_data ) {
@@ -50,9 +52,10 @@ class Posts {
 				update_post_meta( $post_id, $meta_data['key'], $meta_data['value'], $previous_value );
 			}
 		} catch ( \Exception $e ) {
-			$this->_post_log_data['meta_error_message'] =  $this->_post_log_data['meta_error_message'] . ' -- ' .$e->getMessage();
+			$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_log_data ) );
 		}
+
 		return $meta_data_id;
 	}
 
@@ -63,7 +66,7 @@ class Posts {
 	 * @since 2015-07-13
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
-	 * @param array $post_json   containing Post data
+	 * @param array $post_json containing Post data
 	 * @param int $author_id Author Id
 	 * @param array $cat_ids_arr Array of Category Ids associated with the post
 	 * @param string $post_type
@@ -84,10 +87,11 @@ class Posts {
 
 			if ( ! empty( $post_obj ) ) {
 
-				$post_data['post_title'] = $post_json['title'];
-				$post_data['import_id'] = $post_json['ID'];
+				$post_data['post_title']    = $post_json['title'];
+				$post_data['import_id']     = $post_json['ID'];
 				$post_data['error_message'] = 'POST already Exists. Skipped Inserting.';
 				$status->save_current_log( self::LOG_NAME, array( $post_obj->ID => $post_data ) );
+
 				return $post_obj->ID;
 
 			} else {
@@ -113,7 +117,7 @@ class Posts {
 
 				if ( is_wp_error( $post_id ) ) {
 					$post_data['error_message'] = $post_id->get_error_message();
-					$post_id = $post_json['ID'];
+					$post_id                    = $post_json['ID'];
 				} else {
 					if ( false !== $post_json['sticky'] ) {
 						stick_post( $post_id );
@@ -128,6 +132,7 @@ class Posts {
 
 			$post_data['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $post_id => $post_data ) );
+
 			return false;
 
 		}
@@ -141,14 +146,15 @@ class Posts {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of post object
+	 *
 	 * @return array of posts ids on success.
 	 * @todo - Find ways to insert post as an object along with all its terms and meta rather than creating an array from json_data
 	 */
 	public function instant_posts_import( $posts_json ) {
 
 		$post_ids = array();
-		$post_id = 0;
-		$status = Status::get_instance();
+		$post_id  = 0;
+		$status   = Status::get_instance();
 
 		if ( empty( $posts_json ) || ! is_array( $posts_json ) ) {
 			return $post_ids;
@@ -188,7 +194,7 @@ class Posts {
 					if ( ! empty( $post_json['metadata'] ) ) {
 						foreach ( $post_json['metadata'] as $post_metadata ) {
 							$old_meta_ids[] = $post_metadata['id'];
-							$meta_ids[]     = $this->_save_post_meta( $post_id, $post_metadata  );
+							$meta_ids[]     = $this->_save_post_meta( $post_id, $post_metadata );
 						}
 					}
 
@@ -200,14 +206,14 @@ class Posts {
 
 					if ( is_wp_error( $post_meta_data ) ) {
 
-						$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' .$post_meta_data->get_error_message();
+						$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data->get_error_message();
 						$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
 
 					} elseif ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
 
 						if ( is_wp_error( $post_meta_data[0] ) ) {
 
-							$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' .$post_meta_data[0]->get_error_message();
+							$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data[0]->get_error_message();
 							$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
 
 						} else {
@@ -251,12 +257,13 @@ class Posts {
 				}
 			} catch ( \Exception $ex ) {
 
-				$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' .$ex->get_error_message();
+				$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $ex->get_error_message();
 				$status->save_current_log( self::LOG_NAME, array( $post_id => $this->_post_log_data ) );
 
 				continue;
 			}
 		}
+
 		return $post_ids;
 	}
 
@@ -268,6 +275,7 @@ class Posts {
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
 	 * @param array $api_data data returned from the REST API that needs to be imported
+	 *
 	 * @return array
 	 */
 	public function call_import_route( $api_data ) {
@@ -277,6 +285,7 @@ class Posts {
 		$inserted_posts = $this->instant_posts_import( $api_data );
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+
 		return $inserted_posts;
 
 	}
@@ -292,7 +301,7 @@ class Posts {
 	 * @param array $args post type arguments
 	 *
 	 */
-	public function save_post_type( $post_type, $args=[] ) {
+	public function save_post_type( $post_type, $args = [] ) {
 
 		if ( post_type_exists( $post_type ) ) {
 			return;
@@ -310,7 +319,7 @@ class Posts {
 		register_post_type( $post_type, $args );
 	}
 
-	public function get_post_log_data(){
+	public function get_post_log_data() {
 		return $this->_post_log_data;
 	}
 

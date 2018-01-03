@@ -36,7 +36,7 @@ class Test_REST_API_oAuth extends WP_UnitTestCase {
 	public function access_endpoint() {
 		$rest_api_oauth = PMC\Theme_Unit_Test\REST_API\O_Auth::get_instance();
 
-		$rest_data      = $rest_api_oauth->access_endpoint( 'posts', array( 'type' => 'page' ), 'posts', false );
+		$rest_data = $rest_api_oauth->access_endpoint( 'posts', array( 'type' => 'page' ), 'posts', false );
 		$this->assertTrue( is_array( $rest_data ), 'REST API failed to fetch data for post type page' );
 
 		$rest_data = $rest_api_oauth->access_endpoint( 'users', array( 'authors_only' => 'true' ), 'users', true );

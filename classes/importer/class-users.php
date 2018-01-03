@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -17,6 +18,7 @@ class Users {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing user data
+	 *
 	 * @return int|WP_Error The user Id on success. The value 0 or WP_Error on failure.
 	 * @todo - Find ways to insert user as an object mapped from json_decode along with all its roles and meta data rather than creating an array from json_data
 	 */
@@ -44,11 +46,12 @@ class Users {
 			if ( empty( $user_info ) ) {
 				$user_data['error_message'] = 'NO USER DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( $user_id => $user_data ) );
+
 				return false;
 			}
 
-			$user_id = username_exists( $user_info['login'] );
-			$user_id = ( ! empty( $user_id ) ) ? $user_id : 0;
+			$user_id   = username_exists( $user_info['login'] );
+			$user_id   = ( ! empty( $user_id ) ) ? $user_id : 0;
 			$user_data = array(
 				'ID'            => $user_id,
 				'user_login'    => $user_info['login'],
@@ -75,17 +78,19 @@ class Users {
 
 			if ( is_wp_error( $user_id ) ) {
 				$user_data['error_message'] = $user_id->get_error_message();
-				$user_id = 0;
+				$user_id                    = 0;
 			}
 
 			$user_data['user_pass'] = '';
 			$status->save_current_log( self::LOG_NAME, array( $user_id => $user_data ) );
+
 			return $user_id;
 
 		} catch ( \Exception $e ) {
 			$user_data['error_message'] = $e->getMessage();
-			$user_data['user_pass'] = '';
+			$user_data['user_pass']     = '';
 			$status->save_current_log( self::LOG_NAME, array( $user_id => $user_data ) );
+
 			return false;
 		}
 	}
@@ -98,6 +103,7 @@ class Users {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of user object
+	 *
 	 * @return array of Users ids on success.
 	 */
 	public function instant_users_import( $users_json ) {
@@ -110,6 +116,7 @@ class Users {
 		foreach ( $users_json as $user_data ) {
 			$user_ids[] = $this->save_user( $user_data );
 		}
+
 		return $user_ids;
 	}
 
@@ -120,6 +127,7 @@ class Users {
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
 	 *
 	 * @param array $api_data data returned from the REST API that needs to be imported
+	 *
 	 * @return array
 	 */
 	public function call_import_route( $api_data ) {

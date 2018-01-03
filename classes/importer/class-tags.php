@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -37,6 +38,7 @@ class Tags {
 			if ( empty( $tag_json ) || empty( $tag_json['name'] ) ) {
 				$tag_array['error_message'] = 'NO TAGS DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $tag_array ) );
+
 				return false;
 			}
 
@@ -50,7 +52,7 @@ class Tags {
 					'description' => $tag_json['description'],
 				);
 
-				$term   = wp_insert_term( $tag_array['name'], 'post_tag', $tag_array );
+				$term = wp_insert_term( $tag_array['name'], 'post_tag', $tag_array );
 
 				if ( is_wp_error( $term ) ) {
 					$tag_array['error_message'] = $term->get_error_message();
@@ -59,20 +61,22 @@ class Tags {
 				}
 
 			} else {
-				$term_id = $term['term_id'];
+				$term_id                    = $term['term_id'];
 				$tag_array['error_message'] = 'Term Already Exists. Skipped Inserting';
 			}
 
-			$tag_array['name'] = $tag_json['name'];
+			$tag_array['name']    = $tag_json['name'];
 			$tag_array['term_id'] = $term_id;
 
 			$status->save_current_log( self::LOG_NAME, array( $term_id => $tag_array ) );
+
 			return $term_id;
 
 		} catch ( \Exception $e ) {
 
 			$tag_array['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $term_id => $tag_array ) );
+
 			return false;
 
 		}

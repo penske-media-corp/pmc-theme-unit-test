@@ -38,9 +38,9 @@ class Test_Options extends WP_UnitTestCase {
 
 		$options_importer = PMC\Theme_Unit_Test\Importer\Options::get_instance();
 
-		$options_data     = array();
-		$options_json     = json_encode( $options_data );
-		$retrun_value     = $options_importer->instant_options_import( $options_json );
+		$options_data = array();
+		$options_json = json_encode( $options_data );
+		$retrun_value = $options_importer->instant_options_import( $options_json );
 		$this->assertFalse( $retrun_value, 'Options Importer failed' );
 
 

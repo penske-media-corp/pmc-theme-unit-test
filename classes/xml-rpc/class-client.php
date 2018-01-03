@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\XML_RPC;
 
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
@@ -16,6 +17,7 @@ class Client extends \WP_HTTP_IXR_Client {
 
 	/**
 	 * @since UNKNOWN Corey Gilmore
+	 *
 	 * @param $server string
 	 * @param $username string
 	 * @param $password string
@@ -42,6 +44,7 @@ class Client extends \WP_HTTP_IXR_Client {
 
 		if ( empty( $xmlrpc_args['server'] ) || empty( $xmlrpc_args['username'] ) || empty( $xmlrpc_args['password'] ) ) {
 			$status->log_to_file( get_called_class() . ': Missing credentials.' );
+
 			return new \WP_Error( 'unknown_exception', get_called_class() . ': Missing credentials.' );
 		}
 
@@ -60,6 +63,7 @@ class Client extends \WP_HTTP_IXR_Client {
 
 	/**
 	 * @since UNKNOWN Corey Gilmore
+	 *
 	 * @param $method string
 	 * @param $args array
 	 *
@@ -109,11 +113,12 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 * @param $filter array
+	 *
 	 * @return array
 	 */
 	public function get_taxonomies( $filter = array() ) {
 
-		$args = array();
+		$args       = array();
 		$cache_key  = md5( $this->cache_key . serialize( $args ) );
 		$taxonomies = get_transient( $cache_key );
 		if ( empty( $taxonomies ) ) {
@@ -125,6 +130,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $taxonomies;
 	}
 
@@ -135,6 +141,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @version 2015-07-22 Archana Mandhare PPT-5077
 	 *
 	 * @param $taxonomy string
+	 *
 	 * @return object
 	 */
 	public function get_taxonomy( $taxonomy ) {
@@ -151,6 +158,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $taxonomy;
 	}
 
@@ -162,6 +170,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $taxonomies array
 	 * @param $filter array
+	 *
 	 * @return array
 	 */
 	public function get_terms( $taxonomies, $filter = array() ) {
@@ -181,6 +190,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $terms;
 	}
 
@@ -192,11 +202,12 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $taxonomy string
 	 * @param $term string
+	 *
 	 * @return object
 	 */
 	public function get_term( $taxonomy, $term ) {
 
-		$args = array(
+		$args      = array(
 			$taxonomy,
 			$term,
 		);
@@ -211,6 +222,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $term;
 	}
 
@@ -236,25 +248,27 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $filter array $args the arguments containing credentials and filter to get option
 	 * @param $default string|bool default value to return if no data found
+	 *
 	 * @return array $options array of option_name and values
 	 */
 	public function get_options( $filter, $default = false ) {
 
 		$default_filter = array();
-		$filter = wp_parse_args( $filter, $default_filter );
-		$args = array(
+		$filter         = wp_parse_args( $filter, $default_filter );
+		$args           = array(
 			$filter,
 		);
-		$cache_key = md5( $this->cache_key . serialize( $args ) );
-		$options   = get_transient( $cache_key );
+		$cache_key      = md5( $this->cache_key . serialize( $args ) );
+		$options        = get_transient( $cache_key );
 		if ( empty( $options ) ) {
 			$pmc_method = $this->method_exists( 'pmc.getOptions' );
 			if ( $pmc_method ) {
 				$options_json = $this->send_request( 'pmc.getOptions', $args );
 				$options_data = json_decode( $options_json, true );
+
 				return $options_data;
 			} else {
-				$options = $this->send_request( 'wp.getOptions', $args );
+				$options                 = $this->send_request( 'wp.getOptions', $args );
 				$options_data['options'] = $options;
 			}
 			if ( empty( $this->error ) ) {
@@ -269,6 +283,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $options;
 	}
 
@@ -280,12 +295,13 @@ class Client extends \WP_HTTP_IXR_Client {
 	 *
 	 * @param $post_id int
 	 * @param $fields array
+	 *
 	 * @return object
 	 *
 	 */
 	public function get_post_custom_data( $post_id, $fields ) {
 
-		$args = array(
+		$args      = array(
 			$post_id,
 			$fields,
 		);
@@ -300,6 +316,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		} else {
 			// using cache
 		}
+
 		return $post_meta;
 	}
 
@@ -310,6 +327,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @version 2015-09-03 Archana Mandhare - PPT-5077
 	 *
 	 * @param $method_name string
+	 *
 	 * @return bool
 	 *
 	 */
@@ -324,6 +342,7 @@ class Client extends \WP_HTTP_IXR_Client {
 				return true;
 			}
 		}
+
 		return false;
 	}
 }

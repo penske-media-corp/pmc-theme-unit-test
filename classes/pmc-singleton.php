@@ -13,6 +13,7 @@
  * @version 2017-06-19 Amit Gupta - implemented PMC\Global_Functions\Traits\Singleton trait for backward compatibility
  *
  */
+
 namespace PMC\Theme_Unit_Test;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -28,7 +29,8 @@ abstract class PMC_Singleton {
 	 *
 	 * @return void
 	 */
-	protected function _init() { }
+	protected function _init() {
+	}
 
 }
 

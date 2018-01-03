@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\XML_RPC;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -89,6 +90,7 @@ class Service {
 			$this->xmlrpc_client = new Client();
 			if ( empty( $this->xmlrpc_client ) ) {
 				$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
+
 				return false;
 			}
 
@@ -117,6 +119,7 @@ class Service {
 			}
 		} catch ( \Exception $e ) {
 			$status->log_to_file( 'XMLRPC error -- ' . $e->getMessage() );
+
 			return new \WP_Error( 'unknown_error', $e->getMessage() );
 		}
 
@@ -142,6 +145,7 @@ class Service {
 
 			$error = $this->xmlrpc_client->error->message;
 			$status->log_to_file( '_call_taxonomies_route Failed ' . $error );
+
 			return new \WP_Error( 'unknown_error', ' - Taxonomy import failed with Exception ' . $error );
 
 		} else {
@@ -194,6 +198,7 @@ class Service {
 
 			$error = $this->xmlrpc_client->error->message;
 			$status->log_to_file( '_call_options_route Failed ' . $error );
+
 			return new \WP_Error( 'unauthorized_access', 'Failed with Exception - ' . $error );
 
 		} else {
@@ -224,6 +229,7 @@ class Service {
 		if ( ! $result ) {
 			$error = $this->xmlrpc_client->error->message;
 			$status->log_to_file( '_call_posts_route Failed ' . $error );
+
 			return new \WP_Error( 'unauthorized_access', $error . ' Failed with Exception - ' );
 		} else {
 			return $result;
@@ -254,6 +260,7 @@ class Service {
 
 		if ( false === $taxonomy_id ) {
 			$status->log_to_file( 'Taxonomy does not exits hence Menu Import failed  - ' . $taxonomy );
+
 			return new \WP_Error( 'taxonomy_error', 'Taxonomy does not exits hence Menu Import failed - ' . $taxonomy );
 		}
 
@@ -261,6 +268,7 @@ class Service {
 
 		if ( empty( $this->xmlrpc_client ) ) {
 			$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
+
 			return false;
 		}
 
@@ -273,6 +281,7 @@ class Service {
 
 			$error = $this->xmlrpc_client->error->message;
 			$status->log_to_file( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
+
 			return new \WP_Error( 'taxonomy_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
 
 		} else {

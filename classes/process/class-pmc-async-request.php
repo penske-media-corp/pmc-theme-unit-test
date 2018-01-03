@@ -1,6 +1,6 @@
 <?php
 
-namespace PMC\Theme_Unit_Test\Admin;
+namespace PMC\Theme_Unit_Test\Background;
 
 /**
  * Abstract Async_Request class.

@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -11,6 +12,7 @@ class Comments {
 	use Singleton;
 
 	const LOG_NAME = 'comments';
+
 	/**
 	 * Insert a new Comment to the DB.
 	 *
@@ -19,6 +21,7 @@ class Comments {
 	 *
 	 * @param  @type array   $comment_json   containing Comment data
 	 * @param  @type int $post_id Post Id this comment is associated with
+	 *
 	 * @return int|WP_Error The Comment Id on success. The value 0 or WP_Error on failure.
 	 */
 	public function save_comment( $comment_json, $post_id ) {
@@ -46,6 +49,7 @@ class Comments {
 
 				$comment_data['error_message'] = ' No Comment data provided for post ';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $comment_data ) );
+
 				return false;
 			}
 
@@ -66,7 +70,7 @@ class Comments {
 
 			if ( is_wp_error( $comment_id ) ) {
 				$comment_data['error_message'] = $comment_id->get_error_message();
-				$comment_id = 0;
+				$comment_id                    = 0;
 			}
 
 			$status->save_current_log( self::LOG_NAME, array( $comment_id => $comment_data ) );
@@ -77,6 +81,7 @@ class Comments {
 
 			$comment_data['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $comment_id => $comment_data ) );
+
 			return false;
 
 		}
@@ -91,6 +96,7 @@ class Comments {
 	 *
 	 * @param array json_decode() array of comments object
 	 * @param int $post_id
+	 *
 	 * @return array of Comments ids on success.
 	 * @todo - Find ways to insert comments as an object mapped from json_decode
 	 */
@@ -103,6 +109,7 @@ class Comments {
 		foreach ( $json_data as $comment_data ) {
 			$comments_ids[] = $this->save_comment( $comment_data, $post_id );
 		}
+
 		return $comments_ids;
 	}
 
@@ -114,6 +121,7 @@ class Comments {
 	 *
 	 * @param array $api_data data returned from the REST API that needs to be imported
 	 * @param int $post_id
+	 *
 	 * @return array
 	 */
 	public function call_import_route( $api_data, $post_id ) {
@@ -136,7 +144,7 @@ class Comments {
 	public function call_rest_api_route( $old_post_id, $new_post_id ) {
 
 		//Fetch comment for each post and save to the DB
-		$route = "posts/{$old_post_id}/replies";
+		$route    = "posts/{$old_post_id}/replies";
 		$comments = O_Auth::get_instance()->access_endpoint( $route, array(), 'comments', false );
 		if ( ! empty( $comments ) ) {
 			$this->call_import_route( $comments, $new_post_id );

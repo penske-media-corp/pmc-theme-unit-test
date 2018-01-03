@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Logger;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -14,7 +15,8 @@ class Status {
 	 * @since 2015-07-06
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
-	protected function _init() {}
+	protected function _init() {
+	}
 
 	/**
 	 * Log the status of the import to a file depending on the type of log

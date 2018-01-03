@@ -1,5 +1,6 @@
 <?php
-namespace PMC\Theme_Unit_Test\Admin;
+
+namespace PMC\Theme_Unit_Test\Background;
 
 /**
  * Abstract PMC_Background_Process class.

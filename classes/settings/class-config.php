@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Settings;
 
 class Config {

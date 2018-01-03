@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -17,6 +18,7 @@ class Categories {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing category data
+	 *
 	 * @return int|WP_Error The category Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -40,6 +42,7 @@ class Categories {
 
 				$category_array['error_message'] = 'NO CATEGORIES DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $category_array ) );
+
 				return false;
 
 			}
@@ -59,24 +62,25 @@ class Categories {
 				$category_id = wp_insert_category( $category_array );
 
 				if ( is_wp_error( $category_id ) ) {
-					$category_array['error_message'] =  $category_id->get_error_message();
-					$category_id = 0;
+					$category_array['error_message'] = $category_id->get_error_message();
+					$category_id                     = 0;
 				}
 			} else {
-				$category_id = $category_term['term_id'];
-				$category_array['error_message'] =  'Category Already Exists. Skipped Inserting';
+				$category_id                     = $category_term['term_id'];
+				$category_array['error_message'] = 'Category Already Exists. Skipped Inserting';
 			}
 
-			$category_array['cat_name']  = $category_json['name'];
-			$category_array['cat_ID'] = $category_id;
+			$category_array['cat_name'] = $category_json['name'];
+			$category_array['cat_ID']   = $category_id;
 			$status->save_current_log( self::LOG_NAME, array( $category_id => $category_array ) );
 
 			return $category_id;
 
 		} catch ( \Exception $e ) {
 
-			$category_array['error_message'] =  $e->getMessage();
+			$category_array['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $category_id => $category_array ) );
+
 			return false;
 
 		}
@@ -91,6 +95,7 @@ class Categories {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of Category object
+	 *
 	 * @return array of Categories ids on success.
 	 * @todo - Find ways to insert categories as an object along with all its terms and meta rather than creating an array from json_data
 	 *
@@ -104,6 +109,7 @@ class Categories {
 		foreach ( $categories_json as $category_json ) {
 			$categories_info[] = $this->save_category( $category_json );
 		}
+
 		return $categories_info;
 	}
 
@@ -113,7 +119,9 @@ class Categories {
 	 *
 	 * @since 2015-07-15
 	 * @version 2015-07-15 Archana Mandhare PPT-5077
+	 *
 	 * @param $api_data array data returned from the REST API that needs to be imported
+	 *
 	 * @return array
 	 *
 	 */

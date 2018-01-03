@@ -114,7 +114,7 @@ class Test_Users extends WP_UnitTestCase {
 			'email'     => 'defg@abcd.com',
 		);
 
-		$user_ids          = $users_importer->instant_users_import( $user_json_data );
+		$user_ids = $users_importer->instant_users_import( $user_json_data );
 
 		$this->assertTrue( is_array( $user_ids ), "instant_users_import failed somewhere" );
 		$this->assertNotEmpty( username_exists( 'efgh' ), "User not inserted with User login efgh." );
@@ -137,7 +137,7 @@ class Test_Users extends WP_UnitTestCase {
 			'email'     => 'jkhi@abcd.com',
 		);
 
-		$user_ids          = $users_importer->instant_users_import( $user_json_data );
+		$user_ids = $users_importer->instant_users_import( $user_json_data );
 
 		$this->assertTrue( is_array( $user_ids ), "instant_users_import failed somewhere" );
 

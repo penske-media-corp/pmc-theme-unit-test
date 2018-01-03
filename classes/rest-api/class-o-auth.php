@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Rest_API;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -23,10 +24,10 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$api_credentials     = get_option( Config::api_credentials );
-		$client_id = $api_credentials[Config::api_client_id ];
-		$client_secret = $api_credentials[Config::api_client_secret ];
-		$redirect_uri = $api_credentials[Config::api_redirect_uri ];
+		$api_credentials = get_option( Config::api_credentials );
+		$client_id       = $api_credentials[ Config::api_client_id ];
+		$client_secret   = $api_credentials[ Config::api_client_secret ];
+		$redirect_uri    = $api_credentials[ Config::api_redirect_uri ];
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
 			$status->log_to_file( 'Admin Settings form input date not saved. Please try saving the credentials again.' );
@@ -35,7 +36,7 @@ class O_Auth {
 		}
 
 		try {
-			$params   = array(
+			$params = array(
 				'client_id'     => $client_id,
 				'client_secret' => $client_secret,
 				'grant_type'    => 'authorization_code',
@@ -43,7 +44,7 @@ class O_Auth {
 				'redirect_uri'  => $redirect_uri,
 			);
 
-			$args     = array(
+			$args = array(
 				'timeout' => 500,
 				'body'    => $params,
 			);
@@ -58,7 +59,7 @@ class O_Auth {
 
 			$response_body = wp_remote_retrieve_body( $response );
 
-			$auth          = json_decode( $response_body );
+			$auth = json_decode( $response_body );
 
 			if ( empty( $auth->access_token ) ) {
 
@@ -87,7 +88,7 @@ class O_Auth {
 	 */
 	public function get_authorization_code() {
 
-		$status       = Status::get_instance();
+		$status = Status::get_instance();
 
 		$api_credentials = get_option( Config::api_credentials );
 		$client_id       = $api_credentials[ Config::api_client_id ];
@@ -138,6 +139,7 @@ class O_Auth {
 
 		if ( empty( $domain ) ) {
 			$status->log_to_file( ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name );
+
 			return new \WP_Error( 'unauthorized_access', 'No Domain set. Please Try again. --' );
 		}
 
@@ -146,6 +148,7 @@ class O_Auth {
 
 		if ( empty( $saved_access_token ) ) {
 			$status->log_to_file( ' ERROR --  No saved access token. Access denied . -- ' . $route_name );
+
 			return new \WP_Error( 'unauthorized_access', '  No access token. Please get access token. ' );
 		}
 
@@ -173,17 +176,20 @@ class O_Auth {
 
 			if ( empty( $response ) ) {
 				$status->log_to_file( $api_url . ' $$$$  No Data returned. Please Try again. -- ' );
+
 				return new \WP_Error( 'unauthorized_access', $api_url . '$$$$  No Data returned. Please Try again. --' );
 			}
 
 			$response = wp_remote_retrieve_body( $response );
 			$data     = json_decode( $response, true );
 
-			if ( empty( $data ) ){
+			if ( empty( $data ) ) {
 				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . ' and api url = ' . $api_url );
+
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			} else if ( 200 !== $data['code'] ) {
 				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url );
+
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
 
@@ -191,6 +197,7 @@ class O_Auth {
 				return $data['body'][ $route_name ];
 			} else {
 				$return_val = array( 0 => $data['body'] );
+
 				return $return_val;
 			}
 
@@ -281,22 +288,22 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$api_credentials =  get_option( Config::api_credentials );
-		$client_id    = $api_credentials[ Config::api_client_id ];
-		$access_token = $api_credentials[ Config::access_token_key ];
+		$api_credentials = get_option( Config::api_credentials );
+		$client_id       = $api_credentials[ Config::api_client_id ];
+		$access_token    = $api_credentials[ Config::access_token_key ];
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
 		}
 
-		$query  = array(
+		$query = array(
 			'client_id' => (string) $client_id,
 			'token'     => $access_token,
 		);
 
 		$params = http_build_query( $query );
 
-		$args   = array(
+		$args = array(
 			'timeout' => 500,
 		);
 

@@ -34,41 +34,41 @@
 											<td><span>Production Domain Name: e.g  http://exampledomain.com/ Just enter <strong>exampledomain.com</strong> </span>
 											</td>
 											<td><input type="text" id="api_domain" name="api_domain"
-											           value="<?php echo ! empty( $api_domain ) ? esc_attr( $api_domain ) : ''; ?>"/>
+													   value="<?php echo ! empty( $api_domain ) ? esc_attr( $api_domain ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Client ID : </span></td>
 											<td><input type="text" id="api_client_id" name="api_client_id"
-											           value="<?php echo ! empty( $api_client_id ) ? esc_attr( $api_client_id ) : ''; ?>"/>
+													   value="<?php echo ! empty( $api_client_id ) ? esc_attr( $api_client_id ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Client Secret : </span></td>
 											<td><input type="text"
-											           name="api_client_secret"
-											           value="<?php echo ! empty( $api_client_secret ) ? esc_attr( $api_client_secret ) : ''; ?>"/>
+													   name="api_client_secret"
+													   value="<?php echo ! empty( $api_client_secret ) ? esc_attr( $api_client_secret ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>REST API Redirect URI : </span></td>
 											<td><input type="text" id="api_redirect_uri"
-											           name="api_redirect_uri"
-											           value="<?php echo ! empty( $api_redirect_uri ) ? esc_attr( $api_redirect_uri ) : ''; ?>"/>
+													   name="api_redirect_uri"
+													   value="<?php echo ! empty( $api_redirect_uri ) ? esc_attr( $api_redirect_uri ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>XMLRPC Username : </span></td>
 											<td><input type="text"
-											           name="api_xmlrpc_username"
-											           value="<?php echo ! empty( $api_xmlrpc_username ) ? esc_attr( $api_xmlrpc_username ) : ''; ?>"/>
+													   name="api_xmlrpc_username"
+													   value="<?php echo ! empty( $api_xmlrpc_username ) ? esc_attr( $api_xmlrpc_username ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>
 											<td><span>XMLRPC Password : </span></td>
 											<td><input type="text"
-											           name="api_xmlrpc_password"
-											           value="<?php echo ! empty( $api_xmlrpc_password ) ? esc_attr( $api_xmlrpc_password ) : ''; ?>"/>
+													   name="api_xmlrpc_password"
+													   value="<?php echo ! empty( $api_xmlrpc_password ) ? esc_attr( $api_xmlrpc_password ) : ''; ?>"/>
 											</td>
 										</tr>
 										<tr>

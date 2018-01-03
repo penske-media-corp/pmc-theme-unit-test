@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -17,6 +18,7 @@ class Taxonomies {
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing Taxonomy data
+	 *
 	 * @return int|WP_Error The taxonomy Id on success. The value 0 or WP_Error on failure.
 	 */
 	public function save_taxonomy( $taxonomy_json ) {
@@ -28,7 +30,7 @@ class Taxonomies {
 		$taxonomy_id = 0;
 
 		$taxonomy_log_data = array(
-			'taxonomy_id'       => 0,
+			'taxonomy_id'   => 0,
 			'name'          => '',
 			'error_message' => '',
 		);
@@ -38,6 +40,7 @@ class Taxonomies {
 			if ( empty( $taxonomy_json ) ) {
 				$taxonomy_log_data['error_message'] = 'NO TAXONOMY DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
+
 				return false;
 			}
 
@@ -73,8 +76,8 @@ class Taxonomies {
 				if ( is_wp_error( $taxonomy_id ) ) {
 
 					$taxonomy_log_data['error_message'] = $taxonomy_id->get_error_message();
-					$taxonomy_details = '';
-					$taxonomy_id = 0;
+					$taxonomy_details                   = '';
+					$taxonomy_id                        = 0;
 
 				} else if ( false !== $taxonomy_id ) {
 
@@ -84,12 +87,12 @@ class Taxonomies {
 			} else {
 
 				$taxonomy_log_data['error_message'] = 'Taxonomy ' . $taxonomy_json['name'] . 'Already Exists. Skipped Inserting';
-				$taxonomy_details = $wp_taxonomies[ $taxonomy_json['name'] ];
+				$taxonomy_details                   = $wp_taxonomies[ $taxonomy_json['name'] ];
 
 			}
 
-			$taxonomy_log_data['name'] =  $taxonomy_json['name'];
-			$taxonomy_log_data['taxonomy_id'] =  $taxonomy_id;
+			$taxonomy_log_data['name']        = $taxonomy_json['name'];
+			$taxonomy_log_data['taxonomy_id'] = $taxonomy_id;
 			$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
 
 			return $taxonomy_details;
@@ -98,6 +101,7 @@ class Taxonomies {
 
 			$taxonomy_log_data['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $taxonomy_id => $taxonomy_log_data ) );
+
 			return false;
 
 		}
@@ -111,6 +115,7 @@ class Taxonomies {
 	 * @version 2015-07-13 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of Taxonomy object
+	 *
 	 * @return array of Taxonomies ids on success.
 	 */
 	public function instant_taxonomies_import( $taxonomies_json ) {
@@ -120,12 +125,13 @@ class Taxonomies {
 			return $taxonomies_info;
 		}
 		foreach ( $taxonomies_json as $taxonomy_json ) {
- 		    // Don't save taxonomy category or post_tag since its built-in.
+			// Don't save taxonomy category or post_tag since its built-in.
 			if ( in_array( $taxonomy_json['name'], Config::$default_taxonomies ) ) {
 				continue;
 			}
 			$taxonomies_info[] = $this->save_taxonomy( $taxonomy_json );
 		}
+
 		return $taxonomies_info;
 	}
 

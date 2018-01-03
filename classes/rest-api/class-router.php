@@ -1,13 +1,10 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Rest_API;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
-use PMC\Theme_Unit_Test\Importer\Users;
-use PMC\Theme_Unit_Test\Importer\Menus;
-use PMC\Theme_Unit_Test\Importer\Tags;
-use PMC\Theme_Unit_Test\Importer\Categories;
-use PMC\Theme_Unit_Test\Importer\Posts;
 use PMC\Theme_Unit_Test\Settings\Config;
+use PMC\Theme_Unit_Test\Background\Background_Data_Import;
 
 class Router {
 
@@ -21,6 +18,7 @@ class Router {
 	 * @version 2015-07-16 Archana Mandhare PPT-5077
 	 *
 	 * @param array data returned from json rest api
+	 *
 	 * @return array
 	 */
 	private function _call_import_route( $api_data ) {
@@ -42,36 +40,22 @@ class Router {
 	 * @param array $query_params the query params that need to be passed to the API
 	 * @param string $route_index the index key of the returned json data from the API that we need to save
 	 * bool $access_token true if oAuth access token is required to fetch data. Default is false.
+	 *
 	 * @return array
 	 */
 	private function _access_endpoint( $route, $query_params = array(), $route_index = '' ) {
 
-		$api_data = O_Auth::get_instance()->access_endpoint( $route, $query_params, $route_index );
-		if ( is_wp_error( $api_data ) ) {
-			return $api_data;
-		} else {
-			switch ( $route ) {
-				case 'users':
-					$route_class = Users::get_instance();
-					break;
-				case 'menus':
-					$route_class = Menus::get_instance();
-					break;
-				case 'tags':
-					$route_class = Tags::get_instance();
-					break;
-				case 'categories':
-					$route_class = Categories::get_instance();
-					break;
-				case 'posts':
-					$route_class = Posts::get_instance();
-					break;
-				default:
-					$route_class = $this;
-					break;
-			}
-			return $route_class->call_import_route( $api_data );
-		}
+		$background_process = new Background_Data_Import();
+
+		$router_data = [
+			'route'        => $route,
+			'query_params' => $query_params,
+			'route_index'  => $route_index
+		];
+
+		$background_process->push_to_queue( $router_data );
+
+		$background_process->save()->dispatch();
 
 	}
 
@@ -85,6 +69,7 @@ class Router {
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 *
 	 * @params string $route it is the endpoint name - e.g users, menu, categories, tags etc
+	 *
 	 * @return array of entity IDs that got saved.
 	 */
 	public function call_rest_api_all_route( $route ) {
@@ -99,8 +84,10 @@ class Router {
 			if ( ! empty( $route_params['query_params'] ) ) {
 				$query_params = $route_params['query_params'];
 			}
+
 			return $this->_access_endpoint( $route, $query_params, $route );
 		}
+
 		return false;
 	}
 
@@ -114,6 +101,7 @@ class Router {
 	 * @version 2015-08-12 Archana Mandhare PPT-5077
 	 *
 	 * @params string $route it is post_type for the post endpoint
+	 *
 	 * @return array of entity IDs that got saved.
 	 *
 	 */
@@ -132,6 +120,7 @@ class Router {
 	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
 	 *
 	 * @params string $post_ids the array of post_ids to pull data for
+	 *
 	 * @return array of entity IDs that got saved.
 	 *
 	 */
@@ -139,6 +128,7 @@ class Router {
 		foreach ( $post_ids as $post_id ) {
 			$api_data[] = $this->_access_endpoint( 'posts', array( 'post_id' => $post_id ), 'posts' );
 		}
+
 		return $api_data;
 	}
 }

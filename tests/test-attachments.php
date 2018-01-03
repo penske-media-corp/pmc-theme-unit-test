@@ -64,20 +64,20 @@ class Test_Attachments extends WP_UnitTestCase {
 
 		//  TEST CASE 1: Empty data
 		$attachments_data = false;
-		$attachment_id      = $attachments_importer->instant_attachments_import( array(), $post_id );
+		$attachment_id    = $attachments_importer->instant_attachments_import( array(), $post_id );
 		$this->assertEmpty( $attachment_id, "No Attachment Data provided" );
 
 		//  TEST CASE 2: Valid data
 		$attachments_data[] = array( 'URL' => 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0CAcQjRxqFQoTCPq5kO-X2McCFVFJjgodklgANw&url=https%3A%2F%2Ftwitter.com%2Fgosmallbusiness&bvm=bv.101800829,d.c2E&psig=AFQjCNHLq-eeb5czaZyGlefMXfCCRZ1ooA&ust=1441277662392086' );
 		$attachments_data[] = array( 'URL' => 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0CAcQjRxqFQoTCPq5kO-X2McCFVFJjgodklgANw&url=https%3A%2F%2Ftwitter.com%2Fgosmallbusiness&bvm=bv.101800829,d.c2E&psig=AFQjCNHLq-eeb5czaZyGlefMXfCCRZ1ooA&ust=1441277662392086' );
-		$attachments_id      = $attachments_importer->instant_attachments_import( $attachments_data, $post_id );
+		$attachments_id     = $attachments_importer->instant_attachments_import( $attachments_data, $post_id );
 		$this->assertTrue( is_array( $attachments_id ), "No Attachment Data provided" );
 
 		// TEST CASE 3: invalid OR bad data
 		$attachments_data[] = array( 'URL' => 'http://google.com/1.jpg' );
 		$attachments_data[] = array( 'URL' => 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0CAcQjRxqFQoTCPq5kO-X2McCFVFJjgodklgANw&url=https%3A%2F%2Ftwitter.com%2Fgosmallbusiness&bvm=bv.101800829,d.c2E&psig=AFQjCNHLq-eeb5czaZyGlefMXfCCRZ1ooA&ust=1441277662392086' );
 		$attachments_data[] = array( 'URL' => 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0CAcQjRxqFQoTCPq5kO-X2McCFVFJjgodklgANw&url=https%3A%2F%2Ftwitter.com%2Fgosmallbusiness&bvm=bv.101800829,d.c2E&psig=AFQjCNHLq-eeb5czaZyGlefMXfCCRZ1ooA&ust=1441277662392086' );
-		$attachments_id      = $attachments_importer->instant_attachments_import( $attachments_data, $post_id );
+		$attachments_id     = $attachments_importer->instant_attachments_import( $attachments_data, $post_id );
 		$this->assertTrue( is_array( $attachments_id ), "No Attachment Data provided" );
 
 	}

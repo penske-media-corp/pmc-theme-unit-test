@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -20,11 +21,12 @@ class Menus {
 	 * @version 2015-07-20 Archana Mandhare PPT-5077
 	 *
 	 * @param @type array the $menu_item array,
+	 *
 	 * @return int|WP_Error The menu item object id on success. The value 0 or WP_Error on failure.
 	 */
 	private function _get_type_object_id( $menu_item ) {
 
-		$status = Status::get_instance();
+		$status              = Status::get_instance();
 		$menu_item_object_id = 0;
 		$content_id          = $menu_item['content_id'];
 		$type_family         = $menu_item['type_family'];
@@ -63,15 +65,16 @@ class Menus {
 
 		if ( is_wp_error( $menu_item_object_id ) ) {
 			$menu_log_data['error_message'] = $menu_item_object_id->get_error_message();
-			$menu_item_object_id = 0;
+			$menu_item_object_id            = 0;
 		} else if ( ! is_int( intval( $menu_item_object_id ) ) ) {
 			$menu_log_data['error_message'] = ' -- Failed to import menu item ' . $content_id;
-			$menu_item_object_id = 0;
+			$menu_item_object_id            = 0;
 		} else {
 			$menu_log_data['menu-item-object-id'] = $menu_item_object_id;
 		}
 
 		$status->save_current_log( self::LOG_NAME, array( $menu_item_object_id => $menu_log_data ) );
+
 		return intval( $menu_item_object_id );
 	}
 
@@ -82,6 +85,7 @@ class Menus {
 	 * @version 2015-07-28 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing Menu Item meta data
+	 *
 	 * @return int|WP_Error The Menu Item Id on success. The value 0 or WP_Error on failure.
 	 */
 	private function _save_menu_item( $menu_id, $menu_item ) {
@@ -110,6 +114,7 @@ class Menus {
 
 				$menu_log_data['error_message'] = ' No Menu Item Provided ';
 				$status->save_current_log( self::LOG_NAME, array( $menu_id => $menu_log_data ) );
+
 				return false;
 			}
 
@@ -120,6 +125,7 @@ class Menus {
 				if ( empty( $type_id ) || is_wp_error( $type_id ) ) {
 					$menu_log_data['error_message'] = ' Menu Item of URL ' . $menu_item['url'] . ' Not imported from server ';
 					$status->save_current_log( self::LOG_NAME, array( $menu_id => $menu_log_data ) );
+
 					return false;
 				}
 				if ( 'taxonomy' === $menu_item['type_family'] ) {
@@ -153,7 +159,7 @@ class Menus {
 			);
 
 			$menu_item_db_id = wp_update_nav_menu_item( $menu_id, 0, $args );
-			$menu_log_data = $args;
+			$menu_log_data   = $args;
 			if ( is_wp_error( $menu_item_db_id ) ) {
 				$menu_log_data['error_message'] = $menu_item_db_id->get_error_message();
 			} else {
@@ -169,12 +175,14 @@ class Menus {
 			}
 
 			$status->save_current_log( self::LOG_NAME, array( $menu_item_db_id => $menu_log_data ) );
+
 			return $menu_item_db_id;
 
 		} catch ( \Exception $e ) {
 
-			$menu_log_data['error_message'] = $e->getMessage() ;
+			$menu_log_data['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
+
 			return false;
 		}
 	}
@@ -186,6 +194,7 @@ class Menus {
 	 * @version 2015-07-20 Archana Mandhare PPT-5077
 	 *
 	 * @param array containing Menu meta data
+	 *
 	 * @return int|WP_Error The Menu Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
@@ -206,6 +215,7 @@ class Menus {
 
 				$menu_log_data['error_message'] = ' No Menu data Provided ';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
+
 				return false;
 			}
 			// Does the menu exist already?
@@ -219,9 +229,10 @@ class Menus {
 			}
 
 			if ( is_wp_error( $menu_id ) ) {
-				$menu_log_data['name'] = $menu_json['name'];
-				$menu_log_data['error_message'] = '-- Menu Failed ' . $menu_json['name'] . '**--** with message  = ' . $menu_id->get_error_message() ;
+				$menu_log_data['name']          = $menu_json['name'];
+				$menu_log_data['error_message'] = '-- Menu Failed ' . $menu_json['name'] . '**--** with message  = ' . $menu_id->get_error_message();
 				$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
+
 				return false;
 			}
 
@@ -259,8 +270,9 @@ class Menus {
 			return $menu_id;
 
 		} catch ( \Exception $e ) {
-			$menu_log_data['error_message'] = $e->getMessage() ;
+			$menu_log_data['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
+
 			return false;
 		}
 	}
@@ -272,6 +284,7 @@ class Menus {
 	 * @version 2015-07-20 Archana Mandhare PPT-5077
 	 *
 	 * @param array json_decode() array of Nav Menu object
+	 *
 	 * @return array of Nav Menus ids on success.
 	 */
 	public function instant_menus_import( $menus_json ) {
@@ -288,6 +301,7 @@ class Menus {
 				$menus_info[] = $menu_id;
 			}
 		}
+
 		return $menus_info;
 	}
 
@@ -326,23 +340,25 @@ class Menus {
 
 			if ( is_wp_error( $pages ) ) {
 
-				$post_data = Posts::get_instance()->get_post_log_data();
+				$post_data                  = Posts::get_instance()->get_post_log_data();
 				$post_data['error_message'] = $pages->get_error_messages();
 				$status->save_current_log( 'post', array( 0 => $post_data ) );
+
 				return $pages;
 
 			} else if ( empty( $pages ) ) {
 
-				$post_data['error_message'] = ' Failed to attach menu to post_type ' . $type . ' object with id - ' . $post_id ;
+				$post_data['error_message'] = ' Failed to attach menu to post_type ' . $type . ' object with id - ' . $post_id;
 				$status->save_current_log( self::LOG_NAME, array( 0 => $post_data ) );
+
 				return new \WP_Error( 'unauthorized_access', ' Failed to attach menu to post_type ' . $type . ' object with id - ' . $post_id );
 
 			}
 
 			$author_id = get_current_user_id();
-			$page_id = Posts::get_instance()->save_post( $pages[0], $author_id, array(), $type );
+			$page_id   = Posts::get_instance()->save_post( $pages[0], $author_id, array(), $type );
 
-			$post_data['name'] = $type;
+			$post_data['name']          = $type;
 			$post_data['error_message'] = ' -- ' . $type . ' -- Fetched for Menu with ID ' . $page_id;
 			$status->save_current_log( self::LOG_NAME, array( $page_id => $post_data ) );
 
@@ -352,6 +368,7 @@ class Menus {
 			$status->save_current_log( self::LOG_NAME, array( 0 => $post_data ) );
 
 		}
+
 		return $page_id;
 	}
 }

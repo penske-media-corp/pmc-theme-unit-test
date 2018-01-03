@@ -13,14 +13,14 @@ class Unit_Test_Autoloader {
 
 	public static function autoload_resource( $resource = '' ) {
 		$namespace_root = 'PMC\\Theme_Unit_Test\\';
-		$resource = trim( $resource, '\\' );
+		$resource       = trim( $resource, '\\' );
 		if ( empty( $resource ) || strpos( $resource, '\\' ) === false || strpos( $resource, $namespace_root ) !== 0 ) {
 			//not our namespace, bail out
 			return;
 		}
 		$path = explode( '\\', str_replace( '_', '-', $resource ) );
 
-		if (  ! empty( $path[3] ) ) {
+		if ( ! empty( $path[3] ) ) {
 			$class_path = strtolower( $path[2] ) . '/' . strtolower( $path[3] );
 		} else {
 			$class_path = strtolower( $path[2] );

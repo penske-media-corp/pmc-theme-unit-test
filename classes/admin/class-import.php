@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Admin;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -204,25 +205,12 @@ class Import {
 			Status::get_instance()->clean_log();
 		}
 
-		/*$form_post_data = array(
-			'types' => $types,
-			'POST'  => $_POST
-		);
-
-		if ( defined( 'DISABLE_WP_CRON' ) && ! DISABLE_WP_CRON ) {
-			if ( false === wp_next_scheduled( 'pmc_theme_unit_test_import_process', array( $form_post_data ) ) ) {
-				wp_schedule_single_event( current_time( 'timestamp' ), 'pmc_theme_unit_test_import_process', array( $form_post_data ) );
-			}
-		} else {
-			$this->process_import_request( $form_post_data );
-		}*/
-
 		switch ( $types ) {
 			case 1:
-				$this->import_default_items($_POST);
+				$this->import_default_items( $_POST );
 				break;
 			case 2:
-				$this->import_custom_items($_POST);
+				$this->import_custom_items( $_POST );
 				break;
 			default:
 				break;
@@ -245,7 +233,7 @@ class Import {
 
 
 	/**
-	 * Import the default wordpress items such as Users, Menu, Tags, Categories
+	 * Import the default wordpress items such as Users, Menu, Tags, Categories, posts, pages etc
 	 *
 	 * @since 2016-07-24
 	 * @version 2016-07-24 Archana Mandhare PMCVIP-1950

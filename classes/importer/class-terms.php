@@ -1,4 +1,5 @@
 <?php
+
 namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
@@ -38,6 +39,7 @@ class Terms {
 			if ( empty( $term_json ) ) {
 				$tag_array['error_message'] = 'NO TERM DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $term_array ) );
+
 				return false;
 			}
 
@@ -86,6 +88,7 @@ class Terms {
 
 			$term_array['error_message'] = $e->getMessage();
 			$status->save_current_log( self::LOG_NAME, array( $term_id => $term_array ) );
+
 			return false;
 
 		}
