@@ -9,6 +9,7 @@ namespace PMC\Theme_Unit_Test\Background;
  * @extends Async_Request
  */
 abstract class PMC_Background_Process extends PMC_Async_Request {
+
 	/**
 	 * Action
 	 *
@@ -18,6 +19,7 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	 * @access protected
 	 */
 	protected $action = 'import_process';
+
 	/**
 	 * Start time of current process.
 	 *
@@ -27,6 +29,7 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	 * @access protected
 	 */
 	protected $start_time = 0;
+
 	/**
 	 * Cron_hook_identifier
 	 *
@@ -34,6 +37,7 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	 * @access protected
 	 */
 	protected $cron_hook_identifier;
+
 	/**
 	 * Cron_interval_identifier
 	 *
@@ -41,6 +45,15 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	 * @access protected
 	 */
 	protected $cron_interval_identifier;
+
+
+	/**
+	 * Cron_interval_identifier
+	 *
+	 * @var mixed
+	 * @access protected
+	 */
+	protected $cron_interval = 1;
 
 	/**
 	 * Initiate new background process
@@ -90,7 +103,6 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 		if ( ! empty( $this->data ) ) {
 			update_site_option( $key, $this->data );
 		}
-
 		return $this;
 	}
 
@@ -381,9 +393,9 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	public function schedule_cron_healthcheck( $schedules ) {
 		$interval = apply_filters( $this->identifier . '_cron_interval', 5 );
 		if ( property_exists( $this, 'cron_interval' ) ) {
-			$interval = apply_filters( $this->identifier . '_cron_interval', $this->cron_interval_identifier );
+			$interval = apply_filters( $this->identifier . '_cron_interval', $this->cron_interval );
 		}
-		// Adds every 5 minutes to the existing schedules.
+		// Adds every $interval minutes to the existing schedules.
 		$schedules[ $this->identifier . '_cron_interval' ] = array(
 			'interval' => MINUTE_IN_SECONDS * $interval,
 			'display'  => sprintf( __( 'Every %d Minutes' ), $interval ),
@@ -417,7 +429,7 @@ abstract class PMC_Background_Process extends PMC_Async_Request {
 	 */
 	protected function schedule_event() {
 		if ( ! wp_next_scheduled( $this->cron_hook_identifier ) ) {
-			wp_schedule_event( time(), $this->cron_interval_identifier, $this->cron_hook_identifier );
+			wp_schedule_event( time(), $this->cron_interval, $this->cron_hook_identifier );
 		}
 	}
 

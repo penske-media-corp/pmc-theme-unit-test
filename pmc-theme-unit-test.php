@@ -13,17 +13,13 @@ define( 'PMC_THEME_UNIT_TEST_VERSION', '2.0' );
 define( 'PMC_THEME_UNIT_TEST_ERROR_LOG_FILE', PMC_THEME_UNIT_TEST_ROOT . '/logs/error.csv' );
 
 function pmc_theme_unit_test_loader() {
-	if ( is_admin() ) {
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/plugin-autoloader.php';
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/classes/traits/trait-singleton.php';
 
+	require_once PMC_THEME_UNIT_TEST_ROOT . '/dependencies.php';
+
+	if ( is_admin() ) {
 		\PMC\Theme_Unit_Test\Admin\Import::get_instance();
 		\PMC\Theme_Unit_Test\Admin\Login::get_instance();
 		\PMC\Theme_Unit_Test\Settings\Config_Helper::get_instance();
-	}
-	// add WP-CLI command support
-	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		require_once PMC_THEME_UNIT_TEST_ROOT . '/wpcli/pmc-theme-unit-test-wp-cli.php';
 	}
 }
 

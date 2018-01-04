@@ -1,9 +1,8 @@
 <?php
 
 namespace PMC\Theme_Unit_Test\Background;
-
 /**
- * Abstract Async_Request class.
+ * Abstract PMC_Async_Request class.
  *
  * @abstract
  */

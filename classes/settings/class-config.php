@@ -27,7 +27,7 @@ class Config {
 	const show_form = 'show_data_import_form';
 	const import_log = 'import_log_post_id';
 	const api_credentials = 'api_credentials';
-	const post_count = 5;
+	const post_count = 20;
 
 	public static $all_routes = array(
 		0 => array(

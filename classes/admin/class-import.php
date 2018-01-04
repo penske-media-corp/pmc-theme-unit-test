@@ -171,12 +171,15 @@ class Import {
 
 		$types = empty( $_GET['types'] ) ? 0 : absint( $_GET['types'] );
 		if ( empty( $types ) ) {
+			$cron_jobs = get_option( 'cron' );
+
+			//var_dump($cron_jobs);
 			return;
 		}
 
 		$log_post = get_option( CONFIG::import_log );
 
-		if ( empty ( $log_post ) ) {
+		if ( empty( $log_post ) ) {
 			// Create a custom post for saving import log report
 			$post_json = array(
 				'status'     => 'publish',

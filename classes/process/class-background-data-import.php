@@ -2,7 +2,6 @@
 
 namespace PMC\Theme_Unit_Test\Background;
 
-use PMC\Theme_Unit_Test\Rest_API\O_Auth;
 use PMC\Theme_Unit_Test\Importer\Users;
 use PMC\Theme_Unit_Test\Importer\Menus;
 use PMC\Theme_Unit_Test\Importer\Tags;
@@ -17,6 +16,14 @@ class Background_Data_Import extends PMC_Background_Process {
 	protected $action = 'import_data_process';
 
 	/**
+	 * Cron_interval_identifier
+	 *
+	 * @var mixed
+	 * @access protected
+	 */
+	protected $cron_interval = 1;
+
+	/**
 	 * Task
 	 *
 	 * Override this method to perform any actions required on each
@@ -29,33 +36,32 @@ class Background_Data_Import extends PMC_Background_Process {
 	 * @return mixed
 	 */
 	protected function task( $item ) {
-		$api_data = O_Auth::get_instance()->access_endpoint( $item['route'], $item['query_params'], $item['route_index'] );
-		if ( is_wp_error( $api_data ) ) {
-			return $api_data;
-		} else {
-			switch ( $item['route'] ) {
-				case 'users':
-					$route_class = Users::get_instance();
-					break;
-				case 'menus':
-					$route_class = Menus::get_instance();
-					break;
-				case 'tags':
-					$route_class = Tags::get_instance();
-					break;
-				case 'categories':
-					$route_class = Categories::get_instance();
-					break;
-				case 'posts':
-					$route_class = Posts::get_instance();
-					break;
-				default:
-					$route_class = $this;
-					break;
-			}
 
-			return $route_class->call_import_route( $api_data );
+		switch ( $item['route'] ) {
+			case 'users':
+				$route_class = Users::get_instance();
+				break;
+			case 'menus':
+				$route_class = Menus::get_instance();
+				break;
+			case 'tags':
+				$route_class = Tags::get_instance();
+				break;
+			case 'categories':
+				$route_class = Categories::get_instance();
+				break;
+			case 'posts':
+				$route_class = Posts::get_instance();
+				break;
+			default:
+				$route_class = $this;
+				break;
 		}
+
+		$api_data = $route_class->call_import_route( $item['api_data'] );
+
+		return false;
+
 	}
 
 	/**
@@ -66,8 +72,8 @@ class Background_Data_Import extends PMC_Background_Process {
 	 */
 	protected function complete() {
 		parent::complete();
-
 		// Show notice to user or perform some other arbitrary task...
+		echo "Import done";
 	}
 
 }

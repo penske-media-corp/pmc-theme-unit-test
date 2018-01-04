@@ -25,7 +25,6 @@ class Router {
 		return $api_data;
 	}
 
-
 	/**
 	 * Make calls to REST API and get access endpoints
 	 *
@@ -45,17 +44,24 @@ class Router {
 	 */
 	private function _access_endpoint( $route, $query_params = array(), $route_index = '' ) {
 
-		$background_process = new Background_Data_Import();
+		$api_data = O_Auth::get_instance()->access_endpoint( $route, $query_params, $route_index );
 
-		$router_data = [
-			'route'        => $route,
-			'query_params' => $query_params,
-			'route_index'  => $route_index
-		];
+		if ( is_wp_error( $api_data ) ) {
+			return false;
+		} else {
 
-		$background_process->push_to_queue( $router_data );
+			$background_process = new Background_Data_Import();
 
-		$background_process->save()->dispatch();
+			$router_data = [
+				'route'    => $route,
+				'api_data' => $api_data,
+			];
+
+			$background_process->push_to_queue( $router_data );
+
+			$background_process->save()->dispatch();
+
+		}
 
 	}
 
