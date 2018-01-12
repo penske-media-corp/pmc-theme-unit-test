@@ -43,6 +43,8 @@ class Login {
 	protected function _setup_hooks() {
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_filter( 'https_local_ssl_verify', '__return_false' );
+		add_filter( 'block_local_requests', '__return_false' );
 	}
 
 	/**

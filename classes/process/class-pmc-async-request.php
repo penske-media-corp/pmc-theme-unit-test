@@ -120,7 +120,7 @@ abstract class PMC_Async_Request {
 		}
 
 		return array(
-			'timeout'   => 0.01,
+			'timeout'   => 500,
 			'blocking'  => false,
 			'body'      => $this->data,
 			'cookies'   => $_COOKIE,
