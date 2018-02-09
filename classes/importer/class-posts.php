@@ -274,7 +274,7 @@ class Posts {
 
 					// Save all the custom fields
 					foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
-						if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
+						if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids, true ) ) ) {
 							$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
 						}
 					}

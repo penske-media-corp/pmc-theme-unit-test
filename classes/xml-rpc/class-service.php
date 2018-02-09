@@ -166,7 +166,7 @@ class Service {
 			foreach ( $result as $tax ) {
 
 				// Don't fetch terms for category or tag since its already done by REST API.
-				if ( in_array( $tax['name'], Config::$default_taxonomies ) ) {
+				if ( in_array( $tax['name'], Config::$default_taxonomies, true ) ) {
 					continue;
 				}
 

@@ -54,7 +54,7 @@ class Options {
 		}
 
 		// Allow others to be able to exclude their options from exporting
-		$blacklist = apply_filters( 'options_export_blacklist', array() );
+		$blacklist = apply_filters( 'options_export_blacklist', array( 'pmc_nfwl_options' ) );
 		if ( empty( $options_data['no_autoload'] ) ) {
 			$options_data['no_autoload'] = array(
 				'moderation_keys',
@@ -68,7 +68,7 @@ class Options {
 
 			try {
 
-				if ( in_array( $option_name, $blacklist ) ) {
+				if ( in_array( $option_name, $blacklist, true ) ) {
 					continue;
 				}
 
@@ -104,30 +104,34 @@ class Options {
 	 */
 	private function _save_option( $option_name, $option_value, $no_autoload ) {
 
-		$status = Status::get_instance();
+		try {
+			$status = Status::get_instance();
 
-		//replace all the live domains with the local domain path
-		$domain       = get_option( Config::api_domain );
-		$home_url     = get_home_url();
-		$option_value = maybe_unserialize( $option_value );
-		$option_value = $this->_recursive_array_replace( 'http://' . $domain, $home_url, $option_value );
+			//replace all the live domains with the local domain path
+			$domain       = get_option( Config::api_domain );
+			$home_url     = get_home_url();
+			$option_value = maybe_unserialize( $option_value );
+			$option_value = $this->_recursive_array_replace( 'http://' . $domain, $home_url, $option_value );
 
-		$options_log_data = array(
-			'option_name'   => $option_name,
-			'option_value'  => json_encode( $option_value ),
-			'error_message' => '',
-		);
+			$options_log_data = array(
+				'option_name'   => $option_name,
+				'option_value'  => wp_json_encode( $option_value ),
+				'error_message' => '',
+			);
 
-		if ( in_array( $option_name, $no_autoload ) ) {
-			delete_option( $option_name );
-			$option_added = add_option( $option_name, $option_value, '', 'no' );
-		} else {
-			$option_added = update_option( $option_name, $option_value, true );
+			if ( in_array( $option_name, $no_autoload, true ) ) {
+				delete_option( $option_name );
+				$option_added = add_option( $option_name, $option_value, '', 'no' );
+			} else {
+				$option_added = update_option( $option_name, $option_value, true );
+			}
+
+			$status->save_current_log( self::LOG_NAME, array( $option_name => $options_log_data ) );
+
+			return $option_added;
+		} catch( \Exception $e) {
+			return true;
 		}
-
-		$status->save_current_log( self::LOG_NAME, array( $option_name => $options_log_data ) );
-
-		return $option_added;
 	}
 
 	/**

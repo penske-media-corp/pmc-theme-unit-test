@@ -396,7 +396,7 @@ class Import {
 		$all_post_types = apply_filters( 'rest_api_allowed_post_types', $all_post_types );
 		$all_post_types = array_unique( $all_post_types );
 		foreach ( $all_post_types as $key => $value ) {
-			if ( ! in_array( $value, array( 'post', 'page', 'attachment' ) ) ) {
+			if ( ! in_array( $value, array( 'post', 'page', 'attachment' ), true ) ) {
 				$custom_post_types[ $value ] = $value;
 			}
 		}

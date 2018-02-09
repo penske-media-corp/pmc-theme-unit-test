@@ -48,7 +48,7 @@ class Taxonomies {
 
 			if ( false === $taxonomy_id ) {
 
-				if ( in_array( $taxonomy_json['object_type'], $built_in_posttypes ) ) {
+				if ( in_array( $taxonomy_json['object_type'], $built_in_posttypes, true ) ) {
 
 					$args = array(
 						'label'             => ( ! empty( $taxonomy_json['label'] ) ) ? $taxonomy_json['label'] : $taxonomy_json['name'],
@@ -126,7 +126,7 @@ class Taxonomies {
 		}
 		foreach ( $taxonomies_json as $taxonomy_json ) {
 			// Don't save taxonomy category or post_tag since its built-in.
-			if ( in_array( $taxonomy_json['name'], Config::$default_taxonomies ) ) {
+			if ( in_array( $taxonomy_json['name'], Config::$default_taxonomies, true ) ) {
 				continue;
 			}
 			$taxonomies_info[] = $this->save_taxonomy( $taxonomy_json );

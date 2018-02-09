@@ -255,7 +255,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		}
 
 		foreach ( $endpoint as $entity ) {
-			if ( in_array( $entity, $supported_routes ) ) {
+			if ( in_array( $entity, $supported_routes, true ) ) {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
@@ -297,7 +297,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		}
 
 		foreach ( $post_endpoints as $entity ) {
-			if ( post_type_exists( $entity ) && in_array( $entity, $supported_posts ) ) {
+			if ( post_type_exists( $entity ) && in_array( $entity, $supported_posts, true ) ) {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );
@@ -339,7 +339,7 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		}
 
 		foreach ( $xmlrpc_endpoints as $entity ) {
-			if ( in_array( $entity, $supported_xmlrpc_routes ) ) {
+			if ( in_array( $entity, $supported_xmlrpc_routes, true ) ) {
 				if ( ! $this->dry_run ) {
 					try {
 						WP_CLI::line( 'Starting ' . $entity . ' Import...' );

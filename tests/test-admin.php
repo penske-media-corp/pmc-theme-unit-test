@@ -62,7 +62,7 @@ class Test_Import extends WP_UnitTestCase {
 
 		$admin = PMC\Theme_Unit_Test\Admin\Import::get_instance();
 		$admin->action_admin_init();
-		$this->assertTrue( in_array( 'pmc_domain_creds', $new_whitelist_options['pmc_domain_creds'] ) );
+		$this->assertTrue( in_array( 'pmc_domain_creds', $new_whitelist_options['pmc_domain_creds'], true ) );
 
 	}
 
