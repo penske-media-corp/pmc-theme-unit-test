@@ -8,7 +8,7 @@ class Custom_Posts {
 
 	use Singleton;
 
-	protected function _init() {
+	protected function __construct() {
 		$this->_setup_hooks();
 	}
 

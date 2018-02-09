@@ -72,7 +72,8 @@
 											</td>
 										</tr>
 										<tr>
-											<td><?php submit_button( 'Save All' ); ?></td>
+											<td><?php submit_button( 'Save All', 'primary', 'submit', false ); ?>&nbsp;<a href="/wp-admin/admin.php?page=pmc_theme_unit_test"
+				   class="login-form-cancel button"><?php esc_html_e( 'Cancel', 'pmc-plugins' ); ?></a></td>
 										</tr>
 									</table>
 

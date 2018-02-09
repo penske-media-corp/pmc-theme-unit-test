@@ -27,7 +27,7 @@ class Login {
 	 *
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
-	protected function _init() {
+	protected function __construct() {
 		$this->_setup_hooks();
 	}
 
@@ -120,7 +120,6 @@ class Login {
 		);
 
 		$change_credentials = filter_input( INPUT_GET, 'change' );
-
 		$saved_access_token = get_option( Config::access_token_key );
 
 		$is_valid_token = O_Auth::get_instance()->is_valid_token();

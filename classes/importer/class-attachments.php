@@ -4,6 +4,7 @@ namespace PMC\Theme_Unit_Test\Importer;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Logger\Status;
+use PMC\Theme_Unit_Test\Settings\Config;
 
 class Attachments {
 
@@ -66,7 +67,6 @@ class Attachments {
 	 * @return int|WP_Error The Meta data Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-
 	public function save_featured_image( $image_url, $post_id ) {
 
 		$status = Status::get_instance();
@@ -138,8 +138,8 @@ class Attachments {
 
 		$count = 0;
 		foreach ( $attachments_json as $key => $attachment_json ) {
-			// fetch only 5 attachments
-			if ( $count > 5 ) {
+			// fetch only 1 attachment for now
+			if ( $count > Config::attachment_count ) {
 				break;
 			}
 			$attachments_id = $this->_save_attachment( $attachment_json['URL'], $post_id );

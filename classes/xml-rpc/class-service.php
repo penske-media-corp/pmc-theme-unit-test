@@ -22,7 +22,7 @@ class Service {
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 *
 	 */
-	protected function _init() {
+	protected function __construct() {
 		$this->_setup_hooks();
 	}
 
@@ -68,6 +68,21 @@ class Service {
 
 	}
 
+	public function is_xmlrpc_valid() {
+		$status = Status::get_instance();
+
+		$this->xmlrpc_client = new Client();
+
+		if ( empty( $this->xmlrpc_client ) ) {
+
+			$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
+
+			return false;
+		}
+
+		return $this->xmlrpc_client;
+	}
+
 	/**
 	 * Depending on the Domain initialize the xmlrpc client and call the required routes
 	 *
@@ -87,14 +102,9 @@ class Service {
 
 		try {
 
-			$this->xmlrpc_client = new Client();
-			if ( empty( $this->xmlrpc_client ) ) {
-				$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
+			$xmlrpc_client = $this->is_xmlrpc_valid();
 
-				return false;
-			}
-
-			$this->xmlrpc_client->cache_key = md5( 'pmc-theme-unit-test-' . $route );
+			$xmlrpc_client->cache_key = md5( 'pmc-theme-unit-test-' . $route );
 
 			switch ( $route ) {
 

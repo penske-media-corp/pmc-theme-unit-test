@@ -25,7 +25,6 @@ function pmc_theme_unit_test_loader() {
 
 pmc_theme_unit_test_loader();
 
-
 // Setting a custom timeout value for cURL. Using a high value for priority to ensure the function runs after any other added to the same action hook.
 add_action('http_api_curl', 'sar_custom_curl_timeout', 9999, 1);
 function sar_custom_curl_timeout( $handle ){

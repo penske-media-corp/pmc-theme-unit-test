@@ -15,7 +15,7 @@ class Status {
 	 * @since 2015-07-06
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
-	protected function _init() {
+	protected function __construct() {
 	}
 
 	/**

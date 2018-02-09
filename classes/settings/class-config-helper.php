@@ -14,7 +14,7 @@ class Config_Helper {
 	 * @since 2015-07-21
 	 * @version 2015-07-21 Archana Mandhare PPT-5077
 	 */
-	protected function _init() {
+	protected function __construct() {
 		$this->_setup_hooks();
 	}
 

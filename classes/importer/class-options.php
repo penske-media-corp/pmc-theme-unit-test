@@ -141,14 +141,23 @@ class Options {
 	 * @return string/array
 	 */
 	private function _recursive_array_replace( $find, $replace, $array ) {
-		if ( ! is_array( $array ) ) {
-			return str_replace( $find, $replace, $array );
+		if ( is_string( $array ) ) {
+			if( false !== strpos( $array, $find ) ) {
+				return str_replace( $find, $replace, $array );
+			} else {
+				return $array;
+			}
 		}
-		$new_array = array();
-		foreach ( $array as $key => $value ) {
-			$new_array[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
+		if( is_array( $array ) ) {
+			$new_array = array();
+			foreach ( $array as $key => $value ) {
+				$new_array[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
+			}
+
+			return $new_array;
 		}
 
-		return $new_array;
+		return $array;
+
 	}
 }

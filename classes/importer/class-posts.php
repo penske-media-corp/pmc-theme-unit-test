@@ -2,9 +2,11 @@
 
 namespace PMC\Theme_Unit_Test\Importer;
 
+use \Exception;
 use PMC\Theme_Unit_Test\Traits\Singleton;
-use PMC\Theme_Unit_Test\XML_RPC\Service as Service;
+use PMC\Theme_Unit_Test\XML_RPC\Service;
 use PMC\Theme_Unit_Test\Logger\Status;
+use PMC\Theme_Unit_Test\Settings\Config;
 
 class Posts {
 
@@ -161,6 +163,9 @@ class Posts {
 		}
 		foreach ( $posts_json as $post_json ) {
 			try {
+
+				$params = array( 'post_id' => $post_json['ID'] );
+
 				if ( ! empty( $post_json['author'] ) ) {
 					$author = get_user_by( 'login', $post_json['author']['login'] );
 					if ( $author ) {
@@ -199,47 +204,7 @@ class Posts {
 					}
 
 					// Fetch the custom taxonomy terms and custom fields for this post using XMLRPC.
-
-					$params = array( 'post_id' => $post_json['ID'] );
-
-					$post_meta_data = Service::get_instance()->call_xmlrpc_api_route( 'posts', $params );
-
-					if ( is_wp_error( $post_meta_data ) ) {
-
-						$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data->get_error_message();
-						$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
-
-					} elseif ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
-
-						if ( is_wp_error( $post_meta_data[0] ) ) {
-
-							$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data[0]->get_error_message();
-							$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
-
-						} else {
-
-							// Save the custom taxonomy terms for this post.
-							// Expecting only one value in $post_meta_data with 0 index since this is only for one post
-							// Save all the terms
-							foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
-
-								// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
-								if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies ) ) {
-									$term_id = Terms::get_instance()->save_taxonomy_terms( $custom_term );
-									wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
-								}
-
-							}
-
-							// Save all the custom fields
-							foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
-								if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
-									$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
-								}
-							}
-						}
-
-					}
+					$this->_maybe_call_xmlrpc_routes( $params, $post_json, $post_id );
 
 					// Save the featured image of the post
 					if ( ! empty( $post_json['featured_image'] ) ) {
@@ -267,6 +232,61 @@ class Posts {
 		return $post_ids;
 	}
 
+	protected function _maybe_call_xmlrpc_routes( $params, $post_json, $post_id ) {
+
+		try {
+			$status   = Status::get_instance();
+
+			$xmlrpc = Service::get_instance()->is_xmlrpc_valid();
+
+			if( ! $xmlrpc ) {
+				return;
+			}
+
+			$post_meta_data = Service::get_instance()->call_xmlrpc_api_route( 'posts', $params );
+
+			if ( is_wp_error( $post_meta_data ) ) {
+
+				$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data->get_error_message();
+				$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
+
+			} elseif ( ! empty( $post_meta_data ) && is_array( $post_meta_data ) ) {
+
+				if ( is_wp_error( $post_meta_data[0] ) ) {
+
+					$this->_post_log_data['meta_error_message'] = $this->_post_log_data['meta_error_message'] . ' -- ' . $post_meta_data[0]->get_error_message();
+					$status->save_current_log( self::LOG_NAME, array( $post_json['ID'] => $this->_post_log_data ) );
+
+				} else {
+
+					// Save the custom taxonomy terms for this post.
+					// Expecting only one value in $post_meta_data with 0 index since this is only for one post
+					// Save all the terms
+					foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
+
+						// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
+						if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies, true ) ) {
+							$term_id = Terms::get_instance()->save_taxonomy_terms( $custom_term );
+							wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
+						}
+
+					}
+
+					// Save all the custom fields
+					foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
+						if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids ) ) ) {
+							$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
+						}
+					}
+				}
+
+			}
+		} catch( \Exception $e) {
+			// @TOdo : do nothing for now but handle better in future
+			return;
+		}
+
+	}
 
 	/**
 	 * Route the call to the import function for this class

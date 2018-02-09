@@ -4,7 +4,12 @@ namespace PMC\Theme_Unit_Test\Rest_API;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\Settings\Config;
-use PMC\Theme_Unit_Test\Background\Background_Data_Import;
+use PMC\Theme_Unit_Test\Admin\Import;
+use PMC\Theme_Unit_Test\Importer\Users;
+use PMC\Theme_Unit_Test\Importer\Menus;
+use PMC\Theme_Unit_Test\Importer\Tags;
+use PMC\Theme_Unit_Test\Importer\Categories;
+use PMC\Theme_Unit_Test\Importer\Posts;
 
 class Router {
 
@@ -50,16 +55,30 @@ class Router {
 			return false;
 		} else {
 
-			$background_process = new Background_Data_Import();
+			switch ( $route ) {
+				case 'users':
+					$route_class = Users::get_instance();
+					break;
+				case 'menus':
+					$route_class = Menus::get_instance();
+					break;
+				case 'tags':
+					$route_class = Tags::get_instance();
+					break;
+				case 'categories':
+					$route_class = Categories::get_instance();
+					break;
+				case 'posts':
+					$route_class = Posts::get_instance();
+					break;
+				default:
+					$route_class = $this;
+					break;
+			}
 
-			$router_data = [
-				'route'    => $route,
-				'api_data' => $api_data,
-			];
+			$import_status = $route_class->call_import_route( $api_data );
 
-			$background_process->push_to_queue( $router_data );
-
-			$background_process->save()->dispatch();
+			return $import_status;
 
 		}
 

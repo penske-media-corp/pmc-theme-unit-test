@@ -10,6 +10,8 @@ use PMC\Theme_Unit_Test\REST_API\Router;
 use PMC\Theme_Unit_Test\Settings\Config_Helper;
 use PMC\Theme_Unit_Test\XML_RPC\Service;
 use PMC\Theme_Unit_Test\Logger\Status;
+use PMC\Theme_Unit_Test\Background\Background_Data_Import;
+
 
 class Import {
 
@@ -17,13 +19,15 @@ class Import {
 
 	const IMPORT_REPORT = 'import_report';
 
+	public $process;
+
 	/**
 	 * Add methods that need to run on class initialization
 	 *
 	 * @since 2015-07-06
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 */
-	protected function _init() {
+	protected function __construct() {
 		$this->_setup_hooks();
 	}
 
@@ -91,6 +95,17 @@ class Import {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
 		setcookie( 'oauth_redirect', get_admin_url() . 'admin.php?page=pmc_theme_unit_test', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
+		$this->process_handler();
+	}
+
+	public function process_handler() {
+		if ( empty( $this->process ) ) {
+			$this->process = new Background_Data_Import();
+		}
+	}
+
+	public function get_background_process() {
+		return $this->process;
 	}
 
 	/**
@@ -317,7 +332,7 @@ class Import {
 	}
 
 	/**
-	 * Import custom taxonomies using the REST API
+	 * Import custom taxonomies using the XMLRPC
 	 *
 	 * @since 2016-07-24
 	 * @version 2016-07-24 Archana Mandhare PMCVIP-1950
@@ -327,7 +342,7 @@ class Import {
 	}
 
 	/**
-	 * Import WordPress options using the REST API
+	 * Import WordPress options using the XMLRPC
 	 *
 	 * @since 2016-07-24
 	 * @version 2016-07-24 Archana Mandhare PMCVIP-1950

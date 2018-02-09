@@ -52,7 +52,6 @@ abstract class PMC_Async_Request {
 	public function __construct() {
 		$this->identifier = $this->prefix . '_' . $this->action;
 		add_action( 'wp_ajax_' . $this->identifier, array( $this, 'maybe_handle' ) );
-		add_action( 'wp_ajax_nopriv_' . $this->identifier, array( $this, 'maybe_handle' ) );
 	}
 
 	/**
