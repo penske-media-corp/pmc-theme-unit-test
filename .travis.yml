@@ -24,7 +24,7 @@ env:
 branches:
   only:
     - master
-    - v2
+    - feature/v2
 
 
 # Use this to prepare the system to install prerequisites or dependencies.
