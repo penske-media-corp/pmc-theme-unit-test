@@ -24,7 +24,7 @@ class Comments {
 	 *
 	 * @return int|WP_Error The Comment Id on success. The value 0 or WP_Error on failure.
 	 */
-	public function save_comment( $comment_json, $post_id ) {
+	public function save_comment( $comment, $post_id ) {
 
 		$status = Status::get_instance();
 
@@ -45,7 +45,7 @@ class Comments {
 		);
 
 		try {
-			if ( empty( $comment_json ) ) {
+			if ( empty( $comment ) ) {
 
 				$comment_data['error_message'] = ' No Comment data provided for post ';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $comment_data ) );
@@ -55,14 +55,14 @@ class Comments {
 
 			$comment_data = array(
 				'comment_post_ID'      => $post_id,
-				'comment_author'       => $comment_json['author']['name'],
-				'comment_author_email' => $comment_json['author']['email'],
-				'comment_author_url'   => $comment_json['author']['URL'],
-				'comment_content'      => $comment_json['content'],
-				'comment_type'         => $comment_json['type'],
-				'comment_parent'       => ( false === $comment_json['parent'] ) ? 0 : $comment_json['parent'],
-				'comment_status'       => $comment_json['status'],
-				'comment_date'         => $comment_json['date'],
+				'comment_author'       => $comment['author']['name'],
+				'comment_author_email' => $comment['author']['email'],
+				'comment_author_url'   => $comment['author']['URL'],
+				'comment_content'      => $comment['content'],
+				'comment_type'         => $comment['type'],
+				'comment_parent'       => ( false === $comment['parent'] ) ? 0 : $comment['parent'],
+				'comment_status'       => $comment['status'],
+				'comment_date'         => $comment['date'],
 				'user_id'              => get_current_user_id(),
 			);
 
@@ -100,17 +100,17 @@ class Comments {
 	 * @return array of Comments ids on success.
 	 * @todo - Find ways to insert comments as an object mapped from json_decode
 	 */
-	public function instant_comments_import( $json_data, $post_id ) {
+	public function instant_comments_import( $data, $post_id ) {
 
-		$comments_ids = array();
-		if ( empty( $json_data ) || ! is_array( $json_data ) ) {
-			return $comments_ids;
+		$comment_ids = array();
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			return [];
 		}
-		foreach ( $json_data as $comment_data ) {
-			$comments_ids[] = $this->save_comment( $comment_data, $post_id );
+		foreach ( $data as $comment_data ) {
+			$comment_ids[] = $this->save_comment( $comment_data, $post_id );
 		}
 
-		return $comments_ids;
+		return $comment_ids;
 	}
 
 	/**

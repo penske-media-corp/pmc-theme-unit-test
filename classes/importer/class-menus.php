@@ -24,7 +24,7 @@ class Menus {
 	 *
 	 * @return int|WP_Error The menu item object id on success. The value 0 or WP_Error on failure.
 	 */
-	private function _get_type_object_id( $menu_item ) {
+	private function _get_type_object_id( array $menu_item ) {
 
 		$status              = Status::get_instance();
 		$menu_item_object_id = 0;
@@ -48,7 +48,6 @@ class Menus {
 			'menu-item-status'      => 0,
 			'error_message'         => '',
 		);
-
 
 		// if the type is taxonomy make XMLRPC call or else make REST API call for post_type
 		switch ( $type_family ) {
@@ -88,7 +87,7 @@ class Menus {
 	 *
 	 * @return int|WP_Error The Menu Item Id on success. The value 0 or WP_Error on failure.
 	 */
-	private function _save_menu_item( $menu_id, $menu_item ) {
+	private function _save_menu_item( $menu_id, array $menu_item ) {
 
 		$status = Status::get_instance();
 
@@ -122,17 +121,20 @@ class Menus {
 
 				//fetch the type object from API if it is not present in the current site;
 				$type_id = $this->_get_type_object_id( $menu_item );
+
 				if ( empty( $type_id ) || is_wp_error( $type_id ) ) {
+
 					$menu_log_data['error_message'] = ' Menu Item of URL ' . $menu_item['url'] . ' Not imported from server ';
 					$status->save_current_log( self::LOG_NAME, array( $menu_id => $menu_log_data ) );
-
 					return false;
 				}
+
 				if ( 'taxonomy' === $menu_item['type_family'] ) {
 					$url = wpcom_vip_get_term_link( $type_id, $menu_item['type'] );
 				} else if ( 'post_type' === $menu_item['type_family'] ) {
 					$url = get_permalink( $type_id );
 				}
+
 			} else {
 				$url     = $menu_item['url'];
 				$type_id = 0;
@@ -145,16 +147,16 @@ class Menus {
 			// create the menu item array
 			$args = array(
 				'menu-item-object-id'   => $type_id,
-				'menu-item-object'      => $menu_item['type'],
-				'menu-item-type'        => $menu_item['type_family'],
+				'menu-item-parent-id'   => $menu_id,
 				'menu-item-title'       => $menu_item['name'],
 				'menu-item-url'         => $url,
+				'menu-item-object'      => $menu_item['type'],
+				'menu-item-type'        => $menu_item['type_family'],
 				'menu-item-description' => $menu_item['description'],
 				'menu-item-attr-title'  => $menu_item['link_title'],
 				'menu-item-target'      => $menu_item['link_target'],
 				'menu-item-classes'     => $_menu_item_classes,
 				'menu-item-xfn'         => $menu_item['xfn'],
-				'menu-item-parent-id'   => $menu_id,
 				'menu-item-status'      => 'publish',
 			);
 
@@ -164,11 +166,11 @@ class Menus {
 				$menu_log_data['error_message'] = $menu_item_db_id->get_error_message();
 			} else {
 				if ( 'taxonomy' === $menu_item['type_family'] ) {
-					wp_set_object_terms( $menu_id, $type_id, 'nav_menu' );
+					wp_set_object_terms( $menu_id, $type_id, 'nav_menu', true );
 				}
 				if ( ! empty( $menu_item['items'] ) ) {
 					foreach ( $menu_item['items'] as $menu_child_item ) {
-						$this->_save_menu_item( $menu_item_db_id, $menu_child_item );
+						//$this->_save_menu_item( $menu_item_db_id, $menu_child_item );
 					}
 				}
 				$menu_log_data['error_message'] = '';
@@ -198,9 +200,9 @@ class Menus {
 	 * @return int|WP_Error The Menu Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	public function save_menu( $menu_json ) {
+	public function save_menu( array $menu_data ) {
 
-		$menu_name = $menu_json['name'];
+		$menu_name = $menu_data['name'];
 
 		$status = Status::get_instance();
 
@@ -211,58 +213,47 @@ class Menus {
 
 		try {
 
-			if ( empty( $menu_json ) ) {
+			if ( empty( $menu_data ) ) {
 
 				$menu_log_data['error_message'] = ' No Menu data Provided ';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
 
 				return false;
 			}
+
 			// Does the menu exist already?
 			$menu_object = wp_get_nav_menu_object( $menu_name );
+
 			// If it exists, lets delete and recreate
 			if ( ! empty( $menu_object ) ) {
-				$menu_id           = $menu_object->term_id;
-				$menu_object_items = wp_get_nav_menu_items( $menu_object );
-			} else {
-				$menu_id = wp_create_nav_menu( $menu_name );
+				wp_delete_nav_menu( $menu_object->term_id );
 			}
 
+			$menu_id = wp_create_nav_menu( $menu_name );
+
 			if ( is_wp_error( $menu_id ) ) {
-				$menu_log_data['name']          = $menu_json['name'];
-				$menu_log_data['error_message'] = '-- Menu Failed ' . $menu_json['name'] . '**--** with message  = ' . $menu_id->get_error_message();
+				$menu_log_data['name']          = $menu_name;
+				$menu_log_data['error_message'] = '-- Menu Failed ' . $menu_name . '**--** with message  = ' . $menu_id->get_error_message();
 				$status->save_current_log( self::LOG_NAME, array( 0 => $menu_log_data ) );
 
 				return false;
 			}
 
-			if ( ! empty( $menu_json['items'] ) ) {
-				foreach ( $menu_json['items'] as $menu_item ) {
-					$menu_item_found = false;
-					if ( ! empty( $menu_object_items ) ) {
-						foreach ( $menu_object_items as $menu_object_item ) {
-							if ( $menu_object_item->title === $menu_item['name'] ) {
-								$menu_item_found = true;
-								break;
-							}
-						}
-					}
-					if ( ! $menu_item_found ) {
-						//loop through and save the menu items
-						$this->_save_menu_item( $menu_id, $menu_item );
-					}
+
+			if ( ! empty( $menu_data['items'] ) ) {
+				foreach ( $menu_data['items'] as $menu_item ) {
+					$this->_save_menu_item( $menu_id, $menu_item );
 				}
 			}
 
 			// Grab the theme locations and assign our newly-created menu
-			if ( ! empty( $menu_json['locations'] ) ) {
-				$menu_locations = $menu_json['locations'];
+			if ( ! empty( $menu_data['locations'] ) ) {
+				$menu_locations = $menu_data['locations'];
 				foreach ( $menu_locations as $menu_location ) {
 					if ( ! has_nav_menu( $menu_location ) ) {
 						$locations                   = get_theme_mod( 'nav_menu_locations' );
 						$locations[ $menu_location ] = $menu_id;
 						set_theme_mod( 'nav_menu_locations', $locations );
-
 					}
 				}
 			}
@@ -287,22 +278,26 @@ class Menus {
 	 *
 	 * @return array of Nav Menus ids on success.
 	 */
-	public function instant_menus_import( $menus_json ) {
+	public function instant_menus_import( array $menu_items = [] ) {
 
-		$menus_info = array();
+		$menu_info = array();
 
-		if ( empty( $menus_json ) || ! is_array( $menus_json ) ) {
-			return $menus_info;
+		if ( empty( $menu_items ) || ! is_array( $menu_items ) ) {
+			return $menu_info;
 		}
 
-		foreach ( $menus_json as $menu_json ) {
-			$menu_id = $this->save_menu( $menu_json );
-			if ( ! empty( $menu_id ) ) {
-				$menus_info[] = $menu_id;
+		foreach ( $menu_items as $menu ) {
+			try {
+				$menu_id = $this->save_menu( $menu );
+				if ( ! empty( $menu_id ) ) {
+					$menu_info[] = $menu_id;
+				}
+			} catch ( \Exception $ex ) {
+				continue;
 			}
 		}
 
-		return $menus_info;
+		return $menu_info;
 	}
 
 

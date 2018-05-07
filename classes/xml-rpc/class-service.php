@@ -256,7 +256,7 @@ class Service {
 	 * @version 2015-07-24 Archana Mandhare PPT-5077
 	 *
 	 * @param string $taxonomy -taxonomy name on Production Site
-	 *         int $term_id - the term_id for the Term on production Site
+	 *         int $term_id | name - the term_id or name for the Term on production Site
 	 *
 	 * @return int|WP_Error The taxonomy Term Id on success. The value 0 or WP_Error on failure.
 	 *
@@ -269,6 +269,7 @@ class Service {
 		$taxonomy_id = taxonomy_exists( $taxonomy );
 
 		if ( false === $taxonomy_id ) {
+
 			$status->log_to_file( 'Taxonomy does not exits hence Menu Import failed  - ' . $taxonomy );
 
 			return new \WP_Error( 'taxonomy_error', 'Taxonomy does not exits hence Menu Import failed - ' . $taxonomy );
@@ -277,6 +278,7 @@ class Service {
 		$this->xmlrpc_client = new Client();
 
 		if ( empty( $this->xmlrpc_client ) ) {
+
 			$status->log_to_file( 'XMLRPC Client not initialized because of missing credentials' );
 
 			return false;
@@ -290,6 +292,7 @@ class Service {
 		if ( empty( $result ) ) {
 
 			$error = $this->xmlrpc_client->error->message;
+
 			$status->log_to_file( 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );
 
 			return new \WP_Error( 'taxonomy_error', 'Menu Taxonomy Term Import Failed during importing for Menu with Exception - ' . $error );

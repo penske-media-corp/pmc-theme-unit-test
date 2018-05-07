@@ -100,14 +100,14 @@ class Categories {
 	 * @todo - Find ways to insert categories as an object along with all its terms and meta rather than creating an array from json_data
 	 *
 	 */
-	public function instant_categories_import( $categories_json ) {
+	public function instant_categories_import( array $categories ) {
 
-		$categories_info = array();
-		if ( empty( $categories_json ) || ! is_array( $categories_json ) ) {
-			return $categories_info;
+		$categories_info = [];
+		if ( empty( $categories ) || ! is_array( $categories ) ) {
+			return [];
 		}
-		foreach ( $categories_json as $category_json ) {
-			$categories_info[] = $this->save_category( $category_json );
+		foreach ( $categories as $category ) {
+			$categories_info[] = $this->save_category( $category );
 		}
 
 		return $categories_info;

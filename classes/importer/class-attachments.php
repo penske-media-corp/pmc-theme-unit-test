@@ -129,22 +129,24 @@ class Attachments {
 	 *
 	 * @return array of Attachments ids on success.
 	 */
-	public function instant_attachments_import( $attachments_json, $post_id ) {
+	public function instant_attachments_import( array $attachments, $post_id ) {
 
 		$attachments_info = array();
-		if ( empty( $attachments_json ) || ! is_array( $attachments_json ) ) {
-			return $attachments_info;
+		if ( empty( $attachments ) || ! is_array( $attachments ) ) {
+			return [];
 		}
 
 		$count = 0;
-		foreach ( $attachments_json as $key => $attachment_json ) {
+		foreach ( $attachments as $key => $attachment ) {
 			// fetch only 1 attachment for now
 			if ( $count > Config::attachment_count ) {
 				break;
 			}
-			$attachments_id = $this->_save_attachment( $attachment_json['URL'], $post_id );
-			if ( ! empty( $attachments_id ) ) {
-				$attachments_info[] = $attachments_id;
+
+			$attachment_id = $this->_save_attachment( $attachment['URL'], $post_id );
+
+			if ( ! empty( $attachment_id ) ) {
+				$attachments_info[] = $attachment_id;
 			}
 			$count ++;
 		}

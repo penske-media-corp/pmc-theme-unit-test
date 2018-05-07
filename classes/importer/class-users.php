@@ -106,14 +106,14 @@ class Users {
 	 *
 	 * @return array of Users ids on success.
 	 */
-	public function instant_users_import( $users_json ) {
+	public function instant_users_import( $users ) {
 
-		$user_ids = array();
-		if ( empty( $users_json ) || ! is_array( $users_json ) ) {
-			return $user_ids;
+		$user_ids = [];
+		if ( empty( $users ) || ! is_array( $users ) ) {
+			return [];
 		}
 
-		foreach ( $users_json as $user_data ) {
+		foreach ( $users as $user_data ) {
 			$user_ids[] = $this->save_user( $user_data );
 		}
 

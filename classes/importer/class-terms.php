@@ -22,7 +22,7 @@ class Terms {
 	 * @return int|WP_Error The taxonomy Term Id on success. The value 0 or WP_Error on failure.
 	 *
 	 */
-	public function save_taxonomy_terms( $term_json ) {
+	public function save_taxonomy_terms( array $term_details ) {
 
 		$status = Status::get_instance();
 
@@ -36,35 +36,35 @@ class Terms {
 		);
 
 		try {
-			if ( empty( $term_json ) ) {
+			if ( empty( $term_details ) ) {
 				$tag_array['error_message'] = 'NO TERM DETAILS PASSED BY API';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $term_array ) );
 
 				return false;
 			}
 
-			$taxonomy_id = taxonomy_exists( $term_json['taxonomy'] );
+			$exists_taxonomy = taxonomy_exists( $term_details['taxonomy'] );
 
-			if ( false === $taxonomy_id ) {
-				$tag_array['error_message'] = 'Taxonomy -- ' . $term_json['taxonomy'] . ' --  does not exists';
+			if ( false === $exists_taxonomy ) {
+				$tag_array['error_message'] = 'Taxonomy -- ' . $term_details['taxonomy'] . ' --  does not exists';
 				$status->save_current_log( self::LOG_NAME, array( 0 => $term_array ) );
 
 				return false;
 			}
 
-			$term_id = wpcom_vip_term_exists( $term_json['name'], $term_json['taxonomy'] );
+			$term_id = wpcom_vip_term_exists( $term_details['slug'], $term_details['taxonomy'] );
 
-			if ( empty( $term_id ) && false !== $taxonomy_id ) {
+			if ( empty( $term_id ) && $exists_taxonomy ) {
 
-				$term_array['name']        = $term_json['name'];
-				$term_array['description'] = $term_json['description'];
+				$term_array['name']        = $term_details['name'];
+				$term_array['description'] = $term_details['description'];
 
 				$term = wp_insert_term(
-					$term_json['name'],
-					$term_json['taxonomy'],
+					$term_details['name'],
+					$term_details['taxonomy'],
 					array(
-						'description' => $term_json['description'],
-						'slug'        => $term_json['slug'],
+						'description' => $term_details['description'],
+						'slug'        => $term_details['slug'],
 					)
 				);
 
@@ -94,7 +94,6 @@ class Terms {
 		}
 	}
 
-
 	/**
 	 * Assemble Taxonomies Term data from XMLRPC and inserts new Taxonomy.
 	 *
@@ -106,14 +105,16 @@ class Terms {
 	 * @return array of Taxonomy Term ids on success.
 	 *
 	 */
-	public function instant_terms_import( $terms_json ) {
+	public function instant_terms_import( $terms ) {
 
 		$terms_info = array();
-		if ( empty( $terms_json ) || ! is_array( $terms_json ) ) {
+
+		if ( empty( $terms ) || ! is_array( $terms ) ) {
 			return $terms_info;
 		}
-		foreach ( $terms_json as $term_json ) {
-			$terms_info[] = $this->save_taxonomy_terms( $term_json );
+
+		foreach ( $terms as $term ) {
+			$terms_info[] = $this->save_taxonomy_terms( $term );
 		}
 
 		return $terms_info;

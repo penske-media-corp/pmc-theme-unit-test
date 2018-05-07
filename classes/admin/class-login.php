@@ -106,7 +106,6 @@ class Login {
 		}
 
 		$args           = array();
-		$show_cred_form = false;
 		$show_form      = get_option( Config::show_form );
 
 		$code = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
@@ -195,6 +194,18 @@ class Login {
 			}
 		}
 
+		// Is there any filter that has the credentials.
+		$credentials = apply_filters( 'pmc-theme-unit-test-default-credentials', false );
+		if ( ! empty( $credentials ) ) {
+			$creds_details[ Config::api_domain ] = $credentials['domain'];
+		    $creds_details[ Config::api_client_id ] = $credentials['client_id'];
+		    $creds_details[ Config::api_client_secret ] = $credentials['client_secret'];
+			$creds_details[ Config::api_redirect_uri ] = $credentials['redirect_uri'];
+
+			return $creds_details;
+		}
+
+		// Fetch the credentails from a file.
 		$file_exists = file_exists( PMC_THEME_UNIT_TEST_ROOT . '/auth.json' );
 
 		if ( ! $file_exists ) {
@@ -279,6 +290,7 @@ class Login {
 		$creds_details = array_map( 'wp_unslash', $creds_details );
 		$creds_details = array_map( 'sanitize_text_field', $creds_details );
 		$access_token  = get_option( Config::access_token_key );
+		$domain = get_option( Config::api_domain );
 
 		if ( empty( $creds_details[ Config::api_domain ] )
 		     || empty( $creds_details[ Config::api_client_id ] )
@@ -288,7 +300,7 @@ class Login {
 			return false;
 		}
 
-		if ( empty( $access_token ) ) {
+		if ( empty( $access_token ) || empty( $domain ) ) {
 
 			if ( ! empty( $creds_details ) && is_array( $creds_details ) ) {
 				foreach ( $creds_details as $key => $value ) {

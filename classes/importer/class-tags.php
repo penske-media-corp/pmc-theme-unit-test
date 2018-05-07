@@ -93,13 +93,13 @@ class Tags {
 	 * @return array of Tags ids on success.
 	 * @todo - Find ways to insert tags as an object along with all its terms and meta rather than creating an array from json_data
 	 */
-	public function instant_tags_import( $tags_json ) {
-		$tag_ids = array();
-		if ( empty( $tags_json ) || ! is_array( $tags_json ) ) {
-			return $tag_ids;
+	public function instant_tags_import( array $tags ) {
+		$tag_ids = [];
+		if ( empty( $tags ) || ! is_array( $tags ) ) {
+			return [];
 		}
-		foreach ( $tags_json as $tag_json ) {
-			$tag_ids[] = $this->save_tag( $tag_json );
+		foreach ( $tags as $tag ) {
+			$tag_ids[] = $this->save_tag( $tag );
 		}
 
 		return $tag_ids;
