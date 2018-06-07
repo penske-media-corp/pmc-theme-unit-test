@@ -7,10 +7,11 @@
  * Author Archana Mandhare <amandhare@pmc.com>
  *
  */
+
 /**
- * @group test_admin
+ * @group test_import
  */
-class Test_Admin extends WP_UnitTestCase {
+class Test_Import extends WP_UnitTestCase {
 
 	function setUp() {
 		// to speeed up unit test, we bypass files scanning on upload folder
@@ -29,8 +30,8 @@ class Test_Admin extends WP_UnitTestCase {
 	 */
 	public function test_init() {
 
-		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
-		$this->assertInstanceOf( 'PMC\Theme_Unit_Test\Admin', $admin );
+		$admin = PMC\Theme_Unit_Test\Admin\Import::get_instance();
+		$this->assertInstanceOf( 'PMC\Theme_Unit_Test\Admin\Import', $admin );
 
 		$filters = array(
 			'init'                                       => 'on_wp_init',
@@ -53,21 +54,21 @@ class Test_Admin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Admin::action_admin_init()
+	 * @covers PMC\Theme_Unit_Test\Admin\Import::action_admin_init()
 	 */
 	public function test_action_admin_init() {
 
 		global $new_whitelist_options;
 
-		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
+		$admin = PMC\Theme_Unit_Test\Admin\Import::get_instance();
 		$admin->action_admin_init();
-		$this->assertTrue( in_array( 'pmc_domain_creds', $new_whitelist_options['pmc_domain_creds'] ) );
+		$this->assertTrue( in_array( 'pmc_domain_creds', $new_whitelist_options['pmc_domain_creds'], true ) );
 
 	}
 
 
 	/**
-	 * @covers Admin::add_admin_menu()
+	 * @covers PMC\Theme_Unit_Test\Admin\Import::add_admin_menu()
 	 */
 	public function test_add_admin_menu() {
 
@@ -81,11 +82,11 @@ class Test_Admin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Admin::load_assets()
+	 * @covers PMC\Theme_Unit_Test\Admin\Import::load_assets()
 	 */
 	public function test_load_assets() {
 
-		$admin = PMC\Theme_Unit_Test\Admin::get_instance();
+		$admin = PMC\Theme_Unit_Test\Admin\Import::get_instance();
 		$admin->load_assets( 'tools_page_data-import' );
 
 		$this->assertTrue( wp_style_is( 'pmc_theme_unit_test_admin_css', 'enqueued' ) );

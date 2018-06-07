@@ -1,0 +1,54 @@
+{
+    "name": "pmc-theme-unit-test",
+    "version": "1.1.0",
+    "author": "Archana Mandhare (PMC)",
+    "dependencies": {
+    },
+    "settings": {
+        "rest_base_url": "https://public-api.wordpress.com/rest/v1.1/sites/",
+        "request_token_url": "https://public-api.wordpress.com/oauth2/token",
+        "authorize_url": "https://public-api.wordpress.com/oauth2/authorize",
+        "validate_token_url": "https://public-api.wordpress.com/oauth2/token-info",
+        "rest_url_host": "public-api.wordpress.com",
+        "cookie_domain": ".vip.local",
+        "access_token_key": "rest_api_access_token",
+        "api_domain": "api_domain",
+        "api_client_id": "rest_api_client_id",
+        "api_client_secret": "rest_api_client_secret",
+        "api_redirect_uri": "rest_api_redirect_uri",
+        "api_xmlrpc_username": "xmlrpc_username",
+        "api_xmlrpc_password": "xmlrpc_password",
+        "show_form": "show_data_import_form",
+        "import_log": "import_log_post_id",
+        "post_count": 5,
+        "all_routes": {
+            "users": {
+                "query_params": {
+                    "authors_only": true
+                }
+            },
+            "menus": {
+                "query_params": {}
+            },
+            "tags": {
+                "query_params": {}
+            },
+            "categories": {
+                "query_params": {}
+            }
+        },
+        "xmlrpc_routes": [
+            "taxonomies",
+            "options"
+        ],
+        "custom_posttypes": [
+            "post",
+            "page"
+        ],
+        "custom_taxonomies": [],
+        "default_taxonomies": [
+            "post_tag",
+            "category"
+        ]
+    }
+}
