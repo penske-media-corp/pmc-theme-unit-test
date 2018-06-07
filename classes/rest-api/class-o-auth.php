@@ -41,7 +41,8 @@ class O_Auth {
 				'client_secret' => $client_secret,
 				'grant_type'    => 'authorization_code',
 				'code'          => $code,
-				'redirect_uri'  => $redirect_uri,
+				// Note: this redirect must match request request request data
+				'redirect_uri'  => $this->get_authorization_redirect( $redirect_uri ),
 			);
 
 			$args = array(
@@ -80,6 +81,26 @@ class O_Auth {
 	}
 
 	/**
+	 * Generate the redirect url request for authorization
+	 * @param  [type] $redirect_uri The redirect url
+	 * @return string The redirect url
+	 */
+	public function get_authorization_redirect( $redirect_uri ) {
+		// to workaround wp security where cookie is useless due to wp oauth redirect trigger browser not passing cookie
+		$url_parts = parse_url( $redirect_uri );
+		if ( !empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
+			if ( !empty( $url_parts['query'] ) ) {
+				$url_parts['query'] = $url_parts['query'] . '&';
+			} else {
+				$url_parts['query'] = '';
+			}
+			$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'tools.php?page=data-import' );
+			$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
+		}
+		return $redirect_uri;
+	}
+
+	/**
 	 * Authorise the request using the secret key and save the access token
 	 *
 	 * @since 2015-07-06
@@ -104,7 +125,7 @@ class O_Auth {
 				'response_type' => 'code',
 				'scope'         => 'global',
 				'client_id'     => $client_id,
-				'redirect_uri'  => $redirect_uri,
+				'redirect_uri'  => $this->get_authorization_redirect( $redirect_uri ),
 			);
 			$query_param   = http_build_query( $args );
 			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_param;

@@ -21,7 +21,27 @@ function pmc_theme_unit_test_loader() {
 		\PMC\Theme_Unit_Test\Admin\Login::get_instance();
 		\PMC\Theme_Unit_Test\Settings\Config_Helper::get_instance();
 	}
+
 }
+
+function pmc_theme_redirectme() {
+	// implement /redirectme
+	if ( false !== stripos( $_SERVER['REQUEST_URI'], '/redirectme' ) && ( ! empty( $_COOKIE['oauth_redirect'] ) || ! empty( $_GET['to'] ) ) ) {
+
+		if ( ! empty( $_GET['code'] ) ) {
+
+			$code           = sanitize_text_field( $_GET[ 'code' ] );
+			$oauth_redirect = sanitize_text_field( !empty( $_GET['to'] ) ? $_GET['to'] : $_COOKIE['oauth_redirect'] );
+			$redirect_url   = $oauth_redirect . '&code=' . $code;
+
+			// IMPORTANT: we don't want to call wp_safe_redirect here to prevent any filter from modifying our url
+			wp_redirect( $redirect_url, 302 );
+			exit;
+
+		}
+	}
+}
+add_action( 'init', 'pmc_theme_redirectme' );
 
 pmc_theme_unit_test_loader();
 
