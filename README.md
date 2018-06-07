@@ -82,22 +82,22 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
                          * For local - http://vip.local/redirectme/
                          * and if we have a local site http://abcdef.vip.local/wp-admin
                          */
-                        add_action( 'init', function () {
-                        
-                        	if ( false !== stripos( $_SERVER['REQUEST_URI'], '/redirectme' ) && ! empty( $_COOKIE['oauth_redirect'] ) ) {
-                        
-                        		if ( ! empty( $_GET['code'] ) ) {
-                        
-                        			$code           = sanitize_text_field( $_GET[ 'code' ] );
-                        			$oauth_redirect = sanitize_text_field( $_COOKIE['oauth_redirect'] );
-                        			$redirect_url   = $oauth_redirect . '&code=' . $code;
-                        			wp_safe_redirect( $redirect_url );
-                        			exit;
-                        
-                        		}
-                        	}
-                        
-                        } );```
+							add_action( 'init', function () {
+							
+								if ( false !== stripos( $_SERVER['REQUEST_URI'], '/redirectme' ) && ! empty( $_COOKIE['oauth_redirect'] ) ) {
+							
+									if ( ! empty( $_GET['code'] ) ) {
+							
+										$code           = sanitize_text_field( $_GET[ 'code' ] );
+										$oauth_redirect = sanitize_text_field( $_COOKIE['oauth_redirect'] );
+										$redirect_url   = $oauth_redirect . '&code=' . $code;
+										wp_safe_redirect( $redirect_url );
+										exit;
+							
+									}
+								}
+							
+							} );```
 
 
 
