@@ -94,7 +94,7 @@ class O_Auth {
 			} else {
 				$url_parts['query'] = '';
 			}
-			$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'tools.php?page=data-import' );
+			$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
 			$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
 		}
 		return $redirect_uri;
