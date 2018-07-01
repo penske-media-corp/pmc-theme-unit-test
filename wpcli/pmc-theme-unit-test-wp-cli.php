@@ -146,14 +146,14 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 
 		// Check the saved values from DB for REST API and XMLRPC
 		$rest_auth    = false;
-		$access_token = get_option( Config::access_token_key );
-		$domain       = get_option( Config::api_domain );
+		$access_token = get_option( Config::ACCESS_TOKEN_KEY );
+		$domain       = get_option( Config::API_DOMAIN );
 		if ( ! empty( $access_token ) && ! empty( $domain ) && O_Auth::get_instance()->is_valid_token() ) {
 			$rest_auth = true;
 		}
 
 		$xlmrpc_auth     = false;
-		$xmlrpc_username = get_option( Config::api_xmlrpc_username );
+		$xmlrpc_username = get_option( Config::API_XMLRPC_USERNAME );
 		$xmlrpc_password = get_option( Config::api_xmlrpc_username );
 		if ( ! empty( $xmlrpc_username ) && ! empty( $xmlrpc_password ) ) {
 			$xlmrpc_auth = true;
@@ -199,19 +199,19 @@ class PMC_Theme_Unit_Test_WP_Cli extends WP_CLI_Command {
 		try {
 			$creds_details = Login::get_instance()->read_credentials_from_json_file( $credentials_file );
 
-			if ( ! is_array( $creds_details ) || empty( $creds_details[ Config::api_client_id ] ) || empty( $creds_details[ Config::api_redirect_uri ] ) ) {
+			if ( ! is_array( $creds_details ) || empty( $creds_details[ Config::API_CLIENT_ID ] ) || empty( $creds_details[ Config::API_REDIRECT_URI ] ) ) {
 				WP_CLI::error( 'Authentication Failed. Some entries were missing. Please add all authentication details to the file ' . sanitize_title_with_dashes( $credentials_file ) );
 
 				return false;
 			}
 
-			update_option( Config::api_credentials, $creds_details );
+			update_option( Config::API_CREDENTIALS, $creds_details );
 
 			$args = array(
 				'response_type' => 'code',
 				'scope'         => 'global',
-				'client_id'     => $creds_details[ Config::api_client_id ],
-				'redirect_uri'  => $creds_details[ Config::api_redirect_uri ],
+				'client_id'     => $creds_details[ Config::API_CLIENT_ID ],
+				'redirect_uri'  => $creds_details[ Config::API_REDIRECT_URI ],
 			);
 
 			$query_params  = http_build_query( $args );

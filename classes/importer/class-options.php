@@ -68,19 +68,19 @@ class Options {
 
 			try {
 
-				if ( in_array( $option_name, $blacklist, true ) ) {
+				if ( in_array( $option_name, (array) $blacklist, true ) ) {
 					continue;
 				}
 
 				$saved = $this->_save_option( $option_name, $option_value, $options_data['no_autoload'] );
 
 				$options_log_data = array(
-					'option_name'   => json_encode( $option_name ),
+					'option_name'   => wp_json_encode( $option_name ),
 					'option_value'  => $option_value,
 					'error_message' => '',
 				);
 
-				$status->save_current_log( self::LOG_NAME, array( json_encode( $option_name ) => $options_log_data ) );
+				$status->save_current_log( self::LOG_NAME, array( wp_json_encode( $option_name ) => $options_log_data ) );
 
 			} catch ( \Exception $ex ) {
 
@@ -108,7 +108,7 @@ class Options {
 			$status = Status::get_instance();
 
 			//replace all the live domains with the local domain path
-			$domain       = get_option( Config::api_domain );
+			$domain       = get_option( Config::API_DOMAIN );
 			$home_url     = get_home_url();
 			$option_value = maybe_unserialize( $option_value );
 			$option_value = $this->_recursive_array_replace( 'http://' . $domain, $home_url, $option_value );
@@ -119,7 +119,7 @@ class Options {
 				'error_message' => '',
 			);
 
-			if ( in_array( $option_name, $no_autoload, true ) ) {
+			if ( in_array( $option_name, (array) $no_autoload, true ) ) {
 				delete_option( $option_name );
 				$option_added = add_option( $option_name, $option_value, '', 'no' );
 			} else {
@@ -129,7 +129,7 @@ class Options {
 			$status->save_current_log( self::LOG_NAME, array( $option_name => $options_log_data ) );
 
 			return $option_added;
-		} catch( \Exception $e) {
+		} catch ( \Exception $e ) {
 			return true;
 		}
 	}
@@ -140,19 +140,21 @@ class Options {
 	 * @since 2015-09-09
 	 * @version 2015-09-09 Archana Mandhare PPT-5077
 	 *
-	 * @param string $find , string $replace and array $array
+	 * @param string $find , string $find and array $array
+	 * @param string $replace , string $replace
+	 * @param array $array
 	 *
 	 * @return string/array
 	 */
 	private function _recursive_array_replace( $find, $replace, $array ) {
 		if ( is_string( $array ) ) {
-			if( false !== strpos( $array, $find ) ) {
+			if ( false !== strpos( $array, $find ) ) {
 				return str_replace( $find, $replace, $array );
 			} else {
 				return $array;
 			}
 		}
-		if( is_array( $array ) ) {
+		if ( is_array( $array ) ) {
 			$new_array = array();
 			foreach ( $array as $key => $value ) {
 				$new_array[ $key ] = $this->_recursive_array_replace( $find, $replace, $value );
@@ -162,6 +164,5 @@ class Options {
 		}
 
 		return $array;
-
 	}
 }

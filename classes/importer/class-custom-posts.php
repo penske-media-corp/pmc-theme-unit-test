@@ -31,3 +31,4 @@ class Custom_Posts {
 }
 
 Custom_Posts::get_instance();
+

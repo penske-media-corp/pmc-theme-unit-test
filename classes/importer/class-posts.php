@@ -2,7 +2,6 @@
 
 namespace PMC\Theme_Unit_Test\Importer;
 
-use \Exception;
 use PMC\Theme_Unit_Test\Traits\Singleton;
 use PMC\Theme_Unit_Test\XML_RPC\Service;
 use PMC\Theme_Unit_Test\Logger\Status;
@@ -30,7 +29,7 @@ class Posts {
 		'post_modified'      => '',
 		'post_category'      => '',
 		'error_message'      => '',
-		'meta_error_message' => ''
+		'meta_error_message' => '',
 	);
 
 	/**
@@ -235,11 +234,12 @@ class Posts {
 	protected function _maybe_call_xmlrpc_routes( $params, $post_json, $post_id ) {
 
 		try {
-			$status   = Status::get_instance();
+
+			$status = Status::get_instance();
 
 			$xmlrpc = Service::get_instance()->is_xmlrpc_valid();
 
-			if( ! $xmlrpc ) {
+			if ( ! $xmlrpc ) {
 				return;
 			}
 
@@ -265,7 +265,7 @@ class Posts {
 					foreach ( $post_meta_data[0]['terms'] as $custom_term ) {
 
 						// post_tag and category fetched separately from REST API. We save only the custom taxonomy terms here
-						if ( ! in_array( $custom_term['taxonomy'], Config::$default_taxonomies, true ) ) {
+						if ( ! in_array( $custom_term['taxonomy'], (array) Config::$default_taxonomies, true ) ) {
 							$term_id = Terms::get_instance()->save_taxonomy_terms( $custom_term );
 							wp_set_object_terms( $post_id, array( $custom_term['name'] ), $custom_term['taxonomy'], true );
 						}
@@ -274,18 +274,16 @@ class Posts {
 
 					// Save all the custom fields
 					foreach ( $post_meta_data[0]['custom_fields'] as $custom_field ) {
-						if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], $old_meta_ids, true ) ) ) {
+						if ( empty( $old_meta_ids ) || ( is_array( $old_meta_ids ) && ! in_array( $custom_field['id'], (array) $old_meta_ids, true ) ) ) {
 							$meta_ids[] = $this->_save_post_meta( $post_id, $custom_field );
 						}
 					}
 				}
-
 			}
-		} catch( \Exception $e) {
+		} catch ( \Exception $e ) {
 			// @TOdo : do nothing for now but handle better in future
 			return;
 		}
-
 	}
 
 	/**

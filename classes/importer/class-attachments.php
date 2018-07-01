@@ -92,13 +92,15 @@ class Attachments {
 				return false;
 
 			}
+
 			// then find the last image added to the post attachments
 			$attachments = get_posts( array(
-				'numberposts'    => '1',
-				'post_parent'    => $post_id,
-				'post_type'      => 'attachment',
-				'post_mime_type' => 'image',
-				'order'          => 'ASC',
+				'numberposts'      => '1',
+				'post_parent'      => $post_id,
+				'post_type'        => 'attachment',
+				'post_mime_type'   => 'image',
+				'order'            => 'ASC',
+				'suppress_filters' => false,
 			) );
 
 			if ( sizeof( $attachments ) > 0 ) {
@@ -139,7 +141,7 @@ class Attachments {
 		$count = 0;
 		foreach ( $attachments as $key => $attachment ) {
 			// fetch only 1 attachment for now
-			if ( $count > Config::attachment_count ) {
+			if ( $count > Config::ATTACHMENT_COUNT ) {
 				break;
 			}
 

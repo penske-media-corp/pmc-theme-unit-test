@@ -3,6 +3,7 @@
 namespace PMC\Theme_Unit_Test\Settings;
 
 use PMC\Theme_Unit_Test\Traits\Singleton;
+use Psy\Exception\ErrorException;
 
 class Config_Helper {
 
@@ -83,11 +84,11 @@ class Config_Helper {
 	 * @return array
 	 */
 	public static function get_all_routes() {
-		$domain_routes = array();
+		$domain_routes = [];
 		if ( ! empty( Config::$all_routes ) ) {
 			foreach ( Config::$all_routes as $route ) {
-				$route_name      = array_keys( $route );
-				$domain_routes[] = $route_name[0];
+				$route_name      = array_keys( (array) $route );
+				$domain_routes[] = reset( $route_name );
 			}
 		}
 
@@ -103,7 +104,7 @@ class Config_Helper {
 	 * @return array
 	 */
 	public static function get_xmlrpc_routes() {
-		$xmlrpc_routes = array();
+		$xmlrpc_routes = [];
 		if ( ! empty( Config::$xmlrpc_routes ) ) {
 			$xmlrpc_routes = Config::$xmlrpc_routes;
 		}
@@ -123,11 +124,47 @@ class Config_Helper {
 	 */
 	public static function get_posts_routes() {
 		// Fetch the posts and the custom post types.
-		$allowed_types        = apply_filters( 'pmc_custom_post_types_to_import', array() );
+		$allowed_types        = apply_filters( 'pmc_custom_post_types_to_import', [] );
 		$allowed_custom_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-		$route_post_types     = array_unique( $allowed_custom_types );
+		return array_unique( (array) $allowed_custom_types );
 
-		return $route_post_types;
+	}
+
+	/**
+	 * Method to compare two arrays and return an array with the values of second array updated with values of corresponding keys of first array.
+	 * Any key in $args which does not exist in $defaults would be discarded.
+	 *
+	 * @since 2018-01-24 Amit Gupta
+	 *
+	 * @param array $args An array of arguments which is to be parsed
+	 * @param array $defaults An array of default arguments which are to be updated with values of corresponding keys in $args
+	 *
+	 * @return array
+	 */
+	public static function parse_whitelisted_args( array $args, array $defaults = [] ) {
+
+		if ( empty( $defaults ) ) {
+			return [];
+		}
+
+		$updated_args = $defaults; //lets use defaults as starting point
+
+		$whitelisted_keys = array_keys( (array) $defaults );
+
+		for ( $i = 0; $i < count( $whitelisted_keys ); $i++ ) {
+
+			$key = $whitelisted_keys[ $i ];
+
+			if ( isset( $args[ $key ] ) ) {
+				$updated_args[ $key ] = $args[ $key ];
+			}
+
+			unset( $key );
+
+		}
+
+		return $updated_args;
+
 	}
 
 	/**
@@ -136,35 +173,85 @@ class Config_Helper {
 	 *
 	 * @param string $path template path for include
 	 * @param array $variables Array containing variables and data for template
-	 * @param bool $echo - whether to echo or return the contents of the template file
+	 * @param boolean $echo Set this to TRUE if the template output is to be sent to browser. Default is FALSE.
+	 * @param array $options An array of additional options
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws \ErrorException
+	 * @throws \ErrorException
 	 *
 	 * @since 2013-01-24 mjohnson
+	 * @version 2017-09-21 Amit Gupta - added 3rd parameter to allow the method to output template instead of returning HTML
+	 * @version 2018-01-24 Amit Gupta - added 4th parameter to specify options and added search and loading of templates from parent theme if not in current theme
+	 *
 	 */
-	public static function render_template( $path, array $variables = array(), $echo = false ) {
-		if ( ! file_exists( $path ) ) {
-			throw new \Exception( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
+	public static function render_template( $path, array $variables = [], $echo = false, array $options = [] ) {
 
-			return;
+		/*
+		 * Parse the options with the whitelist so that only
+		 * the whitelisted options remain in the array and
+		 * missing options are added with default values.
+		 * Any options not defined in defaults here would be
+		 * discarded. This is an inclusive behaviour which
+		 * wp_parse_args() does not support.
+		 */
+		$options = static::parse_whitelisted_args( $options, [
+			'is_relative_path' => false,
+		] );
+
+		// Set options into individual vars
+		$is_relative_path = ( true === $options['is_relative_path'] );
+
+		if ( true !== $is_relative_path && ( ! file_exists( $path ) || 0 !== validate_file( $path ) ) ) {
+
+			/*
+			 * Invalid template path
+			 * Throw an exception if current env is not production
+			 * else silently bail out on production
+			 */
+			throw new \ErrorException( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
+
+		}
+
+		/*
+		 * If relative path to template has been passed then
+		 * we will look for template in child theme and parent theme
+		 */
+		if ( true === $is_relative_path ) {
+
+			$template_path = locate_template( [ static::unleadingslashit( $path ) ], false );
+
+			if ( empty( $template_path ) ) {
+
+				/*
+				 * Can't find template in child theme & parent theme
+				 * Throw an exception if current env is not production
+				 * else silently bail out on production
+				 */
+				throw new \ErrorException( sprintf( 'Template %s doesn\'t exist', basename( $path ) ) );
+
+			}
+
+			$path = $template_path;
+
+			unset( $template_path );
+
 		}
 
 		if ( ! empty( $variables ) ) {
-			extract( $variables, EXTR_SKIP );
+			extract( $variables, EXTR_SKIP ); // @codingStandardsIgnoreLine
+		}
+
+		if ( true === $echo ) {
+			// load template and output the data
+			require $path;  // @codingStandardsIgnoreLine
+			return ''; //job done, bail out
 		}
 
 		ob_start();
+		require $path;  // @codingStandardsIgnoreLine load template output in buffer
+		return ob_get_clean();
 
-		require $path;    //better to fail with an error than to continue with incorrect/wierd data
-
-		$output = ob_get_clean();
-
-		if ( true !== $echo ) {
-			return $output;
-		}
-
-		echo $output;    // Output escaped in template
 	}
 
 	/**
@@ -215,7 +302,7 @@ class Config_Helper {
 
 		$temp = array();
 		foreach ( $array as $elt ) {
-			$elt    = str_replace( '"', "", $elt );
+			$elt    = str_replace( '"', '', $elt );
 			$temp[] = '"' . addslashes( $elt ) . '"';
 		}
 		$string = implode( ',', $temp ) . "\n";

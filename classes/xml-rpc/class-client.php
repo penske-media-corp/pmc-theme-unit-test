@@ -11,8 +11,8 @@ class Client extends \WP_HTTP_IXR_Client {
 
 	protected $username = '';
 	protected $password = '';
-	protected $blog_id = 0;
-	public $cache_key = '';
+	protected $blog_id  = 0;
+	public $cache_key   = '';
 	public $error;
 
 	/**
@@ -54,7 +54,7 @@ class Client extends \WP_HTTP_IXR_Client {
 
 		// Set a basic cache key to use with all of our requests -- devs should override this
 		unset( $xmlrpc_args['password'] );
-		$this->cache_key = md5( __FILE__ . serialize( $xmlrpc_args ) );
+		$this->cache_key = md5( __FILE__ . serialize( $xmlrpc_args ) ); // @codingStandardsIgnoreLine
 
 		parent::__construct( $xmlrpc_args['server'], $xmlrpc_args['path'], $xmlrpc_args['port'], $xmlrpc_args['timeout'] );
 		// bypass default element limit of 30000
@@ -70,7 +70,8 @@ class Client extends \WP_HTTP_IXR_Client {
 	 * @return mixed
 	 */
 	public function send_request( $method, $args ) {
-		if ( $response = $this->query( $method, $args ) ) {
+		$response = $this->query( $method, $args );
+		if ( $response ) {
 			$response = $this->message->params[0];
 		}
 
@@ -119,7 +120,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	public function get_taxonomies( $filter = array() ) {
 
 		$args       = array();
-		$cache_key  = md5( $this->cache_key . serialize( $args ) );
+		$cache_key  = md5( $this->cache_key . serialize( $args ) ); // @codingStandardsIgnoreLine
 		$taxonomies = get_transient( $cache_key );
 		if ( empty( $taxonomies ) ) {
 			$taxonomies = $this->send_request( 'wp.getTaxonomies', $args );
@@ -127,10 +128,7 @@ class Client extends \WP_HTTP_IXR_Client {
 				// not using cache
 				set_transient( $cache_key, $taxonomies, 300 );
 			}
-		} else {
-			// using cache
 		}
-
 		return $taxonomies;
 	}
 
@@ -147,7 +145,7 @@ class Client extends \WP_HTTP_IXR_Client {
 	public function get_taxonomy( $taxonomy ) {
 
 		$args      = array( $taxonomy );
-		$cache_key = md5( $this->cache_key . serialize( $args ) );
+		$cache_key = md5( $this->cache_key . serialize( $args ) ); // @codingStandardsIgnoreLine
 		$taxonomy  = get_transient( $cache_key );
 		if ( empty( $taxonomy ) ) {
 			$taxonomy = $this->send_request( 'wp.getTaxonomy', $args );
@@ -155,10 +153,7 @@ class Client extends \WP_HTTP_IXR_Client {
 				// not using cache
 				set_transient( $cache_key, $taxonomy, 300 );
 			}
-		} else {
-			// using cache
 		}
-
 		return $taxonomy;
 	}
 
@@ -179,7 +174,7 @@ class Client extends \WP_HTTP_IXR_Client {
 			$taxonomies,
 			$filter,
 		);
-		$cache_key = md5( $this->cache_key . serialize( $args ) );
+		$cache_key = md5( $this->cache_key . serialize( $args ) );  // @codingStandardsIgnoreLine
 		$terms     = get_transient( $cache_key );
 		if ( empty( $terms ) ) {
 			$terms = $this->send_request( 'wp.getTerms', $args );
@@ -187,11 +182,10 @@ class Client extends \WP_HTTP_IXR_Client {
 				// not using cache
 				set_transient( $cache_key, $terms, 300 );
 			}
-		} else {
-			// using cache
 		}
 
 		return $terms;
+
 	}
 
 	/**
@@ -211,7 +205,7 @@ class Client extends \WP_HTTP_IXR_Client {
 			$taxonomy,
 			$term,
 		);
-		$cache_key = md5( $this->cache_key . serialize( $args ) );
+		$cache_key = md5( $this->cache_key . serialize( $args ) ); // @codingStandardsIgnoreLine
 		$term      = get_transient( $cache_key );
 		if ( empty( $term ) ) {
 			$term = $this->send_request( 'wp.getTerm', $args );
@@ -219,8 +213,6 @@ class Client extends \WP_HTTP_IXR_Client {
 				// not using cache
 				set_transient( $cache_key, $term, 300 );
 			}
-		} else {
-			// using cache
 		}
 
 		return $term;
@@ -280,8 +272,6 @@ class Client extends \WP_HTTP_IXR_Client {
 					set_transient( $cache_key, $options, 300 );
 				}
 			}
-		} else {
-			// using cache
 		}
 
 		return $options;
@@ -313,8 +303,6 @@ class Client extends \WP_HTTP_IXR_Client {
 				// not using cache
 				set_transient( $cache_key, $post_meta, 300 );
 			}
-		} else {
-			// using cache
 		}
 
 		return $post_meta;
@@ -337,7 +325,7 @@ class Client extends \WP_HTTP_IXR_Client {
 		$status = $this->send_request( 'system.listMethods', $args );
 
 		if ( is_array( $status ) ) {
-			$key = array_search( $method_name, $status );
+			$key = array_search( $method_name, (array) $status, true );
 			if ( $key ) {
 				return true;
 			}
@@ -346,4 +334,3 @@ class Client extends \WP_HTTP_IXR_Client {
 		return false;
 	}
 }
-

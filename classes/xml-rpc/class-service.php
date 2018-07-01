@@ -52,9 +52,9 @@ class Service {
 	 */
 	public function filter_pmc_xmlrpc_client_credentials( $xmlrpc_args ) {
 
-		$domain          = get_option( Config::api_domain );
-		$xmlrpc_username = get_option( Config::api_xmlrpc_username );
-		$xmlrpc_password = get_option( Config::api_xmlrpc_password );
+		$domain          = get_option( Config::API_DOMAIN );
+		$xmlrpc_username = get_option( Config::API_XMLRPC_USERNAME );
+		$xmlrpc_password = get_option( Config::API_XMLRPC_PASSWORD );
 
 		if ( empty( $domain ) || empty( $xmlrpc_username ) || empty( $xmlrpc_password ) ) {
 			return $xmlrpc_args;
@@ -108,15 +108,15 @@ class Service {
 
 			switch ( $route ) {
 
-				case 'taxonomies' :
+				case 'taxonomies':
 					$xmlrpc_data = $this->_call_taxonomies_route();
 					break;
 
-				case 'options' :
+				case 'options':
 					$xmlrpc_data = $this->_call_options_route();
 					break;
 
-				case 'posts' :
+				case 'posts':
 					if ( ! empty( $params['post_id'] ) ) {
 						$xmlrpc_data[] = $this->_call_posts_route( $params['post_id'] );
 					}
@@ -166,7 +166,7 @@ class Service {
 			foreach ( $result as $tax ) {
 
 				// Don't fetch terms for category or tag since its already done by REST API.
-				if ( in_array( $tax['name'], Config::$default_taxonomies, true ) ) {
+				if ( in_array( $tax['name'], (array) Config::$default_taxonomies, true ) ) {
 					continue;
 				}
 
@@ -182,7 +182,6 @@ class Service {
 		}
 
 	}
-
 
 	/**
 	 * Call the options route for getting whitelisted options via xmlrpc client.

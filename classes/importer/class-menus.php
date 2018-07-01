@@ -51,7 +51,7 @@ class Menus {
 
 		// if the type is taxonomy make XMLRPC call or else make REST API call for post_type
 		switch ( $type_family ) {
-			case 'taxonomy' :
+			case 'taxonomy':
 				$menu_item_object_id = Service::get_instance()->get_taxonomy_term_by_id( $type, $content_id );
 				break;
 			case 'post_type':
@@ -65,7 +65,7 @@ class Menus {
 		if ( is_wp_error( $menu_item_object_id ) ) {
 			$menu_log_data['error_message'] = $menu_item_object_id->get_error_message();
 			$menu_item_object_id            = 0;
-		} else if ( ! is_int( intval( $menu_item_object_id ) ) ) {
+		} elseif ( ! is_int( intval( $menu_item_object_id ) ) ) {
 			$menu_log_data['error_message'] = ' -- Failed to import menu item ' . $content_id;
 			$menu_item_object_id            = 0;
 		} else {
@@ -130,11 +130,10 @@ class Menus {
 				}
 
 				if ( 'taxonomy' === $menu_item['type_family'] ) {
-					$url = wpcom_vip_get_term_link( $type_id, $menu_item['type'] );
-				} else if ( 'post_type' === $menu_item['type_family'] ) {
+					$url = get_term_link( $type_id, $menu_item['type'] );
+				} elseif ( 'post_type' === $menu_item['type_family'] ) {
 					$url = get_permalink( $type_id );
 				}
-
 			} else {
 				$url     = $menu_item['url'];
 				$type_id = 0;
@@ -170,7 +169,7 @@ class Menus {
 				}
 				if ( ! empty( $menu_item['items'] ) ) {
 					foreach ( $menu_item['items'] as $menu_child_item ) {
-						//$this->_save_menu_item( $menu_item_db_id, $menu_child_item );
+						$this->_save_menu_item( $menu_item_db_id, $menu_child_item );
 					}
 				}
 				$menu_log_data['error_message'] = '';
@@ -238,7 +237,6 @@ class Menus {
 
 				return false;
 			}
-
 
 			if ( ! empty( $menu_data['items'] ) ) {
 				foreach ( $menu_data['items'] as $menu_item ) {
@@ -341,7 +339,7 @@ class Menus {
 
 				return $pages;
 
-			} else if ( empty( $pages ) ) {
+			} elseif ( empty( $pages ) ) {
 
 				$post_data['error_message'] = ' Failed to attach menu to post_type ' . $type . ' object with id - ' . $post_id;
 				$status->save_current_log( self::LOG_NAME, array( 0 => $post_data ) );

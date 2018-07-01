@@ -12,12 +12,12 @@ class Login {
 	use Singleton;
 
 	protected $_credentials_args = [
-		Config::api_domain,
-		Config::api_client_id,
-		Config::api_client_secret,
-		Config::api_redirect_uri,
-		Config::api_xmlrpc_username,
-		Config::api_xmlrpc_password,
+		Config::API_DOMAIN,
+		Config::API_CLIENT_ID,
+		Config::API_CLIENT_SECRET,
+		Config::API_REDIRECT_URI,
+		Config::API_XMLRPC_USERNAME,
+		Config::API_XMLRPC_PASSWORD,
 	];
 
 	/**
@@ -55,14 +55,14 @@ class Login {
 	 * @version 2016-07-21 Archana Mandhare PMCVIP-1950
 	 */
 	function add_admin_menu() {
-		add_menu_page( 'Import Production Data', 'Import Production Data', 'publish_posts', 'pmc_theme_unit_test', array(
+		add_menu_page( 'Import Production Data', 'Import Production Data', 'publish_posts', 'pmc_theme_unit_test', [
 			$this,
 			'import_options'
-		) );
-		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', array(
+		] );
+		add_submenu_page( 'pmc_theme_unit_test', 'Login', 'Login', 'publish_posts', 'content-login', [
 			$this,
 			'login_options'
-		) );
+		] );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Login {
 	 */
 	public function import_options() {
 
-		$saved_access_token = get_option( Config::access_token_key );
+		$saved_access_token = get_option( Config::ACCESS_TOKEN_KEY );
 
 		// If we have access token saved then show the import page else show the login form
 		if ( ! empty( $saved_access_token ) ) {
@@ -100,15 +100,13 @@ class Login {
 	function login_options() {
 
 		if ( ! current_user_can( 'publish_posts' ) ) {
-
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.' ) );
-
 		}
 
-		$args           = array();
-		$show_form      = get_option( Config::show_form );
+		$args      = array();
+		$show_form = get_option( Config::SHOW_FORM );
+		$code      = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
 
-		$code = filter_input( INPUT_GET, 'code', FILTER_DEFAULT );
 		if ( ! empty( $code ) ) {
 			$token_created = O_Auth::get_instance()->fetch_access_token( $code );
 		}
@@ -119,21 +117,19 @@ class Login {
 		);
 
 		$change_credentials = filter_input( INPUT_GET, 'change' );
-		$saved_access_token = get_option( Config::access_token_key );
-
-		$is_valid_token = O_Auth::get_instance()->is_valid_token();
-
+		$saved_access_token = get_option( Config::ACCESS_TOKEN_KEY );
+		$is_valid_token     = O_Auth::get_instance()->is_valid_token();
 
 		if ( 1 === intval( $show_form ) || ( empty( $saved_access_token ) || ! $is_valid_token || ! empty( $change_credentials ) ) ) {
 
 			// get the credential details
 			$creds_details = $this->_get_auth_details();
 
-			if ( is_array( $creds_details ) && ! empty( $creds_details[ Config::api_client_id ] ) && ! empty( $creds_details[ Config::api_redirect_uri ] ) ) {
+			if ( is_array( $creds_details ) && ! empty( $creds_details[ Config::API_CLIENT_ID ] ) && ! empty( $creds_details[ Config::API_REDIRECT_URI ] ) ) {
 
 				$auth_args = array_merge( $auth_args, array(
-					Config::api_client_id    => $creds_details[ Config::api_client_id ],
-					Config::api_redirect_uri => $creds_details[ Config::api_redirect_uri ],
+					Config::api_client_id    => $creds_details[ Config::API_CLIENT_ID ],
+					Config::API_REDIRECT_URI => $creds_details[ Config::API_REDIRECT_URI ],
 				) );
 
 			}
@@ -179,7 +175,7 @@ class Login {
 		$details_in_db = true;
 
 		//fetch details from DB
-		$creds_details = get_option( Config::api_credentials );
+		$creds_details = get_option( Config::API_CREDENTIALS );
 
 		if ( ! empty( $creds_details ) ) {
 			foreach ( $creds_details as $key => $value ) {
@@ -195,12 +191,12 @@ class Login {
 		}
 
 		// Is there any filter that has the credentials.
-		$credentials = apply_filters( 'pmc-theme-unit-test-default-credentials', false );
+		$credentials = apply_filters( 'pmc_theme_unit_test_default_credentials', false );
 		if ( ! empty( $credentials ) ) {
-			$creds_details[ Config::api_domain ] = $credentials['domain'];
-		    $creds_details[ Config::api_client_id ] = $credentials['client_id'];
-		    $creds_details[ Config::api_client_secret ] = $credentials['client_secret'];
-			$creds_details[ Config::api_redirect_uri ] = $credentials['redirect_uri'];
+			$creds_details[ Config::API_DOMAIN ]        = $credentials['domain'];
+			$creds_details[ Config::API_CLIENT_ID ]     = $credentials['client_id'];
+			$creds_details[ Config::API_CLIENT_SECRET ] = $credentials['client_secret'];
+			$creds_details[ Config::API_REDIRECT_URI ]  = $credentials['redirect_uri'];
 
 			return $creds_details;
 		}
@@ -261,19 +257,18 @@ class Login {
 	 */
 	public function pmc_domain_creds_sanitize_callback() {
 
-		$creds_details[ Config::api_domain ]          = filter_input( INPUT_POST, Config::api_domain );
-		$creds_details[ Config::api_client_id ]       = filter_input( INPUT_POST, Config::api_client_id );
-		$creds_details[ Config::api_client_secret ]   = filter_input( INPUT_POST, Config::api_client_secret );
-		$creds_details[ Config::api_redirect_uri ]    = filter_input( INPUT_POST, Config::api_redirect_uri );
-		$creds_details[ Config::api_xmlrpc_username ] = filter_input( INPUT_POST, Config::api_xmlrpc_username );
-		$creds_details[ Config::api_xmlrpc_password ] = filter_input( INPUT_POST, Config::api_xmlrpc_password );
+		$creds_details[ Config::API_DOMAIN ]          = filter_input( INPUT_POST, Config::API_DOMAIN );
+		$creds_details[ Config::API_CLIENT_ID ]       = filter_input( INPUT_POST, Config::API_CLIENT_ID );
+		$creds_details[ Config::API_CLIENT_SECRET ]   = filter_input( INPUT_POST, Config::API_CLIENT_SECRET );
+		$creds_details[ Config::API_REDIRECT_URI ]    = filter_input( INPUT_POST, Config::API_REDIRECT_URI );
+		$creds_details[ Config::API_XMLRPC_USERNAME ] = filter_input( INPUT_POST, Config::API_XMLRPC_USERNAME );
+		$creds_details[ Config::API_XMLRPC_PASSWORD ] = filter_input( INPUT_POST, Config::API_XMLRPC_PASSWORD );
 
 		$is_saved = $this->save_credentials_to_db( $creds_details );
 
 		if ( $is_saved ) {
-			wp_redirect( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
+			wp_safe_redirect( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
 			exit;
-
 		}
 	}
 
@@ -287,16 +282,15 @@ class Login {
 	public function save_credentials_to_db( $creds_details = array(), $doing_cli = false ) {
 
 		$call_api      = false;
-		$creds_details = array_map( 'wp_unslash', $creds_details );
-		$creds_details = array_map( 'sanitize_text_field', $creds_details );
-		$access_token  = get_option( Config::access_token_key );
-		$domain = get_option( Config::api_domain );
+		$creds_details = array_map( 'wp_unslash', (array) $creds_details );
+		$creds_details = array_map( 'sanitize_text_field', (array) $creds_details );
+		$access_token  = get_option( Config::ACCESS_TOKEN_KEY );
+		$domain        = get_option( Config::API_DOMAIN );
 
-		if ( empty( $creds_details[ Config::api_domain ] )
-		     || empty( $creds_details[ Config::api_client_id ] )
-		     || empty( $creds_details[ Config::api_client_secret ] )
-		     || empty( $creds_details[ Config::api_redirect_uri ] )
-		) {
+		if ( empty( $creds_details[ Config::API_DOMAIN ] )
+		|| empty( $creds_details[ Config::API_CLIENT_ID ] )
+		|| empty( $creds_details[ Config::API_CLIENT_SECRET ] )
+		|| empty( $creds_details[ Config::API_REDIRECT_URI ] ) ) {
 			return false;
 		}
 
@@ -308,7 +302,7 @@ class Login {
 				}
 			}
 
-			update_option( Config::api_credentials, $creds_details );
+			update_option( Config::API_CREDENTIALS, $creds_details );
 			$call_api = true;
 		}
 
@@ -332,29 +326,29 @@ class Login {
 	 */
 	public function read_credentials_from_json_file( $credentials_file ) {
 
-		$contents    = file_get_contents( $credentials_file );
+		$contents    = wpcom_vip_file_get_contents( $credentials_file );
 		$json        = json_decode( $contents, true );
 		$rest_auth   = true;
 		$xmlrpc_auth = true;
 
 		foreach ( $json as $key => $value ) {
 
-			$creds_details = array_map( 'wp_unslash', $value );
-			$creds_details = array_map( 'sanitize_text_field', $creds_details );
+			$creds_details = array_map( 'wp_unslash', (array) $value );
+			$creds_details = array_map( 'sanitize_text_field', (array) $creds_details );
 
 			if ( 'rest-api' === $key ) {
 
-				if ( empty( $creds_details[ Config::api_domain ] )
-				     || empty( $creds_details[ Config::api_client_id ] )
-				     || empty( $creds_details[ Config::api_client_secret ] )
-				     || empty( $creds_details[ Config::api_redirect_uri ] ) ) {
+				if ( empty( $creds_details[ Config::API_DOMAIN ] )
+				|| empty( $creds_details[ Config::API_CLIENT_ID ] )
+				|| empty( $creds_details[ Config::API_CLIENT_SECRET ] )
+				|| empty( $creds_details[ Config::API_REDIRECT_URI ] ) ) {
 					$rest_auth = false;
 				}
 			}
 
 			if ( 'xmlrpc' === $key ) {
 
-				if ( empty( $creds_details[ Config::api_xmlrpc_username ] ) || empty( $creds_details[ Config::api_xmlrpc_password ] ) ) {
+				if ( empty( $creds_details[ Config::API_XMLRPC_USERNAME ] ) || empty( $creds_details[ Config::API_XMLRPC_PASSWORD ] ) ) {
 					$xmlrpc_auth = false;
 				}
 			}

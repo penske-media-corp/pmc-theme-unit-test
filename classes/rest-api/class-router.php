@@ -93,7 +93,7 @@ class Router {
 	 * @since 2015-07-06
 	 * @version 2015-07-06 Archana Mandhare PPT-5077
 	 *
-	 * @params string $route it is the endpoint name - e.g users, menu, categories, tags etc
+	 * @param string $route it is the endpoint name - e.g users, menu, categories, tags etc
 	 *
 	 * @return array of entity IDs that got saved.
 	 */
@@ -125,13 +125,17 @@ class Router {
 	 * @since 2015-08-12
 	 * @version 2015-08-12 Archana Mandhare PPT-5077
 	 *
-	 * @params string $route it is post_type for the post endpoint
+	 * @param string $route it is post_type for the post endpoint
 	 *
 	 * @return array of entity IDs that got saved.
 	 *
 	 */
 	public function call_rest_api_posts_route( $route ) {
-		return $this->_access_endpoint( 'posts', array( 'type' => $route, 'number' => Config::post_count ), 'posts' );
+		$query_params = [
+			'type'   => $route,
+			'number' => Config::POST_COUNT,
+		];
+		return $this->_access_endpoint( 'posts', $query_params, 'posts' );
 	}
 
 
@@ -144,7 +148,7 @@ class Router {
 	 * @since 2015-11-30
 	 * @version 2015-11-30 Archana Mandhare - PMCVIP-177
 	 *
-	 * @params string $post_ids the array of post_ids to pull data for
+	 * @param string $post_ids the array of post_ids to pull data for
 	 *
 	 * @return array of entity IDs that got saved.
 	 *

@@ -4,7 +4,6 @@ namespace PMC\Theme_Unit_Test\Settings;
 
 class Config {
 
-
 	const REST_BASE_URL = 'https://public-api.wordpress.com/rest/v1.1/sites/';
 
 	const REQUEST_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token';
@@ -17,18 +16,29 @@ class Config {
 
 	const COOKIE_DOMAIN = '.vip.local';
 
-	const access_token_key = 'rest_api_access_token';
-	const api_domain = 'api_domain';
-	const api_client_id = 'api_client_id';
-	const api_client_secret = 'api_client_secret';
-	const api_redirect_uri = 'api_redirect_uri';
-	const api_xmlrpc_username = 'api_xmlrpc_username';
-	const api_xmlrpc_password = 'api_xmlrpc_password';
-	const show_form = 'show_data_import_form';
-	const import_log = 'import_log_post_id';
-	const api_credentials = 'api_credentials';
-	const post_count = 10;
-	const attachment_count = 2;
+	const ACCESS_TOKEN_KEY = 'rest_api_access_token';
+
+	const API_DOMAIN = 'api_domain';
+
+	const API_CLIENT_ID = 'api_client_id';
+
+	const API_CLIENT_SECRET = 'api_client_secret';
+
+	const API_REDIRECT_URI = 'api_redirect_uri';
+
+	const API_XMLRPC_USERNAME = 'api_xmlrpc_username';
+
+	const API_XMLRPC_PASSWORD = 'api_xmlrpc_password';
+
+	const SHOW_FORM = 'show_data_import_form';
+
+	const IMPORT_LOG = 'import_log_post_id';
+
+	const API_CREDENTIALS = 'api_credentials';
+
+	const POST_COUNT = 10;
+
+	const ATTACHMENT_COUNT = 2;
 
 	public static $all_routes = array(
 		0 => array(

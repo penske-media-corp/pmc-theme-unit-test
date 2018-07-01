@@ -24,10 +24,10 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$api_credentials = get_option( Config::api_credentials );
-		$client_id       = $api_credentials[ Config::api_client_id ];
-		$client_secret   = $api_credentials[ Config::api_client_secret ];
-		$redirect_uri    = $api_credentials[ Config::api_redirect_uri ];
+		$api_credentials = get_option( Config::API_CREDENTIALS );
+		$client_id       = $api_credentials[ Config::API_CLIENT_ID ];
+		$client_secret   = $api_credentials[ Config::API_CLIENT_SECRET ];
+		$redirect_uri    = $api_credentials[ Config::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
 			$status->log_to_file( 'Admin Settings form input date not saved. Please try saving the credentials again.' );
@@ -69,7 +69,7 @@ class O_Auth {
 				return false;
 			}
 
-			update_option( Config::access_token_key, $auth->access_token );
+			update_option( Config::ACCESS_TOKEN_KEY, $auth->access_token );
 
 			return true;
 
@@ -82,21 +82,24 @@ class O_Auth {
 
 	/**
 	 * Generate the redirect url request for authorization
+	 *
 	 * @param  [type] $redirect_uri The redirect url
+	 *
 	 * @return string The redirect url
 	 */
 	public function get_authorization_redirect( $redirect_uri ) {
 		// to workaround wp security where cookie is useless due to wp oauth redirect trigger browser not passing cookie
-		$url_parts = parse_url( $redirect_uri );
-		if ( !empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
-			if ( !empty( $url_parts['query'] ) ) {
+		$url_parts = wp_parse_url( $redirect_uri );
+		if ( ! empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
+			if ( ! empty( $url_parts['query'] ) ) {
 				$url_parts['query'] = $url_parts['query'] . '&';
 			} else {
 				$url_parts['query'] = '';
 			}
-			$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
-			$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
+			$url_parts['query'] = $url_parts['query'] . 'to=' . rawurlencode( get_admin_url() . 'admin.php?page=pmc_theme_unit_test' );
+			$redirect_uri       = sprintf( '%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
 		}
+
 		return $redirect_uri;
 	}
 
@@ -111,9 +114,9 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$api_credentials = get_option( Config::api_credentials );
-		$client_id       = $api_credentials[ Config::api_client_id ];
-		$redirect_uri    = $api_credentials[ Config::api_redirect_uri ];
+		$api_credentials = get_option( Config::API_CREDENTIALS );
+		$client_id       = $api_credentials[ Config::API_CLIENT_ID ];
+		$redirect_uri    = $api_credentials[ Config::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 			$status->log_to_file( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
@@ -129,7 +132,7 @@ class O_Auth {
 			);
 			$query_param   = http_build_query( $args );
 			$authorize_url = Config::AUTHORIZE_URL . '?' . $query_param;
-			wp_redirect( esc_url_raw( $authorize_url ) );
+			wp_safe_redirect( esc_url_raw( $authorize_url ) );
 			exit;
 		} catch ( \Exception $ex ) {
 			$status->log_to_file( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
@@ -156,7 +159,7 @@ class O_Auth {
 	public function access_endpoint( $route, $query_params = array(), $route_name = '' ) {
 
 		$status = Status::get_instance();
-		$domain = get_option( Config::api_domain );
+		$domain = get_option( Config::API_DOMAIN );
 
 		if ( empty( $domain ) ) {
 			$status->log_to_file( ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name );
@@ -165,7 +168,7 @@ class O_Auth {
 		}
 
 		$route_name         = ! empty( $route_name ) ? $route_name : $route;
-		$saved_access_token = get_option( Config::access_token_key );
+		$saved_access_token = get_option( Config::ACCESS_TOKEN_KEY );
 
 		if ( empty( $saved_access_token ) ) {
 			$status->log_to_file( ' ERROR --  No saved access token. Access denied . -- ' . $route_name );
@@ -208,8 +211,8 @@ class O_Auth {
 				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . ' and api url = ' . $api_url );
 
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
-			} else if ( 200 !== $data['code'] ) {
-				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url );
+			} elseif ( 200 !== $data['code'] ) {
+				$status->log_to_file( 'No Data returned ##### unauthorized_access for route ###### ' . $route_name . wp_json_encode( $data ) . ' and api url = ' . $api_url );
 
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
@@ -264,7 +267,7 @@ class O_Auth {
 		$args               = array(
 			'timeout' => 500,
 		);
-		$saved_access_token = get_option( Config::access_token_key );
+		$saved_access_token = get_option( Config::ACCESS_TOKEN_KEY );
 		if ( ! empty( $saved_access_token ) ) {
 			$args = array(
 				'timeout' => 500,
@@ -309,9 +312,9 @@ class O_Auth {
 
 		$status = Status::get_instance();
 
-		$api_credentials = get_option( Config::api_credentials );
-		$client_id       = $api_credentials[ Config::api_client_id ];
-		$access_token    = $api_credentials[ Config::access_token_key ];
+		$api_credentials = get_option( Config::API_CREDENTIALS );
+		$client_id       = $api_credentials[ Config::API_CLIENT_ID ];
+		$access_token    = $api_credentials[ Config::ACCESS_TOKEN_KEY ];
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;

@@ -10,8 +10,6 @@ use PMC\Theme_Unit_Test\REST_API\Router;
 use PMC\Theme_Unit_Test\Settings\Config_Helper;
 use PMC\Theme_Unit_Test\XML_RPC\Service;
 use PMC\Theme_Unit_Test\Logger\Status;
-use PMC\Theme_Unit_Test\Background\Background_Data_Import;
-
 
 class Import {
 
@@ -94,11 +92,11 @@ class Import {
 	public function on_wp_init() {
 		$this->register_post_types_for_import();
 		$this->register_taxonomies_for_import();
-		setcookie( 'oauth_redirect', get_admin_url() . 'admin.php?page=pmc_theme_unit_test', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN );
-		$this->process_handler();
+		setcookie( 'oauth_redirect', get_admin_url() . 'admin.php?page=pmc_theme_unit_test', time() + 60 * 60 * 24 * 30, '/', Config::COOKIE_DOMAIN ); // @codingStandardsIgnoreLine
+		//$this->process_handler();
 	}
 
-	public function process_handler() {
+	/*public function process_handler() {
 		if ( empty( $this->process ) ) {
 			$this->process = new Background_Data_Import();
 		}
@@ -106,7 +104,7 @@ class Import {
 
 	public function get_background_process() {
 		return $this->process;
-	}
+	}*/
 
 	/**
 	 * Register custom post tyes on init hook as per wordpress codex documentation
@@ -123,30 +121,32 @@ class Import {
 		}
 
 		// register our reporting post type
-		Posts::get_instance()->save_post_type( self::IMPORT_REPORT, array(
-			'labels'           => array(
+		Posts::get_instance()->save_post_type( self::IMPORT_REPORT, [
+			'labels'           => [
 				'name'          => __( 'Import Report' ),
 				'singular_name' => __( 'Import Report' ),
-			),
+			],
 			'capability_type'  => 'post',
 			'public'           => true,
 			'show_ui'          => false,
 			'delete_with_user' => true,
-			'supports'         => array(
+			'supports'         => [
 				'title',
 				'editor',
 				'author',
 				'page-attributes',
 				'custom-fields',
 				'comments',
-				'revisions'
-			),
-			'taxonomies'       => array( 'category', 'post_tag' )
-		) );
+				'revisions',
+			],
+			'taxonomies'       => array( 'category', 'post_tag' ),
+		] );
 
 		$custom_post_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
 		$custom_post_types = apply_filters( 'rest_api_allowed_post_types', $custom_post_types );
-		$custom_post_types = array_unique( $custom_post_types );
+		if ( is_array( $custom_post_types ) ) {
+			$custom_post_types = array_unique( $custom_post_types );
+		}
 		if ( ! empty( $custom_post_types ) ) {
 			foreach ( $custom_post_types as $post_type ) {
 				Posts::get_instance()->save_post_type( $post_type );
@@ -184,15 +184,12 @@ class Import {
 	 */
 	public function form_submit() {
 
-		$types = empty( $_GET['types'] ) ? 0 : absint( $_GET['types'] );
+		$types = empty( $_GET['types'] ) ? 0 : absint( $_GET['types'] ); // @codingStandardsIgnoreLine
 		if ( empty( $types ) ) {
-			$cron_jobs = get_option( 'cron' );
-
-			//var_dump($cron_jobs);
 			return;
 		}
 
-		$log_post = get_option( CONFIG::import_log );
+		$log_post = get_option( CONFIG::IMPORT_LOG );
 
 		if ( empty( $log_post ) ) {
 			// Create a custom post for saving import log report
@@ -205,19 +202,19 @@ class Import {
 				'excerpt'    => 'import',
 				'ID'         => 0,
 				'content'    => 'Import',
-				'title'      => 'IMPORT REPORT ' . date( "Y-m-d H:i:s" ),
-				'date'       => date( "Y-m-d H:i:s" ),
-				'modified'   => date( "Y-m-d H:i:s" ),
+				'title'      => 'IMPORT REPORT ' . date( 'Y-m-d H:i:s' ),
+				'date'       => date( 'Y-m-d H:i:s' ),
+				'modified'   => date( 'Y-m-d H:i:s' ),
 				'sticky'     => false,
 			);
 
-			$log_post = Posts::get_instance()->save_post( $post_json, get_current_user_id(), array(), SELF::IMPORT_REPORT );
+			$log_post = Posts::get_instance()->save_post( $post_json, get_current_user_id(), array(), self::IMPORT_REPORT );
 
 			if ( is_wp_error( $log_post ) ) {
 				return;
 			}
 
-			update_option( CONFIG::import_log, $log_post );
+			update_option( CONFIG::IMPORT_LOG, $log_post );
 
 		} else {
 			Status::get_instance()->clean_log();
@@ -225,10 +222,10 @@ class Import {
 
 		switch ( $types ) {
 			case 1:
-				$this->import_default_items( $_POST );
+				$this->import_default_items( $_POST ); // @codingStandardsIgnoreLine
 				break;
 			case 2:
-				$this->import_custom_items( $_POST );
+				$this->import_custom_items( $_POST ); // @codingStandardsIgnoreLine
 				break;
 			default:
 				break;
@@ -394,7 +391,8 @@ class Import {
 
 		$all_post_types = apply_filters( 'pmc_custom_post_types_to_import', array() );
 		$all_post_types = apply_filters( 'rest_api_allowed_post_types', $all_post_types );
-		$all_post_types = array_unique( $all_post_types );
+		$all_post_types = array_unique( (array) $all_post_types );
+
 		foreach ( $all_post_types as $key => $value ) {
 			if ( ! in_array( $value, array( 'post', 'page', 'attachment' ), true ) ) {
 				$custom_post_types[ $value ] = $value;

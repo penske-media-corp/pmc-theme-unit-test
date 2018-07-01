@@ -29,12 +29,12 @@ tests_add_filter( 'after_setup_theme', function () {
 	// Load required plugins here
 	wpcom_vip_load_plugin( 'pmc-theme-unit-test', 'pmc-plugins' );
 
-	update_option( \PMC\Theme_Unit_Test\Config::api_credentials, [
-		Config::api_domain        => 'vip.tests.com',
-		Config::api_client_id     => '',
-		Config::api_client_secret => '',
-		Config::api_redirect_uri  => '',
-		Config::access_token_key  => ''
+	update_option( \PMC\Theme_Unit_Test\Config::API_CREDENTIALS, [
+		Config::API_DOMAIN        => 'vip.tests.com',
+		Config::API_CLIENT_ID     => '',
+		Config::API_CLIENT_SECRET => '',
+		Config::API_REDIRECT_URI  => '',
+		Config::ACCESS_TOKEN_KEY  => ''
 	] );
 
 } );

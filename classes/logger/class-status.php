@@ -28,9 +28,9 @@ class Status {
 	 *
 	 */
 	public function log_to_file( $message ) {
-		if ( ! empty ( $message ) ) {
+		if ( ! empty( $message ) ) {
 			$time = date( '[d/M/Y:H:i:s]' );
-			error_log( $time . ', ' . $message . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE );
+			error_log( $time . ', ' . $message . PHP_EOL, 3, PMC_THEME_UNIT_TEST_ERROR_LOG_FILE ); // @codingStandardsIgnoreLine
 		}
 	}
 
@@ -103,7 +103,7 @@ class Status {
 	 */
 	public function get_current_log_post() {
 
-		$post_id = get_option( Config::import_log );
+		$post_id = get_option( Config::IMPORT_LOG );
 
 		if ( empty( $post_id ) ) {
 			return false;
@@ -123,7 +123,7 @@ class Status {
 	 */
 	public function clean_log() {
 
-		$post_id = get_option( Config::import_log );
+		$post_id = get_option( Config::IMPORT_LOG );
 
 		$meta = $this->get_current_log();
 
