@@ -1,7 +1,15 @@
 PMC Theme Unit Test v1.0 Alpha
 ---------------------------------
 
-[![Build Status](https://travis-ci.org/Penske-Media-Corp/pmc-theme-unit-test.svg?branch=master)](https://travis-ci.org/Penske-Media-Corp/pmc-theme-unit-test)
+## ⚠️ Status ⚠️
+
+This repository isn't maintained and its code isn't used any longer. In its 
+place, we've created a WP-CLI command that processes a full database backup into 
+a smaller copy that's suitable for use locally.
+
+Find the WP-CLI command here: https://github.com/penske-media-corp/pmc-wp-local-data-cli.
+
+## Introduction
 
 WordPress plugin that provides a Theme Menu Option to Unit Test data by importing just enough data from production server and creating a local or test environment.
 
@@ -98,6 +106,3 @@ The plugin is basically a data import tool that makes use of [WordPress Public R
 								}
 							
 							} );```
-
-
-
